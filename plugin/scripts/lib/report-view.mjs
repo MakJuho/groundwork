@@ -14,11 +14,25 @@ a{color:var(--accent)}
 .top{position:sticky;top:0;z-index:20}
 .top .home-link{color:inherit;text-decoration:none}
 .layout{display:grid;grid-template-columns:250px minmax(0,1fr);min-height:calc(100vh - 47px)}
-nav{border-right:1px solid var(--line);background:var(--card);padding:6px 10px 40px;position:sticky;top:47px;height:calc(100vh - 47px);overflow:auto;font-size:14px}
-nav h2{margin:18px 10px 4px;font-size:11.5px;font-weight:700;color:var(--faint);letter-spacing:.06em}
+nav{border-right:1px solid var(--line);background:var(--card);padding:6px 10px 40px;position:sticky;top:47px;height:calc(100vh - 47px);overflow:auto;font-size:14px;display:flex;flex-direction:column}
+nav h2,nav summary{margin:14px 0 6px;padding:14px 10px 0;border-top:1px solid var(--line);font-size:15.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
 nav a{display:block;padding:5px 10px;border-radius:7px;color:var(--ink);text-decoration:none;line-height:1.4}
 nav a:hover{background:var(--grid-head)}
 nav a.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav select{margin:12px 10px 4px;font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.no-js #nav-mod{display:none}
+nav summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none}
+nav summary::-webkit-details-marker{display:none}
+nav summary::after{content:'';width:8px;height:8px;margin-right:4px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .15s}
+nav details[open] > summary::after{transform:rotate(45deg) translate(-2px,-2px)}
+nav summary:hover::after{border-color:var(--accent)}
+nav .nav-mod.off .mod-name{color:var(--faint)}
+nav .mod-docs a{padding-left:22px}
+.js nav .mod-docs{display:none}
+.js nav .nav-mod.cur .mod-docs{display:block}
+.js nav.in-mod .nav-mod:not(.cur),.js nav.in-mod .nav-mods > summary,.js nav.in-mod .nav-group{display:none}
+.js nav.in-mod .nav-start{order:1}
+.js nav.in-mod .nav-mod.cur .mod-name{font-size:18px;font-weight:700;margin-top:8px}
 main{min-width:0;padding:28px 40px 80px}
 main > section{max-width:1180px}
 .js main > section{display:none}
@@ -29,10 +43,6 @@ main > section{max-width:1180px}
 .eyebrow{margin:0;color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.05em}
 .hero h1{font-size:34px;margin:4px 0 6px;letter-spacing:-.02em}
 .lead{margin:0 0 18px;color:var(--muted);max-width:760px}
-.qs{display:flex;gap:8px;max-width:760px}
-.qs input{flex:1;font:inherit;font-size:16px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
-.qs input:focus{outline:2px solid var(--accent);outline-offset:-1px}
-.qs button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:0 20px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0 8px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
 .stat b{display:block;font-size:28px;line-height:1.1;letter-spacing:-.02em}
@@ -43,6 +53,8 @@ main > section{max-width:1180px}
 .mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
 .mcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
 .mcard:hover{border-color:var(--accent-line)}
+.mcard.off{display:block;text-decoration:none;color:var(--ink);background:var(--grid-head);box-shadow:none}
+.mcard.off h3,.mcard.off p{color:var(--muted)}
 .mcard h3{margin:0;font-size:18px}
 .mcard p{margin:6px 0 10px;color:var(--muted);font-size:14px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -63,7 +75,8 @@ main > section{max-width:1180px}
 .group a:hover{color:var(--accent)}
 .doc-grid{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:40px;align-items:start}
 .doc-body{min-width:0}
-.doc-body h1,#overview > h2,#rules > h2,#conflicts > h2{font-size:28px;margin:0 0 6px;letter-spacing:-.02em}
+.doc-body h1,#overview > h2,#rules > h2,#conflicts > h2,main > section[id^="mod-"] > h2{font-size:28px;margin:0 0 6px;letter-spacing:-.02em}
+.stub{color:var(--muted)}
 .doc-body h2{font-size:19px;margin:36px 0 12px;padding-top:14px;border-top:1px solid var(--line)}
 .doc-body h3{font-size:16px;margin:20px 0 8px}
 .doc-body blockquote{margin:0 0 18px;padding:0;border:0;color:var(--faint);font-size:13px}
@@ -166,7 +179,21 @@ iframe.diagram{width:100%;height:520px;border:1px solid var(--line);border-radiu
 export function viewClient() {
   document.documentElement.classList.replace('no-js', 'js');
   const views = [...document.querySelectorAll('main > section')];
-  const navLinks = [...document.querySelectorAll('nav a[href^="#"]')];
+  const navLinks = [...document.querySelectorAll('nav a[href^="#"]:not(.mod-name)')];
+  const nav = document.querySelector('nav');
+  const picker = document.getElementById('nav-mod');
+  const start = document.querySelector('nav .nav-start');
+  const mods = document.querySelector('nav .nav-mods');
+  const modBlocks = [...document.querySelectorAll('nav .nav-mod')];
+  // Inside a module the nav shows that module's documents only and folds 시작하기 (CSS does the hiding).
+  // The open module's block sits inside the module list, so a list the reader folded opens again.
+  function showModule(id) {
+    if (nav) nav.classList.toggle('in-mod', !!id);
+    for (const b of modBlocks) b.classList.toggle('cur', b.dataset.module === id);
+    if (picker) picker.value = id || '';
+    if (start) start.open = !id;
+    if (mods && id) mods.open = true;
+  }
   let rules = [];
   try { rules = JSON.parse(document.getElementById('gw-rules').textContent).rules; } catch { /* no rules */ }
   const ruleById = new Map(rules.map((r) => [r.id, r]));
@@ -281,6 +308,7 @@ export function viewClient() {
     if (!view) { view = document.getElementById('home') || views[0]; target = null; }
     for (const v of views) v.classList.toggle('on', v === view);
     for (const a of navLinks) a.classList.toggle('on', a.getAttribute('href') === '#' + view.id);
+    showModule(view.dataset.module || '');
     if (target && target !== view && !finder) {
       const go = () => target.scrollIntoView({ block: 'start' });
       requestAnimationFrame(go);
@@ -295,5 +323,20 @@ export function viewClient() {
     e.preventDefault();
     const q = document.getElementById('qs-in').value.trim();
     location.hash = q ? 'find=' + encodeURIComponent(q) : 'rules';
+  });
+
+  if (picker) picker.addEventListener('change', () => {
+    const block = modBlocks.find((b) => b.dataset.module === picker.value);
+    const name = block && block.querySelector('.mod-name');
+    location.hash = name ? name.getAttribute('href').slice(1) : 'home';
+  });
+
+  const qsIn = document.getElementById('qs-in');
+  if (qsIn) addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.isComposing && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      qsIn.focus();
+      qsIn.select();
+    }
   });
 }

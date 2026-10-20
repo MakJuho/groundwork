@@ -75,14 +75,14 @@ export function collectDocs(outDir) {
   const names = new Map((moduleMap?.modules ?? []).map((m) => [m.id, m.name]));
   const docs = [];
   if (fs.existsSync(path.join(outDir, 'overview', 'onboarding.md'))) {
-    docs.push({ group: '시작하기', kind: 'onboarding', relPath: 'overview/onboarding.md', moduleId: null, title: '온보딩 가이드' });
+    docs.push({ group: '시작하기', kind: 'onboarding', relPath: 'overview/onboarding.md', moduleId: null, module: null, title: '온보딩 가이드' });
   }
   // changes/<YYYY-MM-DD>-<commit7>.md, newest first: what changed is what readers come back for.
   const changesDir = path.join(outDir, 'changes');
   if (fs.existsSync(changesDir)) {
     for (const name of fs.readdirSync(changesDir).filter((f) => f.endsWith('.md')).sort().reverse()) {
       const m = /^(\d{4}-\d{2}-\d{2})-(.+)\.md$/.exec(name);
-      docs.push({ group: '최근 변경', kind: 'changes', relPath: `changes/${name}`, moduleId: null, title: m ? `${m[1]} (${m[2]})` : name.slice(0, -3) });
+      docs.push({ group: '최근 변경', kind: 'changes', relPath: `changes/${name}`, moduleId: null, module: null, title: m ? `${m[1]} (${m[2]})` : name.slice(0, -3) });
     }
   }
 
@@ -96,12 +96,12 @@ export function collectDocs(outDir) {
     if (!fs.existsSync(abs)) return [];
     return fs.readdirSync(abs).sort().filter((id) => fs.existsSync(path.join(abs, id, file)));
   };
-  for (const id of docIds('policy', 'policy.md')) add(id, { kind: 'policy', relPath: `policy/${id}/policy.md`, moduleId: id, title: '서비스 정책서' });
-  for (const id of docIds('spec', 'spec.md')) add(id, { kind: 'spec', relPath: `spec/${id}/spec.md`, moduleId: id, title: '기술 명세서' });
+  for (const id of docIds('policy', 'policy.md')) add(id, { kind: 'policy', relPath: `policy/${id}/policy.md`, moduleId: id, module: id, title: '서비스 정책서' });
+  for (const id of docIds('spec', 'spec.md')) add(id, { kind: 'spec', relPath: `spec/${id}/spec.md`, moduleId: id, module: id, title: '기술 명세서' });
   const lifecycles = new Map(readDataDir(outDir, 'lifecycles').map((lc) => [lc.id, lc]));
   for (const id of docIds('data', 'data.md')) {
     const lc = lifecycles.get(id);
-    add(lc?.module ?? null, { kind: 'data', relPath: `data/${id}/data.md`, moduleId: null, title: `데이터 · ${lc?.title ?? id}` });
+    add(lc?.module ?? null, { kind: 'data', relPath: `data/${id}/data.md`, moduleId: null, module: lc?.module ?? null, title: `데이터 · ${lc?.title ?? id}` });
   }
   // API flows first, then the screen buttons that play them. A button is named by its label without
   // the screen part ("주문 관리 · 주문 취소" → "주문 취소"): the group already says which module it is.
@@ -110,7 +110,7 @@ export function collectDocs(outDir) {
   for (const id of docIds('flows', 'flow.md').sort((a, b) => isUi(a) - isUi(b))) {
     const f = flows.get(id);
     const title = isUi(id) ? `버튼 · ${String(f.trigger.label ?? f.title).split(' · ').pop()}` : `흐름 · ${f?.title ?? id}`;
-    add(f?.trigger?.module ?? null, { kind: 'flow', relPath: `flows/${id}/flow.md`, moduleId: null, title });
+    add(f?.trigger?.module ?? null, { kind: 'flow', relPath: `flows/${id}/flow.md`, moduleId: null, module: f?.trigger?.module ?? null, title });
   }
 
   const known = [...names.keys()].filter((id) => byModule.has(id));
@@ -120,6 +120,24 @@ export function collectDocs(outDir) {
   }
   for (const doc of byModule.get(null) ?? []) docs.push({ group: '기타', ...doc });
   return docs;
+}
+
+// Every module a reader can pick: module-map order, then module ids that only documents mention.
+// `docs` holds indexes into the collectDocs list (the N of #doc-N); no documents means not analyzed yet.
+export function listModules(moduleMap, docs) {
+  const mapped = (moduleMap?.modules ?? []).map((m) => ({ id: m.id, name: m.name ?? m.id, summary: m.summary ?? '', fileCount: m.fileCount ?? null }));
+  const known = new Set(mapped.map((m) => m.id));
+  const extra = [...new Set(docs.map((d) => d.module).filter((id) => id && !known.has(id)))].sort()
+    .map((id) => ({ id, name: id, summary: '', fileCount: null }));
+  return [...mapped, ...extra].map((m) => ({ ...m, docs: docs.flatMap((d, i) => (d.module === m.id ? [i] : [])) }));
+}
+
+// A module scan found but analyze has not covered yet: what it is and how to analyze it.
+function renderModuleStub(m, outDir) {
+  const files = m.fileCount === null ? '' : `파일 ${m.fileCount}개 · `;
+  return `<section id="mod-${escapeHtml(m.id)}" data-module="${escapeHtml(m.id)}"><p class="group">${escapeHtml(m.name)} · 미분석</p><h2>${escapeHtml(m.name)}</h2>
+${m.summary ? `<p class="lead">${escapeHtml(m.summary)}</p>` : ''}<p class="stub">${files}아직 analyze하지 않은 모듈입니다. 분석하려면 다음 명령을 실행합니다.</p>
+<pre><code>/groundwork:analyze ${escapeHtml(`"${path.resolve(outDir)}"`)} ${escapeHtml(m.id)}</code></pre></section>`;
 }
 
 export function countNeedsReview(outDir) {
@@ -218,13 +236,26 @@ ${unverified.length ? `<h3 class="sh">확인 필요</h3><p class="cfl-note">근�
 </section>`;
 }
 
-// The first screen: what this project is, how big the analysis is, and where to go next.
-function renderHome({ outDir, title, summary, moduleMap, docs, index, needsReview, finder, overview, player, conflicts }) {
+// Open conflicts per module, counted once per conflict: a conflict touches a module when one of its
+// sides cites a rule of that module (buildRuleIndex keeps only open conflicts on rules).
+function openConflictsByModule(index) {
+  const by = new Map();
+  for (const r of index.rules) {
+    for (const id of r.conflicts ?? []) {
+      if (!by.has(r.module)) by.set(r.module, new Set());
+      by.get(r.module).add(id);
+    }
+  }
+  return by;
+}
+
+// The first screen: what this project is, how big the analysis is, and a map of every module.
+function renderHome({ outDir, title, summary, modules, docs, index, needsReview, overview, player, conflicts }) {
   const verify = readJson(path.join(outDir, '_data', 'verify-report.json'));
-  const modules = (moduleMap?.modules ?? []).filter((m) => docs.some((d) => d.group === m.name));
+  const analyzed = modules.filter((m) => m.docs.length);
   const stat = (n, label, cls = '') => `<div class="stat${cls ? ` ${cls}` : ''}"><b>${n}</b><span>${label}</span></div>`;
   const stats = [
-    stat(modules.length, '업무 모듈'),
+    stat(`${analyzed.length} / ${modules.length}`, '분석한 업무 모듈'),
     index.rules.length ? stat(index.rules.length, '업무 규칙') : '',
     conflicts ? stat(conflicts.open.length, '정책 충돌', conflicts.open.length ? 'warn' : 'ok') : '',
     stat(docs.filter((d) => d.kind === 'flow').length, '흐름 문서'),
@@ -233,24 +264,29 @@ function renderHome({ outDir, title, summary, moduleMap, docs, index, needsRevie
   ].join('');
   const anchor = (doc) => `#doc-${docs.indexOf(doc)}`;
   const short = { policy: '정책서', spec: '명세서', data: '데이터' };
+  const conflictsBy = conflicts ? openConflictsByModule(index) : new Map();
   const cards = modules.map((m) => {
-    const own = docs.filter((d) => d.group === m.name);
+    if (!m.docs.length) {
+      const files = m.fileCount === null ? '' : `<span class="chip zero">파일 ${m.fileCount}개</span>`;
+      return `<a class="mcard off" href="#mod-${escapeHtml(m.id)}"><h3>${escapeHtml(m.name)}</h3><p>${escapeHtml(m.summary)}</p><div class="chips"><span class="chip zero">미분석</span>${files}</div></a>`;
+    }
+    const own = m.docs.map((i) => docs[i]);
     const rules = index.rules.filter((r) => r.module === m.id);
     const low = rules.filter((r) => r.confidence === 'low').length;
+    const cfl = conflictsBy.get(m.id)?.size ?? 0;
     const docLinks = own.filter((d) => short[d.kind]).map((d) => `<a href="${anchor(d)}">${escapeHtml(d.kind === 'data' ? d.title : short[d.kind])}</a>`);
     const flowLinks = own.filter((d) => d.kind === 'flow').map((d) => `<a class="sub" href="${anchor(d)}">${escapeHtml(d.title)}</a>`);
-    return `<div class="mcard"><h3>${escapeHtml(m.name)}</h3><p>${escapeHtml(m.summary ?? '')}</p>
-<div class="chips"><span class="chip${rules.length ? '' : ' zero'}">규칙 ${rules.length}</span><span class="chip${flowLinks.length ? '' : ' zero'}">흐름 ${flowLinks.length}</span>${low ? `<span class="chip warn">확인 필요 ${low}</span>` : ''}</div>
+    return `<div class="mcard"><h3>${escapeHtml(m.name)}</h3><p>${escapeHtml(m.summary)}</p>
+<div class="chips"><span class="chip${rules.length ? '' : ' zero'}">규칙 ${rules.length}</span><span class="chip${flowLinks.length ? '' : ' zero'}">흐름 ${flowLinks.length}</span>${cfl ? `<span class="chip warn">충돌 ${cfl}</span>` : ''}${low ? `<span class="chip warn">확인 필요 ${low}</span>` : ''}</div>
 <div class="mlinks">${[...docLinks, ...flowLinks].join('')}</div></div>`;
   }).join('\n');
   const onboarding = docs.find((d) => d.kind === 'onboarding');
   const start = [
     onboarding ? `<a class="scard" href="${anchor(onboarding)}"><b>온보딩 가이드</b><span>한 장 요약, 처음 읽을 파일, 실행 방법</span></a>` : '',
     overview ? '<a class="scard" href="#overview"><b>구조도</b><span>화면 → 모듈 → DB, 모듈 의존 관계</span></a>' : '',
-    player ? '<a class="scard" href="player.html"><b>▶ 데이터 흐름 플레이어</b><span>화면 버튼을 누르면 코드가 단계별로 재생</span></a>' : '',
+    player ? '<a class="scard" href="player.html"><b>데이터 흐름 플레이어</b><span>화면 버튼을 누르면 코드가 단계별로 재생</span></a>' : '',
   ].join('');
-  const search = finder ? '<form class="qs" id="qs"><input type="search" id="qs-in" placeholder="파일:줄, 화면.버튼, API 경로, 테이블, 업무 용어로 규칙 찾기" autocomplete="off" aria-label="규칙 찾기"><button>찾기</button></form>' : '';
-  return `<section id="home"><div class="hero"><p class="eyebrow">분석 리포트</p><h1>${escapeHtml(title)}</h1><p class="lead">${escapeHtml(summary)}</p>${search}</div>
+  return `<section id="home"><div class="hero"><p class="eyebrow">분석 리포트</p><h1>${escapeHtml(title)}</h1><p class="lead">${escapeHtml(summary)}</p></div>
 <div class="stats">${stats}</div>
 ${conflicts ? renderConflictCard(conflicts) : ''}
 ${cards ? `<h2 class="sh">업무 모듈</h2><div class="mgrid">${cards}</div>` : ''}
@@ -270,6 +306,7 @@ export function buildReport(outDir) {
   const summary = moduleMap?.project?.summary ?? '';
   const docs = collectDocs(outDir);
   const needsReview = countNeedsReview(outDir);
+  const modules = listModules(moduleMap, docs);
 
   const overviewDiagrams = ['architecture', 'dependency']
     .filter((name) => fs.existsSync(path.join(outDir, 'overview', `${name}.html`)))
@@ -331,28 +368,42 @@ export function buildReport(outDir) {
   const conflictChange = conflictDoc ? latestConflictChange(outDir, conflictDoc) : null;
   if (conflictDoc) sections.push(renderConflictSection({ doc: conflictDoc, change: conflictChange, policyAnchor, finder }));
 
-  // Nav: 시작하기 (onboarding, structure, rule finder, player) first, then the doc groups in order.
-  const navGroups = new Map([['시작하기', []]]);
-  const navLink = (group, html) => {
-    if (!navGroups.has(group)) navGroups.set(group, []);
-    navGroups.get(group).push(html);
-  };
   docs.forEach((doc, i) => {
-    navLink(doc.group, `<a href="#doc-${i}">${escapeHtml(doc.title)}</a>`);
     const flowId = /^flows\/([^/]+)\/flow\.md$/.exec(doc.relPath)?.[1];
     const plays = flowId ? playLink(flowId) : [];
     const play = plays.length ? `<p class="play">▶ 플레이어에서 재생: ${plays.join(' · ')}</p>` : '';
     const kicker = doc.moduleId || doc.kind === 'data' || doc.kind === 'flow' ? `${doc.group} · ${doc.title}` : doc.group;
-    sections.push(`<section id="doc-${i}"><p class="group">${escapeHtml(kicker)}</p><div class="doc-grid"><article class="doc-body">${play}${bodies[i]}</article><aside class="toc" aria-label="이 문서의 목차"></aside></div></section>`);
+    const mod = doc.module ? ` data-module="${escapeHtml(doc.module)}"` : '';
+    sections.push(`<section id="doc-${i}"${mod}><p class="group">${escapeHtml(kicker)}</p><div class="doc-grid"><article class="doc-body">${play}${bodies[i]}</article><aside class="toc" aria-label="이 문서의 목차"></aside></div></section>`);
   });
-  if (overviewDiagrams.length) navLink('시작하기', '<a href="#overview">구조도</a>');
-  if (conflictDoc) navLink('시작하기', '<a href="#conflicts">정책 충돌</a>');
-  if (finder) navLink('시작하기', '<a href="#rules">규칙 찾기</a>');
-  if (playable.size) navLink('시작하기', '<a href="player.html">▶ 데이터 흐름 플레이어</a>');
-  const navParts = [...navGroups].filter(([, links]) => links.length)
-    .map(([group, links]) => `<h2>${escapeHtml(group)}</h2>${links.join('\n')}`);
+  for (const m of modules.filter((x) => !x.docs.length)) sections.push(renderModuleStub(m, outDir));
+  // Nav: everything is in the HTML, so a reader without JavaScript gets the full list. report-view.mjs
+  // shows only the current module's documents and folds 시작하기 while one is open.
+  const docLink = (i) => `<a href="#doc-${i}">${escapeHtml(docs[i].title)}</a>`;
+  const groupLinks = (group) => docs.flatMap((doc, i) => (doc.group === group && !doc.module ? [docLink(i)] : []));
+  const startLinks = [
+    ...groupLinks('시작하기'),
+    overviewDiagrams.length ? '<a href="#overview">구조도</a>' : '',
+    conflictDoc ? '<a href="#conflicts">정책 충돌</a>' : '',
+    finder ? '<a href="#rules">규칙 찾기</a>' : '',
+    playable.size ? '<a href="player.html">데이터 흐름 플레이어</a>' : '',
+  ].filter(Boolean);
+  const navGroup = (title, links) => (links.length ? `<div class="nav-group"><h2>${title}</h2>${links.join('\n')}</div>` : '');
+  const modBlock = (m) => `<div class="nav-mod${m.docs.length ? '' : ' off'}" data-module="${escapeHtml(m.id)}">`
+    + `<a class="mod-name" href="${m.docs.length ? `#doc-${m.docs[0]}` : `#mod-${escapeHtml(m.id)}`}">${escapeHtml(m.name)}</a>`
+    + (m.docs.length ? `<div class="mod-docs">${m.docs.map(docLink).join('\n')}</div>` : '') + '</div>';
+  const picker = modules.length
+    ? `<select id="nav-mod" aria-label="모듈 선택"><option value="">전체 모듈</option>${modules.map((m) => `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}${m.docs.length ? '' : ' (미분석)'}</option>`).join('')}</select>`
+    : '';
+  const navHtml = [
+    picker,
+    startLinks.length ? `<details class="nav-start" open><summary>시작하기</summary>${startLinks.join('\n')}</details>` : '',
+    navGroup('최근 변경', groupLinks('최근 변경')),
+    modules.length ? `<details class="nav-mods" open><summary>모듈</summary>${modules.map(modBlock).join('\n')}</details>` : '',
+    navGroup('기타', groupLinks('기타')),
+  ].filter(Boolean).join('\n');
 
-  sections.unshift(renderHome({ outDir, title, summary, moduleMap, docs, index, needsReview, finder, overview: overviewDiagrams.length > 0, player: playable.size > 0,
+  sections.unshift(renderHome({ outDir, title, summary, modules, docs, index, needsReview, overview: overviewDiagrams.length > 0, player: playable.size > 0,
     conflicts: conflictDoc ? { open: conflictDoc.conflicts.filter((c) => c.status === 'open'), change: conflictChange } : null }));
   const html = `<!doctype html>
 <html lang="ko" class="no-js">
@@ -364,9 +415,10 @@ ${cspMeta(REPORT_CSP)}
 <style>${STYLE}${finder ? FINDER_STYLE : ''}</style>
 </head>
 <body${playable.size ? ' data-player="player.html"' : ''}>
-${topBar({ page: '분석 리포트', project: title, link: playable.size ? { href: 'player.html', label: '▶ 데이터 흐름 플레이어' } : null, escapeHtml })}
+${topBar({ page: '분석 리포트', project: title, link: playable.size ? { href: 'player.html', label: '▶ 데이터 흐름 플레이어' } : null, escapeHtml,
+  search: finder ? '<form class="qs" id="qs" role="search"><input type="search" id="qs-in" placeholder="규칙 찾기 (Ctrl+K)" autocomplete="off" aria-label="규칙 찾기"></form>' : '' })}
 <div class="layout">
-<nav>${navParts.join('\n')}</nav>
+<nav>${navHtml}</nav>
 <main>
 ${sections.join('\n')}
 </main>

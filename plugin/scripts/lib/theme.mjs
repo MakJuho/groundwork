@@ -23,9 +23,14 @@ export const TOP_BAR_STYLE = `
 .top .proj{font-weight:600}
 .top .nav-link{margin-left:auto;font-size:13px;text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:3px 10px;color:var(--ink)}
 .top .nav-link:hover{border-color:var(--accent);color:var(--accent)}
+.top .qs{flex:0 1 360px;min-width:0;margin-left:16px}
+.top .qs input{width:100%;font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.top .qs input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.no-js .top .qs{display:none}
+@media (max-width:760px){.top{flex-wrap:wrap}.top .qs{order:9;flex:1 0 100%;margin-left:0}}
 `;
 
-export function topBar({ page, project, link = null, escapeHtml }) {
+export function topBar({ page, project, link = null, search = '', escapeHtml }) {
   const a = link ? `<a class="nav-link" href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>` : '';
-  return `<header class="top"><span class="brand">Groundwork</span><span class="sep">/</span><span>${escapeHtml(page)}</span><span class="sep">·</span><span class="proj">${escapeHtml(project)}</span>${a}</header>`;
+  return `<header class="top"><span class="brand">Groundwork</span><span class="sep">/</span><span>${escapeHtml(page)}</span><span class="sep">·</span><span class="proj">${escapeHtml(project)}</span>${search}${a}</header>`;
 }
