@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="StkMng" width="1280" height="720" titletext="재고 관리" onload="StkMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="재고 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="44" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_prdCd" taborder="0" text="상품코드" left="12" top="8" width="64" height="28"/>
+              <Edit id="edt_prdCd" taborder="1" left="80" top="8" width="150" height="28"/>
+              <Static id="sta_prdNm" taborder="2" text="상품명" left="246" top="8" width="56" height="28"/>
+              <Edit id="edt_prdNm" taborder="3" left="306" top="8" width="220" height="28"/>
+              <Static id="sta_seller" taborder="4" text="판매자ID" left="542" top="8" width="64" height="28"/>
+              <Edit id="edt_seller" taborder="5" left="610" top="8" width="130" height="28"/>
+              <CheckBox id="chk_safeUnder" taborder="6" text="안전재고 이하만" left="760" top="8" width="140" height="28" truevalue="Y" falsevalue="N"/>
+              <Button id="btn_search" taborder="7" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_cnt" taborder="2" text="총 0건" left="20" top="104" width="200" height="28"/>
+        <Static id="sta_guide" taborder="3" text="※ 조정수량(+입고 / -차감)과 사유를 입력 후 [재고조정]. 예약수량 미만으로는 조정할 수 없습니다." left="230" top="104" width="680" height="28"/>
+        <Button id="btn_reset" taborder="4" text="입력취소" left="1098" top="104" width="76" height="28" onclick="btn_reset_onclick"/>
+        <Button id="btn_adjust" taborder="5" text="재고조정" left="1184" top="104" width="76" height="28" onclick="btn_adjust_onclick"/>
+        <Grid id="grd_stk" taborder="6" binddataset="ds_stk" left="20" top="142" width="1240" height="558" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="140"/>
+                <Column size="260"/>
+                <Column size="100"/>
+                <Column size="70"/>
+                <Column size="70"/>
+                <Column size="70"/>
+                <Column size="70"/>
+                <Column size="80"/>
+                <Column size="250"/>
+                <Column size="130"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="상품코드"/>
+                <Cell col="1" text="상품명"/>
+                <Cell col="2" text="판매자ID"/>
+                <Cell col="3" text="실재고"/>
+                <Cell col="4" text="예약"/>
+                <Cell col="5" text="가용"/>
+                <Cell col="6" text="안전재고"/>
+                <Cell col="7" text="조정수량"/>
+                <Cell col="8" text="조정사유"/>
+                <Cell col="9" text="최종변경"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:PRD_CD"/>
+                <Cell col="1" text="bind:PRD_NM"/>
+                <Cell col="2" text="bind:SELLER_ID"/>
+                <Cell col="3" text="bind:STK_QTY" displaytype="number" textAlign="right"/>
+                <Cell col="4" text="bind:RSV_QTY" displaytype="number" textAlign="right"/>
+                <Cell col="5" text="bind:AVAIL_QTY" displaytype="number" textAlign="right" color="expr:SAFE_UNDER_YN == 'Y' ? 'red' : ''"/>
+                <Cell col="6" text="bind:SAFE_QTY" displaytype="number" edittype="mask" maskeditformat="#,##0" textAlign="right"/>
+                <Cell col="7" text="bind:ADJ_QTY" displaytype="number" edittype="mask" maskeditformat="-#,##0" textAlign="right"/>
+                <Cell col="8" text="bind:ADJ_RSN" edittype="normal"/>
+                <Cell col="9" text="bind:UPD_DT"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SAFE_UNDER_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="SAFE_UNDER_YN">N</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_stk">
+        <ColumnInfo>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SALE_STAT" type="STRING" size="4"/>
+          <Column id="STK_QTY" type="INT" size="8"/>
+          <Column id="RSV_QTY" type="INT" size="8"/>
+          <Column id="AVAIL_QTY" type="INT" size="8"/>
+          <Column id="SAFE_QTY" type="INT" size="8"/>
+          <Column id="SAFE_UNDER_YN" type="STRING" size="1"/>
+          <Column id="ADJ_QTY" type="INT" size="8"/>
+          <Column id="ADJ_RSN" type="STRING" size="300"/>
+          <Column id="UPD_DT" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_result">
+        <ColumnInfo>
+          <Column id="RESULT_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_prdCd" propid="value" datasetid="ds_search" columnid="PRD_CD"/>
+      <BindItem id="item1" compid="div_search.form.edt_prdNm" propid="value" datasetid="ds_search" columnid="PRD_NM"/>
+      <BindItem id="item2" compid="div_search.form.edt_seller" propid="value" datasetid="ds_search" columnid="SELLER_ID"/>
+      <BindItem id="item3" compid="div_search.form.chk_safeUnder" propid="value" datasetid="ds_search" columnid="SAFE_UNDER_YN"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.StkMng_onload = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("stk.list", "ds_search=ds_search", "ds_stk=ds_stk", "fn_callback");
+};
+
+this.btn_reset_onclick = function(obj, e)
+{
+	this.ds_stk.reset();
+};
+
+this.btn_adjust_onclick = function(obj, e)
+{
+	if (!this.fn_validate()) return;
+	if (!this.gfn_confirm("재고를 조정하시겠습니까?")) return;
+	this.gfn_callApi("stk.adjust", "ds_adj=ds_stk:U", "ds_result=ds_result", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+/**
+ * 재고조정 검사
+ *  - 조정수량 또는 안전재고 변경이 있는 행만 대상
+ *  - 사유 필수
+ *  - 조정 후 실재고가 예약수량보다 작으면 불가
+ */
+this.fn_validate = function()
+{
+	var nChg = 0;
+	for (var i = 0; i < this.ds_stk.rowcount; i++) {
+		if (this.ds_stk.getRowType(i) != Dataset.ROWTYPE_UPDATE) continue;
+		nChg++;
+
+		var sPrdCd = this.ds_stk.getColumn(i, "PRD_CD");
+		var nAdj = parseInt(this.gfn_nvl(this.ds_stk.getColumn(i, "ADJ_QTY"), 0));
+		var nStk = parseInt(this.gfn_nvl(this.ds_stk.getColumn(i, "STK_QTY"), 0));
+		var nRsv = parseInt(this.gfn_nvl(this.ds_stk.getColumn(i, "RSV_QTY"), 0));
+
+		if (this.gfn_isEmpty(this.ds_stk.getColumn(i, "ADJ_RSN"))) {
+			this.gfn_alert("조정 사유를 입력하세요. [" + sPrdCd + "]");
+			this.ds_stk.set_rowposition(i);
+			this.grd_stk.setCellPos(8);
+			return false;
+		}
+		if (nStk + nAdj < nRsv) {
+			this.gfn_alert("조정 후 재고(" + (nStk + nAdj) + ")가 예약수량(" + nRsv + ")보다 적습니다. [" + sPrdCd + "]");
+			this.ds_stk.set_rowposition(i);
+			this.grd_stk.setCellPos(7);
+			return false;
+		}
+		if (parseInt(this.gfn_nvl(this.ds_stk.getColumn(i, "SAFE_QTY"), 0)) < 0) {
+			this.gfn_alert("안전재고는 0 이상이어야 합니다. [" + sPrdCd + "]");
+			this.ds_stk.set_rowposition(i);
+			return false;
+		}
+	}
+	if (nChg == 0) {
+		this.gfn_alert("조정할 상품이 없습니다.");
+		return false;
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "stk.list":
+			var nUnder = this.ds_stk.getCaseCount("SAFE_UNDER_YN == 'Y'");
+			this.sta_cnt.set_text("총 " + this.gfn_numFormat(this.ds_stk.rowcount) + "건 (안전재고 이하 " + nUnder + "건)");
+			break;
+		case "stk.adjust":
+			this.gfn_alert(this.ds_result.getColumn(0, "RESULT_CNT") + "건 조정되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

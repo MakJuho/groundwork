@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shop.order.OrderMapper">
+
+  <select id="selectOrders" parameterType="map" resultType="com.example.shop.order.OrderDto">
+    SELECT ORDER_NO, MEMBER_ID, ORDER_STAT, TOTAL_AMT, TO_CHAR(ORDER_DT, 'YYYY-MM-DD') AS ORDER_DT
+      FROM TB_ORDER
+    <where>
+      <if test="MEMBER_ID != null and MEMBER_ID != ''">MEMBER_ID = #{MEMBER_ID}</if>
+    </where>
+     ORDER BY ORDER_DT DESC
+  </select>
+
+  <select id="selectOrder" parameterType="string" resultType="com.example.shop.order.OrderDto">
+    SELECT ORDER_NO, MEMBER_ID, ORDER_STAT, TOTAL_AMT FROM TB_ORDER WHERE ORDER_NO = #{orderNo}
+  </select>
+
+  <update id="updateOrderStat" parameterType="map">
+    UPDATE TB_ORDER SET ORDER_STAT = #{orderStat}, UPD_DT = SYSDATE WHERE ORDER_NO = #{orderNo}
+  </update>
+</mapper>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shop.member.MemberMapper">
+
+  <select id="selectMembers" parameterType="map" resultType="com.example.shop.member.MemberDto">
+    SELECT MEMBER_ID, MEMBER_NM, EMAIL, PHONE, USE_YN
+      FROM TB_MEMBER
+    <where>
+      <if test="MEMBER_ID != null and MEMBER_ID != ''">
+        MEMBER_ID LIKE '%' || #{MEMBER_ID} || '%'
+      </if>
+    </where>
+     ORDER BY MEMBER_ID
+  </select>
+
+  <select id="countById" parameterType="string" resultType="int">
+    SELECT COUNT(*) FROM TB_MEMBER WHERE MEMBER_ID = #{memberId}
+  </select>
+
+  <insert id="insertMember" parameterType="com.example.shop.member.MemberDto">
+    INSERT INTO TB_MEMBER (MEMBER_ID, MEMBER_NM, EMAIL, PHONE, USE_YN, REG_DT)
+    VALUES (#{memberId}, #{memberNm}, #{email}, #{phone}, #{useYn}, SYSDATE)
+  </insert>
+
+  <update id="updateMember" parameterType="com.example.shop.member.MemberDto">
+    UPDATE TB_MEMBER
+       SET MEMBER_NM = #{memberNm}, EMAIL = #{email}, PHONE = #{phone}, USE_YN = #{useYn}, UPD_DT = SYSDATE
+     WHERE MEMBER_ID = #{memberId}
+  </update>
+
+  <delete id="deleteMember" parameterType="string">
+    DELETE FROM TB_MEMBER WHERE MEMBER_ID = #{memberId}
+  </delete>
+</mapper>

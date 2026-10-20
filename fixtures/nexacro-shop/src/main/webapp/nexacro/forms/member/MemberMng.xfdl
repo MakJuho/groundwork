@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="MemberMng" width="1280" height="720" titletext="회원 관리" onload="MemberMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="회원 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="44" text="">
+          <Layouts>
+            <Layout>
+              <Static id="sta_memberId" taborder="0" text="아이디" left="12" top="8" width="60" height="28"/>
+              <Edit id="edt_memberId" taborder="1" left="76" top="8" width="180" height="28"/>
+              <Button id="btn_search" taborder="2" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Button id="btn_add" taborder="2" text="추가" left="1012" top="106" width="76" height="28" onclick="btn_add_onclick"/>
+        <Button id="btn_delete" taborder="3" text="삭제" left="1098" top="106" width="76" height="28" onclick="btn_delete_onclick"/>
+        <Button id="btn_save" taborder="4" text="저장" left="1184" top="106" width="76" height="28" onclick="btn_save_onclick"/>
+        <Grid id="grd_member" taborder="5" binddataset="ds_member" left="20" top="144" width="1240" height="556" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="160"/>
+                <Column size="160"/>
+                <Column size="300"/>
+                <Column size="180"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="아이디"/>
+                <Cell col="1" text="이름"/>
+                <Cell col="2" text="이메일"/>
+                <Cell col="3" text="전화번호"/>
+                <Cell col="4" text="사용"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:MEMBER_ID" edittype="normal"/>
+                <Cell col="1" text="bind:MEMBER_NM" edittype="normal"/>
+                <Cell col="2" text="bind:EMAIL" edittype="normal"/>
+                <Cell col="3" text="bind:PHONE" edittype="normal"/>
+                <Cell col="4" text="bind:USE_YN" displaytype="checkboxcontrol" edittype="checkbox"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="MEMBER_ID" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_member">
+        <ColumnInfo>
+          <Column id="MEMBER_ID" type="STRING" size="20"/>
+          <Column id="MEMBER_NM" type="STRING" size="50"/>
+          <Column id="EMAIL" type="STRING" size="100"/>
+          <Column id="PHONE" type="STRING" size="20"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_result">
+        <ColumnInfo>
+          <Column id="RESULT_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_memberId" propid="value" datasetid="ds_search" columnid="MEMBER_ID"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.MemberMng_onload = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("member.list", "ds_search=ds_search", "ds_member=ds_member", "fn_callback");
+};
+
+this.btn_add_onclick = function(obj, e)
+{
+	var nRow = this.ds_member.addRow();
+	this.ds_member.setColumn(nRow, "USE_YN", "Y");
+	this.grd_member.setCellPos(0);
+};
+
+this.btn_delete_onclick = function(obj, e)
+{
+	this.ds_member.deleteRow(this.ds_member.rowposition);
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	this.fn_save();
+};
+
+this.fn_save = function()
+{
+	if (!this.fn_validate()) return;
+	if (!this.confirm("저장하시겠습니까?")) return;
+	this.gfn_callApi("member.save", "ds_member=ds_member:U", "ds_result=ds_result", "fn_callback");
+};
+
+this.fn_validate = function()
+{
+	for (var i = 0; i < this.ds_member.rowcount; i++) {
+		var rowType = this.ds_member.getRowType(i);
+		if (rowType != Dataset.ROWTYPE_INSERT && rowType != Dataset.ROWTYPE_UPDATE) continue;
+		if (this.gfn_isEmpty(this.ds_member.getColumn(i, "MEMBER_ID"))) {
+			this.gfn_alert("아이디는 필수입니다.");
+			this.ds_member.set_rowposition(i);
+			return false;
+		}
+		if (this.gfn_isEmpty(this.ds_member.getColumn(i, "MEMBER_NM"))) {
+			this.gfn_alert("이름은 필수입니다.");
+			this.ds_member.set_rowposition(i);
+			return false;
+		}
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "member.save":
+			this.gfn_alert(this.ds_result.getColumn(0, "RESULT_CNT") + "건 저장되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

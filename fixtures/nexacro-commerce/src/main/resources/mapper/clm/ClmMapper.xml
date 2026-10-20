@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.clm.ClmMapper">
+
+  <sql id="clmCols">
+    C.CLM_NO, C.ORD_NO, C.CLM_TYPE, C.CLM_STAT, C.CLM_RSN, C.CLM_RSN_DTL, C.RTN_FEE, C.RTN_FEE_PAYER,
+    C.REFUND_AMT, C.REFUND_PNT_AMT,
+    TO_CHAR(C.REQ_DT, 'YYYY-MM-DD HH24:MI') AS REQ_DT,
+    TO_CHAR(C.COL_DT, 'YYYY-MM-DD HH24:MI') AS COL_DT,
+    TO_CHAR(C.CMPL_DT, 'YYYY-MM-DD HH24:MI') AS CMPL_DT,
+    C.REJ_RSN, C.REG_ID, C.UPD_ID
+  </sql>
+
+  <sql id="codeNmCols">
+    , (SELECT CD_NM FROM TB_CMM_CODE WHERE GRP_CD = 'CLM_TYPE' AND CD = C.CLM_TYPE) AS CLM_TYPE_NM
+    , (SELECT CD_NM FROM TB_CMM_CODE WHERE GRP_CD = 'CLM_STAT' AND CD = C.CLM_STAT) AS CLM_STAT_NM
+    , (SELECT CD_NM FROM TB_CMM_CODE WHERE GRP_CD = 'CLM_RSN' AND CD = C.CLM_RSN) AS CLM_RSN_NM
+    , DECODE(C.RTN_FEE_PAYER, 'C', '고객', 'S', '판매자', '') AS RTN_FEE_PAYER_NM
+  </sql>
+
+  <select id="selectClmList" parameterType="map" resultType="map">
+    SELECT * FROM (
+      SELECT ROWNUM AS RNUM, A.* FROM (
+        SELECT <include refid="clmCols"/>
+               <include refid="codeNmCols"/>
+             , O.MBR_ID
+             , (SELECT COUNT(1) FROM TB_CLM_ITEM I WHERE I.CLM_NO = C.CLM_NO) AS ITEM_CNT
+             , (SELECT NVL(SUM(I.ITEM_AMT), 0) FROM TB_CLM_ITEM I WHERE I.CLM_NO = C.CLM_NO) AS ITEM_AMT
+          FROM TB_CLM C
+          JOIN TB_ORD O ON O.ORD_NO = C.ORD_NO
+        <where>
+          <if test="CLM_NO != null and CLM_NO != ''">AND C.CLM_NO = #{CLM_NO}</if>
+          <if test="ORD_NO != null and ORD_NO != ''">AND C.ORD_NO = #{ORD_NO}</if>
+          <if test="MBR_ID != null and MBR_ID != ''">AND O.MBR_ID = #{MBR_ID}</if>
+          <if test="CLM_TYPE != null and CLM_TYPE != ''">AND C.CLM_TYPE = #{CLM_TYPE}</if>
+          <if test="CLM_STAT != null and CLM_STAT != ''">AND C.CLM_STAT = #{CLM_STAT}</if>
+          <if test="CLM_RSN != null and CLM_RSN != ''">AND C.CLM_RSN = #{CLM_RSN}</if>
+          <if test="FROM_DT != null and FROM_DT != ''">AND C.REQ_DT &gt;= TO_DATE(#{FROM_DT}, 'YYYYMMDD')</if>
+          <if test="TO_DT != null and TO_DT != ''">AND C.REQ_DT &lt; TO_DATE(#{TO_DT}, 'YYYYMMDD') + 1</if>
+        </where>
+         ORDER BY C.REQ_DT DESC, C.CLM_NO DESC
+      ) A WHERE ROWNUM &lt;= 1000
+    )
+  </select>
+
+  <select id="selectClm" parameterType="string" resultType="map">
+    SELECT <include refid="clmCols"/>
+           <include refid="codeNmCols"/>
+      FROM TB_CLM C
+     WHERE C.CLM_NO = #{clmNo}
+  </select>
+
+  <select id="selectClmItemList" parameterType="string" resultType="map">
+    SELECT I.CLM_NO, I.ORD_NO, I.ITEM_SEQ, I.PRD_CD, P.PRD_NM, I.QTY, I.ITEM_AMT, I.CPN_DC_SHARE_AMT, I.REFUND_AMT
+      FROM TB_CLM_ITEM I
+      LEFT JOIN TB_PRD P ON P.PRD_CD = I.PRD_CD
+     WHERE I.CLM_NO = #{clmNo}
+     ORDER BY I.ITEM_SEQ
+  </select>
+
+  <select id="selectClmListByOrd" parameterType="string" resultType="map">
+    SELECT <include refid="clmCols"/>
+           <include refid="codeNmCols"/>
+      FROM TB_CLM C
+     WHERE C.ORD_NO = #{ordNo}
+     ORDER BY C.CLM_NO
+  </select>
+
+  <select id="selectActiveClmItemCnt" parameterType="map" resultType="int">
+    SELECT COUNT(1)
+      FROM TB_CLM_ITEM I
+      JOIN TB_CLM C ON C.CLM_NO = I.CLM_NO
+     WHERE I.ORD_NO = #{ORD_NO}
+       AND I.ITEM_SEQ = #{ITEM_SEQ}
+       AND C.CLM_STAT IN ('REQ', 'COL', 'CMP')
+  </select>
+
+  <select id="selectCmpRtnClmCnt" parameterType="map" resultType="int">
+    SELECT COUNT(1)
+      FROM TB_CLM C
+     WHERE C.ORD_NO = #{ORD_NO}
+       AND C.CLM_TYPE = 'RTN'
+       AND C.CLM_STAT = 'CMP'
+       AND C.CLM_NO &lt;&gt; #{CLM_NO}
+  </select>
+
+  <insert id="insertClm" parameterType="map">
+    INSERT INTO TB_CLM (
+           CLM_NO, ORD_NO, CLM_TYPE, CLM_STAT, CLM_RSN, CLM_RSN_DTL, RTN_FEE, RTN_FEE_PAYER,
+           REFUND_AMT, REFUND_PNT_AMT, REQ_DT, REG_ID)
+    VALUES (
+           #{CLM_NO}, #{ORD_NO}, #{CLM_TYPE}, #{CLM_STAT}, #{CLM_RSN}, #{CLM_RSN_DTL}, NVL(#{RTN_FEE}, 0), #{RTN_FEE_PAYER},
+           0, 0, SYSDATE, #{REG_ID})
+  </insert>
+
+  <insert id="insertClmItem" parameterType="map">
+    INSERT INTO TB_CLM_ITEM (CLM_NO, ORD_NO, ITEM_SEQ, PRD_CD, QTY, ITEM_AMT, CPN_DC_SHARE_AMT, REFUND_AMT)
+    VALUES (#{CLM_NO}, #{ORD_NO}, #{ITEM_SEQ}, #{PRD_CD}, #{QTY}, #{ITEM_AMT}, 0, 0)
+  </insert>
+
+  <update id="updateClmStat" parameterType="map">
+    UPDATE TB_CLM
+       SET CLM_STAT = #{CLM_STAT}
+    <if test="CLM_STAT == 'COL'">
+         , COL_DT   = SYSDATE
+    </if>
+         , UPD_DT   = SYSDATE
+         , UPD_ID   = #{UPD_ID}
+     WHERE CLM_NO = #{CLM_NO}
+    <if test="BF_CLM_STAT != null and BF_CLM_STAT != ''">
+       AND CLM_STAT = #{BF_CLM_STAT}
+    </if>
+  </update>
+
+  <update id="updateClmComplete" parameterType="map">
+    UPDATE TB_CLM
+       SET CLM_STAT       = 'CMP'
+         , REFUND_AMT     = #{REFUND_AMT}
+         , REFUND_PNT_AMT = #{REFUND_PNT_AMT}
+         , CMPL_DT        = SYSDATE
+         , UPD_DT         = SYSDATE
+         , UPD_ID         = #{UPD_ID}
+     WHERE CLM_NO = #{CLM_NO}
+       AND CLM_STAT = 'COL'
+  </update>
+
+  <update id="updateClmReject" parameterType="map">
+    UPDATE TB_CLM
+       SET CLM_STAT = 'REJ'
+         , REJ_RSN  = #{REJ_RSN}
+         , CMPL_DT  = SYSDATE
+         , UPD_DT   = SYSDATE
+         , UPD_ID   = #{UPD_ID}
+     WHERE CLM_NO = #{CLM_NO}
+       AND CLM_STAT IN ('REQ', 'COL')
+  </update>
+
+  <update id="updateClmItemRefund" parameterType="map">
+    UPDATE TB_CLM_ITEM
+       SET CPN_DC_SHARE_AMT = #{CPN_DC_SHARE_AMT}
+         , REFUND_AMT       = #{REFUND_AMT}
+     WHERE CLM_NO = #{CLM_NO}
+       AND ITEM_SEQ = #{ITEM_SEQ}
+  </update>
+</mapper>

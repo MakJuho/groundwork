@@ -1,0 +1,28 @@
+include "lib::apiUrl.xjs";
+
+/**
+ * 공통 서버 호출. 서비스 키로 URL을 찾아 transaction을 부른다.
+ * @param svcId    서비스 키 (예: "member.save")
+ * @param inDs     보낼 Dataset ("서버이름=화면Dataset[:U]")
+ * @param outDs    받을 Dataset ("화면Dataset=서버이름")
+ * @param callback 끝나면 부를 함수 이름
+ */
+this.gfn_callApi = function(svcId, inDs, outDs, callback)
+{
+	var url = this.gv_apiUrl[svcId];
+	if (this.gfn_isEmpty(url)) {
+		this.gfn_alert("등록되지 않은 서비스입니다: " + svcId);
+		return;
+	}
+	this.transaction(svcId, "svc::" + url, inDs, outDs, "", callback);
+};
+
+this.gfn_isEmpty = function(value)
+{
+	return value == null || value == undefined || String(value).trim() == "";
+};
+
+this.gfn_alert = function(msg)
+{
+	this.alert(msg);
+};

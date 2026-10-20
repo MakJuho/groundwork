@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="PrdCtgMng" width="1280" height="720" titletext="카테고리 관리" onload="PrdCtgMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="카테고리 / 수수료율 관리" left="20" top="12" width="300" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="44" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_ctgNm" taborder="0" text="카테고리명" left="12" top="8" width="76" height="28"/>
+              <Edit id="edt_ctgNm" taborder="1" left="92" top="8" width="200" height="28"/>
+              <Static id="sta_useYn" taborder="2" text="사용여부" left="308" top="8" width="64" height="28"/>
+              <Combo id="cbo_useYn" taborder="3" left="376" top="8" width="100" height="28" innerdataset="ds_useYn" codecolumn="CD" datacolumn="CD_NM"/>
+              <Button id="btn_search" taborder="4" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_guide" taborder="2" text="※ 수수료율은 0~30% 범위. 비워두면 상위 카테고리 수수료율, 판매자 개별 수수료율이 있으면 판매자 기준 적용" left="20" top="104" width="760" height="28"/>
+        <Button id="btn_addTop" taborder="3" text="대분류추가" left="926" top="104" width="76" height="28" onclick="btn_addTop_onclick"/>
+        <Button id="btn_addSub" taborder="4" text="하위추가" left="1012" top="104" width="76" height="28" onclick="btn_addSub_onclick"/>
+        <Button id="btn_delete" taborder="5" text="삭제" left="1098" top="104" width="76" height="28" onclick="btn_delete_onclick"/>
+        <Button id="btn_save" taborder="6" text="저장" left="1184" top="104" width="76" height="28" onclick="btn_save_onclick"/>
+        <Grid id="grd_ctg" taborder="7" binddataset="ds_ctg" left="20" top="142" width="1240" height="558" autofittype="col" treeusecheckbox="false" treeinitstatus="expand,all">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="280"/>
+                <Column size="120"/>
+                <Column size="120"/>
+                <Column size="110"/>
+                <Column size="110"/>
+                <Column size="80"/>
+                <Column size="70"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="카테고리명"/>
+                <Cell col="1" text="카테고리코드"/>
+                <Cell col="2" text="상위코드"/>
+                <Cell col="3" text="수수료율(%)"/>
+                <Cell col="4" text="적용수수료율"/>
+                <Cell col="5" text="정렬순서"/>
+                <Cell col="6" text="사용"/>
+                <Cell col="7" text="상품수"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CTG_NM" displaytype="treeitemcontrol" edittype="tree" treelevel="bind:TREE_LVL"/>
+                <Cell col="1" text="bind:CTG_CD" edittype="expr:dataset.getRowType(currow) == 2 ? 'normal' : 'none'"/>
+                <Cell col="2" text="bind:UPPER_CTG_CD"/>
+                <Cell col="3" text="bind:COMM_RATE" displaytype="number" edittype="mask" maskeditformat="#0.00" textAlign="right"/>
+                <Cell col="4" text="bind:APPLY_COMM_RATE" displaytype="number" textAlign="right"/>
+                <Cell col="5" text="bind:SORT_ORD" edittype="normal" textAlign="right"/>
+                <Cell col="6" text="bind:USE_YN" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="7" text="bind:PRD_CNT" displaytype="number" textAlign="right"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="CTG_NM" type="STRING" size="100"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_ctg">
+        <ColumnInfo>
+          <Column id="CTG_CD" type="STRING" size="10"/>
+          <Column id="CTG_NM" type="STRING" size="100"/>
+          <Column id="UPPER_CTG_CD" type="STRING" size="10"/>
+          <Column id="CTG_LVL" type="INT" size="1"/>
+          <Column id="TREE_LVL" type="INT" size="1"/>
+          <Column id="COMM_RATE" type="BIGDECIMAL" size="5"/>
+          <Column id="APPLY_COMM_RATE" type="BIGDECIMAL" size="5"/>
+          <Column id="SORT_ORD" type="INT" size="4"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+          <Column id="PRD_CNT" type="INT" size="8"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_useYn">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="1"/>
+          <Column id="CD_NM" type="STRING" size="10"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">Y</Col><Col id="CD_NM">사용</Col></Row>
+          <Row><Col id="CD">N</Col><Col id="CD_NM">미사용</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_result">
+        <ColumnInfo>
+          <Column id="RESULT_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_ctgNm" propid="value" datasetid="ds_search" columnid="CTG_NM"/>
+      <BindItem id="item1" compid="div_search.form.cbo_useYn" propid="value" datasetid="ds_search" columnid="USE_YN"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+// 카테고리 수수료율 상한(%) - 서버 PrdService.saveCtgList 와 동일
+this.MAX_COMM_RATE = 30;
+
+this.PrdCtgMng_onload = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("prd.ctg.list", "ds_search=ds_search", "ds_ctg=ds_ctg", "fn_callback");
+};
+
+this.btn_addTop_onclick = function(obj, e)
+{
+	var nRow = this.ds_ctg.addRow();
+	this.ds_ctg.setColumn(nRow, "CTG_LVL", 1);
+	this.ds_ctg.setColumn(nRow, "TREE_LVL", 0);
+	this.ds_ctg.setColumn(nRow, "USE_YN", "Y");
+	this.ds_ctg.setColumn(nRow, "SORT_ORD", 0);
+	this.grd_ctg.setCellPos(1);
+};
+
+this.btn_addSub_onclick = function(obj, e)
+{
+	var nCur = this.ds_ctg.rowposition;
+	if (nCur < 0) {
+		this.gfn_alert("상위 카테고리를 선택하세요.");
+		return;
+	}
+	if (this.ds_ctg.getColumn(nCur, "CTG_LVL") != 1) {
+		this.gfn_alert("대분류에서만 하위 카테고리를 추가할 수 있습니다.");
+		return;
+	}
+	var sUpper = this.ds_ctg.getColumn(nCur, "CTG_CD");
+	if (this.gfn_isEmpty(sUpper)) {
+		this.gfn_alert("상위 카테고리를 먼저 저장하세요.");
+		return;
+	}
+	var nRow = this.ds_ctg.insertRow(nCur + 1);
+	this.ds_ctg.setColumn(nRow, "UPPER_CTG_CD", sUpper);
+	this.ds_ctg.setColumn(nRow, "CTG_LVL", 2);
+	this.ds_ctg.setColumn(nRow, "TREE_LVL", 1);
+	this.ds_ctg.setColumn(nRow, "USE_YN", "Y");
+	this.ds_ctg.setColumn(nRow, "SORT_ORD", 0);
+	this.grd_ctg.setCellPos(1);
+};
+
+this.btn_delete_onclick = function(obj, e)
+{
+	var nRow = this.ds_ctg.rowposition;
+	if (nRow < 0) return;
+	if (parseInt(this.gfn_nvl(this.ds_ctg.getColumn(nRow, "PRD_CNT"), 0)) > 0) {
+		this.gfn_alert("등록된 상품이 있는 카테고리는 삭제할 수 없습니다. 사용여부를 해제하세요.");
+		return;
+	}
+	if (this.ds_ctg.findRow("UPPER_CTG_CD", this.ds_ctg.getColumn(nRow, "CTG_CD")) >= 0) {
+		this.gfn_alert("하위 카테고리가 있어 삭제할 수 없습니다.");
+		return;
+	}
+	this.ds_ctg.deleteRow(nRow);
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	if (!this.fn_validate()) return;
+	if (!this.gfn_confirm("저장하시겠습니까?\n수수료율 변경은 이후 정산 대상부터 적용됩니다.")) return;
+	this.gfn_callApi("prd.ctg.save", "ds_ctg=ds_ctg:U", "ds_result=ds_result", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+/** 카테고리 저장 검사: 코드/명 필수, 코드 중복, 수수료율 0~30 */
+this.fn_validate = function()
+{
+	for (var i = 0; i < this.ds_ctg.rowcount; i++) {
+		var rowType = this.ds_ctg.getRowType(i);
+		if (rowType != Dataset.ROWTYPE_INSERT && rowType != Dataset.ROWTYPE_UPDATE) continue;
+
+		var sCtgCd = this.ds_ctg.getColumn(i, "CTG_CD");
+		if (this.gfn_isEmpty(sCtgCd) || this.gfn_isEmpty(this.ds_ctg.getColumn(i, "CTG_NM"))) {
+			this.gfn_alert("카테고리코드와 카테고리명은 필수입니다.");
+			this.ds_ctg.set_rowposition(i);
+			return false;
+		}
+		if (this.ds_ctg.findRowExpr("CTG_CD == '" + sCtgCd + "' && currow != " + i) >= 0) {
+			this.gfn_alert("카테고리코드가 중복됩니다: " + sCtgCd);
+			this.ds_ctg.set_rowposition(i);
+			return false;
+		}
+		var sRate = this.ds_ctg.getColumn(i, "COMM_RATE");
+		if (!this.gfn_isEmpty(sRate)) {
+			var nRate = parseFloat(sRate);
+			if (isNaN(nRate) || nRate < 0 || nRate > this.MAX_COMM_RATE) {
+				this.gfn_alert("수수료율은 0~" + this.MAX_COMM_RATE + "% 범위로 입력하세요. [" + sCtgCd + "]");
+				this.ds_ctg.set_rowposition(i);
+				return false;
+			}
+		} else if (this.ds_ctg.getColumn(i, "CTG_LVL") == 1) {
+			// 대분류 수수료율 미입력 시 기본 수수료율 적용됨
+			if (!this.gfn_confirm("[" + sCtgCd + "] 대분류 수수료율이 비어 있으면 기본 수수료율이 적용됩니다. 계속하시겠습니까?")) {
+				return false;
+			}
+		}
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "prd.ctg.list":
+			// 트리 레벨 (0 대분류, 1 중분류)
+			this.ds_ctg.set_enableevent(false);
+			if (this.ds_ctg.getColumnInfo("TREE_LVL") == null) {
+				this.ds_ctg.addColumn("TREE_LVL", "int", 1);
+			}
+			for (var i = 0; i < this.ds_ctg.rowcount; i++) {
+				this.ds_ctg.setColumn(i, "TREE_LVL", parseInt(this.gfn_nvl(this.ds_ctg.getColumn(i, "CTG_LVL"), 1)) - 1);
+			}
+			this.ds_ctg.applyChange();
+			this.ds_ctg.set_enableevent(true);
+			break;
+		case "prd.ctg.save":
+			this.gfn_alert(this.ds_result.getColumn(0, "RESULT_CNT") + "건 저장되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

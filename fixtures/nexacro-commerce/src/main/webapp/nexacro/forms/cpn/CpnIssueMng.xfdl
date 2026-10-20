@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="CpnIssueMng" width="1280" height="720" titletext="쿠폰 발급 관리" onload="CpnIssueMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="쿠폰 발급 관리" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_cpn" taborder="1" text="쿠폰" left="20" top="56" width="40" height="28"/>
+        <Combo id="cbo_cpn" taborder="2" left="64" top="56" width="220" height="28" innerdataset="ds_cpnCombo" codecolumn="CPN_ID" datacolumn="CPN_NM"/>
+        <Static id="sta_mbrId" taborder="3" text="회원ID" left="300" top="56" width="54" height="28"/>
+        <Edit id="edt_mbrId" taborder="4" left="358" top="56" width="130" height="28"/>
+        <Static id="sta_ordNo" taborder="5" text="주문번호" left="504" top="56" width="64" height="28"/>
+        <Edit id="edt_ordNo" taborder="6" left="572" top="56" width="160" height="28"/>
+        <Static id="sta_issueDt" taborder="7" text="발급일" left="748" top="56" width="50" height="28"/>
+        <Calendar id="cal_fromDt" taborder="8" left="802" top="56" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Static id="sta_tilde" taborder="9" text="~" left="926" top="56" width="14" height="28"/>
+        <Calendar id="cal_toDt" taborder="10" left="944" top="56" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Button id="btn_search" taborder="11" text="조회" left="1184" top="56" width="76" height="28" onclick="btn_search_onclick"/>
+        <Grid id="grd_issue" taborder="12" binddataset="ds_issue" left="20" top="100" width="860" height="600">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="140"/>
+                <Column size="160"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="60"/>
+                <Column size="140"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="발급번호"/>
+                <Cell col="1" text="쿠폰명"/>
+                <Cell col="2" text="회원ID"/>
+                <Cell col="3" text="발급일"/>
+                <Cell col="4" text="만료일"/>
+                <Cell col="5" text="상태"/>
+                <Cell col="6" text="사용주문"/>
+                <Cell col="7" text="할인액"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:ISSUE_NO"/>
+                <Cell col="1" text="bind:CPN_NM"/>
+                <Cell col="2" text="bind:MBR_ID"/>
+                <Cell col="3" text="bind:ISSUE_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="4" text="bind:EXP_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="5" text="bind:ISSUE_STAT_NM"/>
+                <Cell col="6" text="bind:ORD_NO"/>
+                <Cell col="7" text="bind:DC_AMT" displaytype="number" textAlign="right"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="sta_issueTitle" taborder="13" text="수동 발급" left="900" top="100" width="200" height="28"/>
+        <Static id="sta_target" taborder="14" text="대상 회원ID" left="900" top="136" width="80" height="28"/>
+        <Edit id="edt_target" taborder="15" left="984" top="136" width="190" height="28"/>
+        <Button id="btn_addTarget" taborder="16" text="추가" left="1184" top="136" width="76" height="28" onclick="btn_addTarget_onclick"/>
+        <Grid id="grd_target" taborder="17" binddataset="ds_target" left="900" top="172" width="360" height="440">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="40"/>
+                <Column size="300"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" text="회원ID"/>
+              </Band>
+              <Band id="body">
+                <Cell text="expr:currow + 1"/>
+                <Cell col="1" text="bind:MBR_ID"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Button id="btn_delTarget" taborder="18" text="대상 삭제" left="1084" top="622" width="84" height="28" onclick="btn_delTarget_onclick"/>
+        <Button id="btn_issue" taborder="19" text="발급" left="1176" top="622" width="84" height="28" onclick="btn_issue_onclick"/>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="CPN_ID" type="STRING" size="20"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="FROM_DT" type="STRING" size="8"/>
+          <Column id="TO_DT" type="STRING" size="8"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_cpnSearch">
+        <ColumnInfo>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="USE_YN">Y</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_cpnCombo">
+        <ColumnInfo>
+          <Column id="CPN_ID" type="STRING" size="20"/>
+          <Column id="CPN_NM" type="STRING" size="100"/>
+          <Column id="ISSUE_LMT_CNT" type="INT" size="10"/>
+          <Column id="ISSUE_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_issue">
+        <ColumnInfo>
+          <Column id="ISSUE_NO" type="STRING" size="20"/>
+          <Column id="CPN_ID" type="STRING" size="20"/>
+          <Column id="CPN_NM" type="STRING" size="100"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="ISSUE_DT" type="STRING" size="8"/>
+          <Column id="EXP_DT" type="STRING" size="8"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+          <Column id="ISSUE_STAT_NM" type="STRING" size="10"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="DC_AMT" type="BIGDECIMAL" size="12"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_target">
+        <ColumnInfo>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="cbo_cpn" propid="value" datasetid="ds_search" columnid="CPN_ID"/>
+      <BindItem id="item1" compid="edt_mbrId" propid="value" datasetid="ds_search" columnid="MBR_ID"/>
+      <BindItem id="item2" compid="edt_ordNo" propid="value" datasetid="ds_search" columnid="ORD_NO"/>
+      <BindItem id="item3" compid="cal_fromDt" propid="value" datasetid="ds_search" columnid="FROM_DT"/>
+      <BindItem id="item4" compid="cal_toDt" propid="value" datasetid="ds_search" columnid="TO_DT"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.CpnIssueMng_onload = function(obj, e)
+{
+	this.gfn_callApi("cpn.list", "ds_search=ds_cpnSearch", "ds_cpnCombo=ds_cpn", "fn_callback");
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("cpn.issue.list", "ds_search=ds_search", "ds_issue=ds_issue", "fn_callback");
+};
+
+this.btn_addTarget_onclick = function(obj, e)
+{
+	var mbrId = this.gfn_nvl(this.edt_target.value, "").trim();
+	if (this.gfn_isEmpty(mbrId)) {
+		this.gfn_alert("회원ID를 입력하세요.");
+		return;
+	}
+	if (this.ds_target.findRow("MBR_ID", mbrId) >= 0) {
+		this.gfn_alert("이미 추가된 회원입니다.");
+		return;
+	}
+	this.ds_target.setColumn(this.ds_target.addRow(), "MBR_ID", mbrId);
+	this.edt_target.set_value("");
+};
+
+this.btn_delTarget_onclick = function(obj, e)
+{
+	if (this.ds_target.rowposition >= 0) {
+		this.ds_target.deleteRow(this.ds_target.rowposition);
+	}
+};
+
+this.btn_issue_onclick = function(obj, e)
+{
+	if (!this.fn_validateIssue()) {
+		return;
+	}
+	var cpnNm = this.cbo_cpn.text;
+	if (!this.gfn_confirm("[" + cpnNm + "] 쿠폰을 " + this.ds_target.rowcount + "명에게 발급하시겠습니까?")) {
+		return;
+	}
+	this.gfn_callApi("cpn.issue", "ds_target=ds_target", "", "fn_callback",
+		"CPN_ID=" + this.cbo_cpn.value + " USER_ID=" + nexacro.getApplication().gv_userId);
+};
+
+this.fn_validateIssue = function()
+{
+	if (this.gfn_isEmpty(this.cbo_cpn.value)) {
+		this.gfn_alert("발급할 쿠폰을 선택하세요.");
+		return false;
+	}
+	if (this.ds_target.rowcount == 0) {
+		this.gfn_alert("발급 대상 회원을 추가하세요.");
+		return false;
+	}
+	var nRow = this.ds_cpnCombo.findRow("CPN_ID", this.cbo_cpn.value);
+	var lmtCnt = nexacro.toNumber(this.gfn_nvl(this.ds_cpnCombo.getColumn(nRow, "ISSUE_LMT_CNT"), 0));
+	var issueCnt = nexacro.toNumber(this.gfn_nvl(this.ds_cpnCombo.getColumn(nRow, "ISSUE_CNT"), 0));
+	if (lmtCnt > 0 && issueCnt + this.ds_target.rowcount > lmtCnt) {
+		this.gfn_alert("발급 한도를 초과합니다. (한도 " + lmtCnt + "장, 발급 " + issueCnt + "장)");
+		return false;
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "cpn.list") {
+		this.ds_cpnCombo.insertRow(0);
+		this.ds_cpnCombo.setColumn(0, "CPN_NM", "전체");
+		this.cbo_cpn.set_index(0);
+		this.fn_search();
+	} else if (svcId == "cpn.issue") {
+		this.gfn_alert("발급되었습니다.");
+		this.ds_target.clearData();
+		this.gfn_callApi("cpn.list", "ds_search=ds_cpnSearch", "ds_cpnCombo=ds_cpn", "fn_callback");
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

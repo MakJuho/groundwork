@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.stl.StlMapper">
+
+  <sql id="stlWhere">
+    <where>
+      <choose>
+        <when test="DATE_TYPE == 'PAY'">
+          <if test="FROM_YMD != null and FROM_YMD != ''">AND S.PAY_SCHD_DT &gt;= #{FROM_YMD}</if>
+          <if test="TO_YMD != null and TO_YMD != ''">AND S.PAY_SCHD_DT &lt;= #{TO_YMD}</if>
+        </when>
+        <when test="DATE_TYPE == 'CNFM'">
+          <if test="FROM_YMD != null and FROM_YMD != ''">AND S.CNFM_DT &gt;= TO_DATE(#{FROM_YMD}, 'YYYYMMDD')</if>
+          <if test="TO_YMD != null and TO_YMD != ''">AND S.CNFM_DT &lt; TO_DATE(#{TO_YMD}, 'YYYYMMDD') + 1</if>
+        </when>
+        <otherwise>
+          <if test="FROM_YMD != null and FROM_YMD != ''">AND S.BASE_DT &gt;= TO_DATE(#{FROM_YMD}, 'YYYYMMDD')</if>
+          <if test="TO_YMD != null and TO_YMD != ''">AND S.BASE_DT &lt; TO_DATE(#{TO_YMD}, 'YYYYMMDD') + 1</if>
+        </otherwise>
+      </choose>
+      <if test="SELLER_ID != null and SELLER_ID != ''">AND S.SELLER_ID = #{SELLER_ID}</if>
+      <if test="SELLER_NM != null and SELLER_NM != ''">AND L.SELLER_NM LIKE '%' || #{SELLER_NM} || '%'</if>
+      <if test="STL_STAT != null and STL_STAT != ''">AND S.STL_STAT = #{STL_STAT}</if>
+      <if test="ORD_NO != null and ORD_NO != ''">AND S.ORD_NO = #{ORD_NO}</if>
+    </where>
+  </sql>
+
+  <select id="selectStlList" parameterType="map" resultType="map">
+    SELECT *
+      FROM (
+            SELECT ROWNUM AS RNUM, A.*
+              FROM (
+                    SELECT S.STL_NO, S.SELLER_ID, L.SELLER_NM, S.ORD_NO, S.ITEM_SEQ, S.PRD_CD,
+                           S.SALE_AMT, S.COMM_RATE, S.COMM_AMT, S.STL_AMT, S.STL_STAT,
+                           (SELECT CD_NM FROM TB_CMM_CODE WHERE GRP_CD = 'STL_STAT' AND CD = S.STL_STAT) AS STL_STAT_NM,
+                           TO_CHAR(S.BASE_DT, 'YYYYMMDD') AS BASE_DT,
+                           TO_CHAR(S.CNFM_DT, 'YYYYMMDD') AS CNFM_DT,
+                           DECODE(S.CNFM_TYPE, 'B', '배치', 'M', '수동', '') AS CNFM_TYPE_NM,
+                           S.CNFM_RSN,
+                           S.PAY_SCHD_DT,
+                           TO_CHAR(S.PAY_DT, 'YYYYMMDD') AS PAY_DT,
+                           S.HOLD_RSN,
+                           TO_CHAR(S.HOLD_DT, 'YYYYMMDD') AS HOLD_DT,
+                           L.SELLER_STAT
+                      FROM TB_STL S
+                      JOIN TB_SELLER L ON L.SELLER_ID = S.SELLER_ID
+                    <include refid="stlWhere"/>
+                     ORDER BY S.BASE_DT DESC, S.STL_NO DESC
+                   ) A
+             WHERE ROWNUM &lt;= #{PAGE_NO} * #{PAGE_SIZE}
+           )
+     WHERE RNUM &gt; (#{PAGE_NO} - 1) * #{PAGE_SIZE}
+  </select>
+
+  <select id="selectStlListCnt" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+      FROM TB_STL S
+      JOIN TB_SELLER L ON L.SELLER_ID = S.SELLER_ID
+    <include refid="stlWhere"/>
+  </select>
+
+  <select id="selectStlSum" parameterType="map" resultType="map">
+    SELECT COUNT(*)                   AS TOT_CNT,
+           NVL(SUM(X.SALE_AMT), 0)    AS TOT_SALE_AMT,
+           NVL(SUM(X.COMM_AMT), 0)    AS TOT_COMM_AMT,
+           NVL(SUM(X.STL_AMT), 0)     AS TOT_STL_AMT,
+           NVL(SUM(DECODE(X.STL_STAT, 'RDY',  X.STL_AMT, 0)), 0) AS RDY_AMT,
+           NVL(SUM(DECODE(X.STL_STAT, 'CNF',  X.STL_AMT, 0)), 0) AS CNF_AMT,
+           NVL(SUM(DECODE(X.STL_STAT, 'PAID', X.STL_AMT, 0)), 0) AS PAID_AMT,
+           NVL(SUM(DECODE(X.STL_STAT, 'HOLD', X.STL_AMT, 0)), 0) AS HOLD_AMT
+      FROM (
+            SELECT S.SALE_AMT, S.COMM_AMT, S.STL_AMT, S.STL_STAT
+              FROM TB_STL S
+              JOIN TB_SELLER L ON L.SELLER_ID = S.SELLER_ID
+            <include refid="stlWhere"/>
+           ) X
+     WHERE X.STL_STAT &lt;&gt; 'CNCL'
+  </select>
+
+  <select id="selectStl" parameterType="string" resultType="map">
+    SELECT STL_NO, SELLER_ID, ORD_NO, ITEM_SEQ, SALE_AMT, COMM_RATE, COMM_AMT, STL_AMT, STL_STAT,
+           TO_CHAR(BASE_DT, 'YYYYMMDD') AS BASE_DT,
+           TO_CHAR(CNFM_DT, 'YYYYMMDD') AS CNFM_DT,
+           PAY_SCHD_DT, HOLD_RSN
+      FROM TB_STL
+     WHERE STL_NO = #{stlNo}
+  </select>
+
+  <select id="selectStlByItem" parameterType="map" resultType="map">
+    SELECT STL_NO, SELLER_ID, ORD_NO, ITEM_SEQ, STL_STAT
+      FROM TB_STL
+     WHERE ORD_NO   = #{ORD_NO}
+       AND ITEM_SEQ = #{ITEM_SEQ}
+       AND STL_STAT &lt;&gt; 'CNCL'
+  </select>
+
+  <select id="selectStlPayList" parameterType="map" resultType="map">
+    SELECT P.STL_PAY_NO, P.SELLER_ID, L.SELLER_NM, L.BIZ_NO, P.PAY_SCHD_DT,
+           P.STL_CNT, P.PAY_AMT, P.PAY_STAT,
+           DECODE(P.PAY_STAT, 'W', '지급대기', 'P', '지급완료', 'H', '지급보류', P.PAY_STAT) AS PAY_STAT_NM,
+           TO_CHAR(P.PAY_DT, 'YYYYMMDD') AS PAY_DT,
+           NVL(P.BANK_CD, L.BANK_CD) AS BANK_CD,
+           NVL(P.STL_ACCT_NO, L.STL_ACCT_NO) AS STL_ACCT_NO,
+           (SELECT NVL(SUM(H.STL_AMT), 0)
+              FROM TB_STL H
+             WHERE H.SELLER_ID = P.SELLER_ID
+               AND H.PAY_SCHD_DT = P.PAY_SCHD_DT
+               AND H.STL_STAT = 'HOLD') AS HOLD_AMT
+      FROM TB_STL_PAY P
+      JOIN TB_SELLER L ON L.SELLER_ID = P.SELLER_ID
+    <where>
+      <if test="FROM_YMD != null and FROM_YMD != ''">AND P.PAY_SCHD_DT &gt;= #{FROM_YMD}</if>
+      <if test="TO_YMD != null and TO_YMD != ''">AND P.PAY_SCHD_DT &lt;= #{TO_YMD}</if>
+      <if test="SELLER_ID != null and SELLER_ID != ''">AND P.SELLER_ID = #{SELLER_ID}</if>
+      <if test="PAY_STAT != null and PAY_STAT != ''">AND P.PAY_STAT = #{PAY_STAT}</if>
+    </where>
+     ORDER BY P.PAY_SCHD_DT DESC, L.SELLER_NM
+  </select>
+
+  <select id="selectStlPayItemList" parameterType="map" resultType="map">
+    SELECT S.STL_NO, S.ORD_NO, S.ITEM_SEQ, S.PRD_CD, S.SALE_AMT, S.COMM_RATE, S.COMM_AMT, S.STL_AMT,
+           S.STL_STAT, TO_CHAR(S.BASE_DT, 'YYYYMMDD') AS BASE_DT, TO_CHAR(S.CNFM_DT, 'YYYYMMDD') AS CNFM_DT,
+           TO_CHAR(S.PAY_DT, 'YYYYMMDD') AS PAY_DT, S.HOLD_RSN
+      FROM TB_STL S
+     WHERE S.SELLER_ID   = #{SELLER_ID}
+       AND S.PAY_SCHD_DT = #{PAY_SCHD_DT}
+     ORDER BY S.ORD_NO, S.ITEM_SEQ
+  </select>
+
+  <insert id="insertStl" parameterType="map">
+    INSERT INTO TB_STL (
+           STL_NO, SELLER_ID, ORD_NO, ITEM_SEQ, PRD_CD,
+           SALE_AMT, COMM_RATE, COMM_AMT, STL_AMT, STL_STAT,
+           BASE_DT, REG_DT, REG_ID)
+    VALUES (
+           #{STL_NO}, #{SELLER_ID}, #{ORD_NO}, #{ITEM_SEQ}, #{PRD_CD},
+           #{SALE_AMT}, #{COMM_RATE}, #{COMM_AMT}, #{STL_AMT}, 'RDY',
+           TRUNC(SYSDATE), SYSDATE, #{REG_ID})
+  </insert>
+
+  <update id="updateStlCncl" parameterType="map">
+    UPDATE TB_STL
+       SET STL_STAT = 'CNCL',
+           CNCL_DT  = SYSDATE,
+           UPD_DT   = SYSDATE,
+           UPD_ID   = #{UPD_ID}
+     WHERE STL_NO   = #{STL_NO}
+       AND STL_STAT = 'RDY'
+  </update>
+
+  <update id="updateStlHold" parameterType="map">
+    UPDATE TB_STL
+       SET STL_STAT = 'HOLD',
+           HOLD_RSN = #{HOLD_RSN},
+           HOLD_DT  = SYSDATE,
+           HOLD_ID  = #{UPD_ID},
+           UPD_DT   = SYSDATE,
+           UPD_ID   = #{UPD_ID}
+     WHERE STL_NO   = #{STL_NO}
+       AND STL_STAT IN ('RDY', 'CNF')
+  </update>
+
+  <update id="updateStlRelease" parameterType="map">
+    UPDATE TB_STL
+       SET STL_STAT    = DECODE(CNFM_DT, NULL, 'RDY', 'CNF'),
+           PAY_SCHD_DT = DECODE(CNFM_DT, NULL, PAY_SCHD_DT, #{PAY_SCHD_DT}),
+           UPD_DT      = SYSDATE,
+           UPD_ID      = #{UPD_ID}
+     WHERE STL_NO   = #{STL_NO}
+       AND STL_STAT = 'HOLD'
+  </update>
+
+  <update id="updateStlManualConfirm" parameterType="map">
+    UPDATE TB_STL
+       SET STL_STAT    = 'CNF',
+           CNFM_DT     = SYSDATE,
+           CNFM_TYPE   = 'M',
+           CNFM_RSN    = #{CNFM_RSN},
+           PAY_SCHD_DT = #{PAY_SCHD_DT},
+           UPD_DT      = SYSDATE,
+           UPD_ID      = #{UPD_ID}
+     WHERE STL_NO   = #{STL_NO}
+       AND STL_STAT = 'RDY'
+  </update>
+
+  <!-- 판매자 x 지급예정일 지급금액 재집계 -->
+  <update id="mergeStlPay" parameterType="map">
+    MERGE INTO TB_STL_PAY T
+    USING (
+        SELECT #{SELLER_ID} AS SELLER_ID,
+               #{PAY_SCHD_DT} AS PAY_SCHD_DT,
+               (SELECT COUNT(*) FROM TB_STL
+                 WHERE SELLER_ID = #{SELLER_ID} AND PAY_SCHD_DT = #{PAY_SCHD_DT} AND STL_STAT = 'CNF') AS STL_CNT,
+               (SELECT NVL(SUM(STL_AMT), 0) FROM TB_STL
+                 WHERE SELLER_ID = #{SELLER_ID} AND PAY_SCHD_DT = #{PAY_SCHD_DT} AND STL_STAT = 'CNF') AS PAY_AMT
+          FROM DUAL
+    ) A
+       ON (T.SELLER_ID = A.SELLER_ID AND T.PAY_SCHD_DT = A.PAY_SCHD_DT)
+     WHEN MATCHED THEN
+          UPDATE SET T.STL_CNT = A.STL_CNT,
+                     T.PAY_AMT = A.PAY_AMT,
+                     T.PAY_STAT = DECODE(A.STL_CNT, 0, 'H', 'W'),
+                     T.UPD_DT  = SYSDATE
+           WHERE T.PAY_STAT IN ('W', 'H')
+     WHEN NOT MATCHED THEN
+          INSERT (STL_PAY_NO, SELLER_ID, PAY_SCHD_DT, STL_CNT, PAY_AMT, PAY_STAT, BANK_CD, STL_ACCT_NO, REG_DT)
+          VALUES ('SPY' || TO_CHAR(SYSDATE, 'YYYYMMDD') || LPAD(SQ_STL_PAY.NEXTVAL, 6, '0'),
+                  A.SELLER_ID, A.PAY_SCHD_DT, A.STL_CNT, A.PAY_AMT, 'W',
+                  (SELECT BANK_CD FROM TB_SELLER WHERE SELLER_ID = A.SELLER_ID),
+                  (SELECT STL_ACCT_NO FROM TB_SELLER WHERE SELLER_ID = A.SELLER_ID),
+                  SYSDATE)
+  </update>
+
+  <!-- 정산 확정 (SP_STL_CONFIRM) -->
+  <update id="callStlConfirm" parameterType="map" statementType="CALLABLE">
+    {call SP_STL_CONFIRM(#{BASE_YMD}, #{BIZ_DAYS}, #{CNT, mode=OUT, jdbcType=NUMERIC})}
+  </update>
+
+  <!-- 정지 판매자 지급 보류 -->
+  <update id="updateHoldSuspendedSeller" parameterType="map">
+    UPDATE TB_STL S
+       SET S.STL_STAT = 'HOLD',
+           S.HOLD_RSN = '판매자 정지',
+           S.HOLD_DT  = SYSDATE,
+           S.HOLD_ID  = 'BATCH',
+           S.UPD_DT   = SYSDATE,
+           S.UPD_ID   = 'BATCH'
+     WHERE S.STL_STAT = 'CNF'
+       AND S.PAY_SCHD_DT &lt;= #{PAY_YMD}
+       AND EXISTS (SELECT 1
+                     FROM TB_SELLER L
+                    WHERE L.SELLER_ID = S.SELLER_ID
+                      AND L.SELLER_STAT IN
+                      <foreach collection="STOP_STAT_LIST" item="stat" open="(" separator="," close=")">#{stat}</foreach>)
+  </update>
+
+  <select id="selectPayTargetSeller" parameterType="map" resultType="map">
+    SELECT DISTINCT P.SELLER_ID, P.PAY_SCHD_DT
+      FROM TB_STL_PAY P
+     WHERE P.PAY_SCHD_DT &lt;= #{PAY_YMD}
+       AND P.PAY_STAT IN ('W', 'H')
+  </select>
+
+  <update id="updateStlPaid" parameterType="map">
+    UPDATE TB_STL
+       SET STL_STAT = 'PAID',
+           PAY_DT   = SYSDATE,
+           UPD_DT   = SYSDATE,
+           UPD_ID   = 'BATCH'
+     WHERE STL_STAT = 'CNF'
+       AND PAY_SCHD_DT &lt;= #{PAY_YMD}
+  </update>
+
+  <update id="updateStlPayPaid" parameterType="map">
+    UPDATE TB_STL_PAY
+       SET PAY_STAT = 'P',
+           PAY_DT   = SYSDATE,
+           UPD_DT   = SYSDATE
+     WHERE PAY_STAT = 'W'
+       AND PAY_SCHD_DT &lt;= #{PAY_YMD}
+       AND PAY_AMT &gt; 0
+  </update>
+
+  <select id="selectHolidayCnt" parameterType="string" resultType="int">
+    SELECT COUNT(*) FROM TB_CMM_HOLIDAY WHERE HOLI_YMD = #{ymd}
+  </select>
+</mapper>

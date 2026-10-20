@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="OrdMng" width="1280" height="720" titletext="주문 관리" onload="OrdMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="주문 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="116" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Combo id="cbo_dtType" taborder="0" left="12" top="8" width="80" height="28" innerdataset="ds_dtType" codecolumn="CD" datacolumn="CD_NM"/>
+              <Calendar id="cal_from" taborder="1" left="96" top="8" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Static id="sta_wave" taborder="2" text="~" left="230" top="8" width="16" height="28"/>
+              <Calendar id="cal_to" taborder="3" left="248" top="8" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Button id="btn_today" taborder="4" text="오늘" left="384" top="8" width="44" height="28" onclick="btn_period_onclick"/>
+              <Button id="btn_week" taborder="5" text="1주" left="432" top="8" width="44" height="28" onclick="btn_period_onclick"/>
+              <Button id="btn_month" taborder="6" text="1개월" left="480" top="8" width="52" height="28" onclick="btn_period_onclick"/>
+              <Button id="btn_3month" taborder="7" text="3개월" left="536" top="8" width="52" height="28" onclick="btn_period_onclick"/>
+              <Static id="sta_ordNo" taborder="8" text="주문번호" left="608" top="8" width="60" height="28"/>
+              <Edit id="edt_ordNo" taborder="9" left="672" top="8" width="160" height="28"/>
+              <Static id="sta_payMthd" taborder="10" text="결제수단" left="848" top="8" width="60" height="28"/>
+              <Combo id="cbo_payMthd" taborder="11" left="912" top="8" width="120" height="28" innerdataset="ds_payMthdCbo" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_stat" taborder="12" text="주문상태" left="12" top="44" width="80" height="28"/>
+              <CheckBox id="chk_stat10" taborder="13" text="주문접수" left="96" top="44" width="80" height="28" truevalue="10" falsevalue=""/>
+              <CheckBox id="chk_stat20" taborder="14" text="결제완료" left="176" top="44" width="80" height="28" truevalue="20" falsevalue=""/>
+              <CheckBox id="chk_stat30" taborder="15" text="상품준비" left="256" top="44" width="80" height="28" truevalue="30" falsevalue=""/>
+              <CheckBox id="chk_stat40" taborder="16" text="출고" left="336" top="44" width="60" height="28" truevalue="40" falsevalue=""/>
+              <CheckBox id="chk_stat50" taborder="17" text="배송완료" left="396" top="44" width="80" height="28" truevalue="50" falsevalue=""/>
+              <CheckBox id="chk_stat60" taborder="18" text="구매확정" left="476" top="44" width="80" height="28" truevalue="60" falsevalue=""/>
+              <CheckBox id="chk_stat80" taborder="19" text="부분취소" left="556" top="44" width="80" height="28" truevalue="80" falsevalue=""/>
+              <CheckBox id="chk_stat90" taborder="20" text="주문취소" left="636" top="44" width="80" height="28" truevalue="90" falsevalue=""/>
+              <CheckBox id="chk_statAll" taborder="21" text="전체" left="716" top="44" width="60" height="28" onchanged="chk_statAll_onchanged"/>
+              <Static id="sta_seller" taborder="22" text="판매자ID" left="848" top="44" width="60" height="28"/>
+              <Edit id="edt_sellerId" taborder="23" left="912" top="44" width="120" height="28"/>
+              <Static id="sta_mbrId" taborder="24" text="회원ID" left="12" top="80" width="80" height="28"/>
+              <Edit id="edt_mbrId" taborder="25" left="96" top="80" width="130" height="28"/>
+              <Static id="sta_mbrNm" taborder="26" text="회원명" left="240" top="80" width="50" height="28"/>
+              <Edit id="edt_mbrNm" taborder="27" left="294" top="80" width="110" height="28"/>
+              <Static id="sta_rcvNm" taborder="28" text="수령인" left="420" top="80" width="50" height="28"/>
+              <Edit id="edt_rcvNm" taborder="29" left="474" top="80" width="110" height="28"/>
+              <Static id="sta_prdCd" taborder="30" text="상품코드" left="600" top="80" width="60" height="28"/>
+              <Edit id="edt_prdCd" taborder="31" left="664" top="80" width="120" height="28"/>
+              <Static id="sta_prdNm" taborder="32" text="상품명" left="800" top="80" width="50" height="28"/>
+              <Edit id="edt_prdNm" taborder="33" left="854" top="80" width="178" height="28"/>
+              <Button id="btn_search" taborder="34" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+              <Button id="btn_reset" taborder="35" text="초기화" left="1150" top="44" width="76" height="28" onclick="btn_reset_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_cnt" taborder="2" text="총 0건" left="20" top="176" width="200" height="28"/>
+        <Static id="sta_rsn" taborder="3" text="취소사유" left="560" top="176" width="60" height="28"/>
+        <Edit id="edt_cnclRsn" taborder="4" left="624" top="176" width="200" height="28"/>
+        <Button id="btn_detail" taborder="5" text="상세" left="840" top="176" width="76" height="28" onclick="btn_detail_onclick"/>
+        <Button id="btn_prepare" taborder="6" text="상품준비" left="926" top="176" width="76" height="28" onclick="btn_prepare_onclick"/>
+        <Button id="btn_cancel" taborder="7" text="주문취소" left="1012" top="176" width="76" height="28" onclick="btn_cancel_onclick"/>
+        <Button id="btn_confirm" taborder="8" text="구매확정" left="1098" top="176" width="76" height="28" onclick="btn_confirm_onclick"/>
+        <Button id="btn_excel" taborder="9" text="엑셀" left="1184" top="176" width="76" height="28" onclick="btn_excel_onclick"/>
+        <Grid id="grd_ord" taborder="10" binddataset="ds_ord" left="20" top="212" width="1240" height="488" autofittype="none" oncelldblclick="grd_ord_oncelldblclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="36"/>
+                <Column size="150"/>
+                <Column size="140"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="200"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="70"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="140"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell displaytype="checkboxcontrol" edittype="checkbox" text="0"/>
+                <Cell col="1" text="주문번호"/>
+                <Cell col="2" text="주문일시"/>
+                <Cell col="3" text="회원ID"/>
+                <Cell col="4" text="회원명"/>
+                <Cell col="5" text="주문상태"/>
+                <Cell col="6" text="상품"/>
+                <Cell col="7" text="상품금액"/>
+                <Cell col="8" text="쿠폰할인"/>
+                <Cell col="9" text="포인트"/>
+                <Cell col="10" text="배송비"/>
+                <Cell col="11" text="결제금액"/>
+                <Cell col="12" text="결제수단"/>
+                <Cell col="13" text="취소금액"/>
+                <Cell col="14" text="수령인"/>
+                <Cell col="15" text="구매확정일시"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CHK" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="1" text="bind:ORD_NO"/>
+                <Cell col="2" text="bind:ORD_DT"/>
+                <Cell col="3" text="bind:MBR_ID"/>
+                <Cell col="4" text="bind:MBR_NM"/>
+                <Cell col="5" text="bind:ORD_STAT_NM" color="expr:ORD_STAT == '90' ? 'gray' : (ORD_STAT == '80' ? 'red' : '')"/>
+                <Cell col="6" text="expr:ITEM_CNT &gt; 1 ? REP_PRD_NM + ' 외 ' + (ITEM_CNT - 1) + '건' : REP_PRD_NM"/>
+                <Cell col="7" text="bind:ORD_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="8" text="bind:CPN_DC_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="9" text="bind:PNT_USE_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="10" text="bind:DLV_FEE" displaytype="number" textAlign="right"/>
+                <Cell col="11" text="bind:PAY_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="12" text="bind:PAY_MTHD" displaytype="combotext" combodataset="ds_payMthd" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="13" text="bind:CNCL_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="14" text="bind:RCV_NM"/>
+                <Cell col="15" text="bind:CNFM_DT"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="DT_TYPE" type="STRING" size="10"/>
+          <Column id="FROM_DT" type="STRING" size="8"/>
+          <Column id="TO_DT" type="STRING" size="8"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="ORD_STAT_LIST" type="STRING" size="100"/>
+          <Column id="PAY_MTHD" type="STRING" size="10"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="MBR_NM" type="STRING" size="50"/>
+          <Column id="RCV_NM" type="STRING" size="50"/>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="100"/>
+          <Column id="PAGE_NO" type="INT" size="4"/>
+          <Column id="PAGE_SIZE" type="INT" size="4"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="DT_TYPE">ORD</Col>
+            <Col id="PAGE_NO">1</Col>
+            <Col id="PAGE_SIZE">200</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_ord">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="1"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="ORD_DT" type="STRING" size="19"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="MBR_NM" type="STRING" size="50"/>
+          <Column id="ORD_STAT" type="STRING" size="2"/>
+          <Column id="ORD_STAT_NM" type="STRING" size="20"/>
+          <Column id="REP_PRD_NM" type="STRING" size="200"/>
+          <Column id="ITEM_CNT" type="INT" size="4"/>
+          <Column id="ORD_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CPN_DC_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PNT_USE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="DLV_FEE" type="BIGDECIMAL" size="8"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PAY_MTHD" type="STRING" size="10"/>
+          <Column id="DLV_STAT" type="STRING" size="1"/>
+          <Column id="RCV_NM" type="STRING" size="50"/>
+          <Column id="CNFM_DT" type="STRING" size="19"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_prepare">
+        <ColumnInfo>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_cancel">
+        <ColumnInfo>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="CNCL_RSN" type="STRING" size="200"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_confirm">
+        <ColumnInfo>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_dtType">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="10"/>
+          <Column id="CD_NM" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD">ORD</Col><Col id="CD_NM">주문일</Col></Row>
+          <Row><Col id="CD">PAY</Col><Col id="CD_NM">결제일</Col></Row>
+          <Row><Col id="CD">CNFM</Col><Col id="CD_NM">구매확정일</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_payMthdCbo"/>
+      <Dataset id="ds_payMthd"/>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.cbo_dtType" propid="value" datasetid="ds_search" columnid="DT_TYPE"/>
+      <BindItem id="item1" compid="div_search.form.cal_from" propid="value" datasetid="ds_search" columnid="FROM_DT"/>
+      <BindItem id="item2" compid="div_search.form.cal_to" propid="value" datasetid="ds_search" columnid="TO_DT"/>
+      <BindItem id="item3" compid="div_search.form.edt_ordNo" propid="value" datasetid="ds_search" columnid="ORD_NO"/>
+      <BindItem id="item4" compid="div_search.form.cbo_payMthd" propid="value" datasetid="ds_search" columnid="PAY_MTHD"/>
+      <BindItem id="item5" compid="div_search.form.edt_sellerId" propid="value" datasetid="ds_search" columnid="SELLER_ID"/>
+      <BindItem id="item6" compid="div_search.form.edt_mbrId" propid="value" datasetid="ds_search" columnid="MBR_ID"/>
+      <BindItem id="item7" compid="div_search.form.edt_mbrNm" propid="value" datasetid="ds_search" columnid="MBR_NM"/>
+      <BindItem id="item8" compid="div_search.form.edt_rcvNm" propid="value" datasetid="ds_search" columnid="RCV_NM"/>
+      <BindItem id="item9" compid="div_search.form.edt_prdCd" propid="value" datasetid="ds_search" columnid="PRD_CD"/>
+      <BindItem id="item10" compid="div_search.form.edt_prdNm" propid="value" datasetid="ds_search" columnid="PRD_NM"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.ORD_STATS = ["10", "20", "30", "40", "50", "60", "80", "90"];
+
+this.OrdMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_payMthdCbo", "PAY_MTHD");
+	this.gfn_setCode("ds_payMthd", "PAY_MTHD");
+	this.fn_setPeriod(7);
+	// 기본: 처리 대상 상태
+	this.div_search.form.chk_stat10.set_value("10");
+	this.div_search.form.chk_stat20.set_value("20");
+	this.div_search.form.chk_stat30.set_value("30");
+};
+
+this.btn_period_onclick = function(obj, e)
+{
+	var nDays = 0;
+	switch (obj.name) {
+		case "btn_week":   nDays = 7;  break;
+		case "btn_month":  nDays = 30; break;
+		case "btn_3month": nDays = 90; break;
+		default:           nDays = 0;
+	}
+	this.fn_setPeriod(nDays);
+};
+
+this.fn_setPeriod = function(nDays)
+{
+	var dTo = new Date();
+	var dFrom = new Date();
+	dFrom.setDate(dTo.getDate() - nDays);
+	this.ds_search.setColumn(0, "TO_DT", this.gfn_today());
+	this.ds_search.setColumn(0, "FROM_DT", dFrom.getFullYear()
+		+ String(dFrom.getMonth() + 1).padLeft(2, "0") + String(dFrom.getDate()).padLeft(2, "0"));
+};
+
+this.chk_statAll_onchanged = function(obj, e)
+{
+	var bAll = obj.value == true || obj.value == "true";
+	for (var i = 0; i < this.ORD_STATS.length; i++) {
+		var oChk = this.div_search.form["chk_stat" + this.ORD_STATS[i]];
+		oChk.set_value(bAll ? this.ORD_STATS[i] : "");
+	}
+};
+
+this.btn_reset_onclick = function(obj, e)
+{
+	this.ds_search.clearData();
+	var nRow = this.ds_search.addRow();
+	this.ds_search.setColumn(nRow, "DT_TYPE", "ORD");
+	this.ds_search.setColumn(nRow, "PAGE_NO", 1);
+	this.ds_search.setColumn(nRow, "PAGE_SIZE", 200);
+	this.fn_setPeriod(7);
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+/**
+ * 조회조건 검사
+ *  - 주문번호가 없으면 기간 필수, 최대 3개월
+ */
+this.fn_validateSearch = function()
+{
+	var sOrdNo = this.ds_search.getColumn(0, "ORD_NO");
+	if (!this.gfn_isEmpty(sOrdNo)) return true;
+
+	var sFrom = this.ds_search.getColumn(0, "FROM_DT");
+	var sTo = this.ds_search.getColumn(0, "TO_DT");
+	if (this.gfn_isEmpty(sFrom) || this.gfn_isEmpty(sTo)) {
+		this.gfn_alert("조회기간을 입력하세요.");
+		return false;
+	}
+	var nDiff = this.gfn_diffDay(sFrom, sTo);
+	if (nDiff < 0) {
+		this.gfn_alert("시작일이 종료일보다 늦습니다.");
+		return false;
+	}
+	if (nDiff > 92) {
+		this.gfn_alert("조회기간은 3개월을 넘을 수 없습니다.");
+		return false;
+	}
+	return true;
+};
+
+this.fn_search = function()
+{
+	if (!this.fn_validateSearch()) return;
+
+	var arrStat = [];
+	for (var i = 0; i < this.ORD_STATS.length; i++) {
+		var v = this.div_search.form["chk_stat" + this.ORD_STATS[i]].value;
+		if (!this.gfn_isEmpty(v)) arrStat.push(v);
+	}
+	this.ds_search.setColumn(0, "ORD_STAT_LIST", arrStat.join(","));
+	this.gfn_callApi("ord.list", "ds_search=ds_search", "ds_ord=ds_ord", "fn_callback");
+};
+
+this.grd_ord_oncelldblclick = function(obj, e)
+{
+	if (e.cell == 0) return;
+	this.fn_openDetail(e.row);
+};
+
+this.btn_detail_onclick = function(obj, e)
+{
+	var nRow = this.ds_ord.rowposition;
+	if (nRow < 0) {
+		this.gfn_alert("주문을 선택하세요.");
+		return;
+	}
+	this.fn_openDetail(nRow);
+};
+
+this.fn_openDetail = function(nRow)
+{
+	var sOrdNo = this.ds_ord.getColumn(nRow, "ORD_NO");
+	var oChild = new ChildFrame();
+	oChild.init("popOrdDetail", 0, 0, 1100, 720, null, null, "ord::OrdDetail.xfdl");
+	oChild.set_openalign("center middle");
+	oChild.showModal(this.getOwnerFrame(), {ORD_NO: sOrdNo}, this, "fn_popupCallback");
+};
+
+this.fn_popupCallback = function(sPopupId, sRtn)
+{
+	if (sRtn == "CHANGED") {
+		this.fn_search();
+	}
+};
+
+/** 체크된 행 번호 목록 */
+this.fn_getCheckedRows = function()
+{
+	var arr = [];
+	for (var i = 0; i < this.ds_ord.rowcount; i++) {
+		if (this.ds_ord.getColumn(i, "CHK") == "1" || this.ds_ord.getColumn(i, "CHK") == "Y") {
+			arr.push(i);
+		}
+	}
+	return arr;
+};
+
+this.btn_prepare_onclick = function(obj, e)
+{
+	var arrRow = this.fn_getCheckedRows();
+	if (arrRow.length == 0) {
+		this.gfn_alert("상품준비할 주문을 체크하세요.");
+		return;
+	}
+	this.ds_prepare.clearData();
+	for (var i = 0; i < arrRow.length; i++) {
+		var sStat = this.ds_ord.getColumn(arrRow[i], "ORD_STAT");
+		if (sStat != "20" && sStat != "80") {
+			this.gfn_alert("결제완료 상태의 주문만 상품준비할 수 있습니다. [" + this.ds_ord.getColumn(arrRow[i], "ORD_NO") + "]");
+			return;
+		}
+		this.ds_prepare.setColumn(this.ds_prepare.addRow(), "ORD_NO", this.ds_ord.getColumn(arrRow[i], "ORD_NO"));
+	}
+	if (!this.gfn_confirm(arrRow.length + "건을 상품준비 처리하시겠습니까?")) return;
+	this.gfn_callApi("ord.prepare", "ds_prepare=ds_prepare", "", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+this.btn_cancel_onclick = function(obj, e)
+{
+	var nRow = this.ds_ord.rowposition;
+	if (nRow < 0) {
+		this.gfn_alert("취소할 주문을 선택하세요.");
+		return;
+	}
+	if (this.ds_ord.getColumn(nRow, "ORD_STAT") != "10") {
+		this.gfn_alert("주문접수 상태에서만 취소할 수 있습니다.");
+		return;
+	}
+	var sOrdNo = this.ds_ord.getColumn(nRow, "ORD_NO");
+	var sRsn = this.gfn_nvl(this.edt_cnclRsn.value, "관리자 주문취소");
+	if (!this.gfn_confirm("[" + sOrdNo + "] 주문을 취소하시겠습니까?\n쿠폰/포인트는 자동 복원됩니다.")) return;
+
+	this.ds_cancel.clearData();
+	var nNew = this.ds_cancel.addRow();
+	this.ds_cancel.setColumn(nNew, "ORD_NO", sOrdNo);
+	this.ds_cancel.setColumn(nNew, "CNCL_RSN", sRsn);
+	this.gfn_callApi("ord.cancel", "ds_cancel=ds_cancel", "", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+this.btn_confirm_onclick = function(obj, e)
+{
+	var arrRow = this.fn_getCheckedRows();
+	if (arrRow.length == 0 && this.ds_ord.rowposition >= 0) {
+		arrRow.push(this.ds_ord.rowposition);
+	}
+	if (arrRow.length == 0) {
+		this.gfn_alert("구매확정할 주문을 선택하세요.");
+		return;
+	}
+	this.ds_confirm.clearData();
+	for (var i = 0; i < arrRow.length; i++) {
+		if (this.ds_ord.getColumn(arrRow[i], "ORD_STAT") != "50") {
+			this.gfn_alert("배송완료 상태에서만 구매확정할 수 있습니다. [" + this.ds_ord.getColumn(arrRow[i], "ORD_NO") + "]");
+			return;
+		}
+		this.ds_confirm.setColumn(this.ds_confirm.addRow(), "ORD_NO", this.ds_ord.getColumn(arrRow[i], "ORD_NO"));
+	}
+	if (!this.gfn_confirm(arrRow.length + "건을 구매확정하시겠습니까?\n구매확정 후에는 반품할 수 없습니다.")) return;
+	this.gfn_callApi("ord.confirm", "ds_confirm=ds_confirm", "", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+this.btn_excel_onclick = function(obj, e)
+{
+	// 2022.03 엑셀 다운로드는 리포트 서버로 이관
+	this.gfn_alert("엑셀 다운로드는 리포트 시스템을 이용하세요.");
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "ord.list":
+			this.sta_cnt.set_text("총 " + this.gfn_numFormat(this.ds_ord.rowcount) + "건");
+			break;
+		case "ord.prepare":
+			this.gfn_alert("상품준비 처리되었습니다.");
+			this.fn_search();
+			break;
+		case "ord.cancel":
+			this.gfn_alert("주문이 취소되었습니다.");
+			this.edt_cnclRsn.set_value("");
+			this.fn_search();
+			break;
+		case "ord.confirm":
+			this.gfn_alert("구매확정되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

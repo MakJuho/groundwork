@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="PayMng" width="1280" height="720" titletext="결제 관리" onload="PayMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="결제 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="80" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_regDt" taborder="0" text="결제일" left="12" top="8" width="60" height="28"/>
+              <Calendar id="cal_from" taborder="1" left="76" top="8" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Static id="sta_wave" taborder="2" text="~" left="210" top="8" width="16" height="28"/>
+              <Calendar id="cal_to" taborder="3" left="228" top="8" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Static id="sta_payMthd" taborder="4" text="결제수단" left="380" top="8" width="60" height="28"/>
+              <Combo id="cbo_payMthd" taborder="5" left="444" top="8" width="120" height="28" innerdataset="ds_payMthdCbo" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_payStat" taborder="6" text="결제상태" left="580" top="8" width="60" height="28"/>
+              <Combo id="cbo_payStat" taborder="7" left="644" top="8" width="120" height="28" innerdataset="ds_payStatCbo" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_cardCo" taborder="8" text="카드사" left="780" top="8" width="50" height="28"/>
+              <Combo id="cbo_cardCo" taborder="9" left="834" top="8" width="110" height="28" innerdataset="ds_cardCoCbo" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_ordNo" taborder="10" text="주문번호" left="12" top="44" width="60" height="28"/>
+              <Edit id="edt_ordNo" taborder="11" left="76" top="44" width="160" height="28"/>
+              <Static id="sta_pgTid" taborder="12" text="PG TID" left="252" top="44" width="60" height="28"/>
+              <Edit id="edt_pgTid" taborder="13" left="316" top="44" width="200" height="28"/>
+              <CheckBox id="chk_cnclYn" taborder="14" text="취소건만" left="532" top="44" width="90" height="28" truevalue="Y" falsevalue="N"/>
+              <Button id="btn_search" taborder="15" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_cnt" taborder="2" text="총 0건" left="20" top="142" width="200" height="28"/>
+        <Button id="btn_retry" taborder="3" text="취소실패 재처리" left="1140" top="142" width="120" height="28" onclick="btn_retry_onclick"/>
+        <Grid id="grd_pay" taborder="4" binddataset="ds_pay" left="20" top="180" width="1240" height="300" autofittype="col" oncellclick="grd_pay_oncellclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="150"/>
+                <Column size="150"/>
+                <Column size="90"/>
+                <Column size="90"/>
+                <Column size="60"/>
+                <Column size="60"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="80"/>
+                <Column size="160"/>
+                <Column size="140"/>
+                <Column size="60"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="결제번호"/>
+                <Cell col="1" text="주문번호"/>
+                <Cell col="2" text="회원ID"/>
+                <Cell col="3" text="결제수단"/>
+                <Cell col="4" text="카드사"/>
+                <Cell col="5" text="할부"/>
+                <Cell col="6" text="결제금액"/>
+                <Cell col="7" text="취소금액"/>
+                <Cell col="8" text="잔액"/>
+                <Cell col="9" text="상태"/>
+                <Cell col="10" text="PG TID"/>
+                <Cell col="11" text="결제일시"/>
+                <Cell col="12" text="실패"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:PAY_NO"/>
+                <Cell col="1" text="bind:ORD_NO"/>
+                <Cell col="2" text="bind:MBR_ID"/>
+                <Cell col="3" text="bind:PAY_MTHD_NM"/>
+                <Cell col="4" text="bind:CARD_CO" displaytype="combotext" combodataset="ds_cardCo" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="5" text="expr:INST_MM &lt;= 1 ? '일시불' : INST_MM + (FREE_INST_YN == 'Y' ? '(무)' : '')"/>
+                <Cell col="6" text="bind:PAY_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:CNCL_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="8" text="bind:REMAIN_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="9" text="bind:PAY_STAT_NM" color="expr:PAY_STAT == 'E' ? 'red' : ''"/>
+                <Cell col="10" text="bind:PG_TID"/>
+                <Cell col="11" text="bind:APRV_DT"/>
+                <Cell col="12" text="bind:FAIL_CNT" displaytype="number" textAlign="right"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="sta_cnclTitle" taborder="5" text="취소 이력" left="20" top="490" width="200" height="28" cssclass="sta_subtitle"/>
+        <Grid id="grd_cncl" taborder="6" binddataset="ds_cncl" left="20" top="522" width="1240" height="178" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="50"/>
+                <Column size="60"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="200"/>
+                <Column size="140"/>
+                <Column size="80"/>
+                <Column size="70"/>
+                <Column size="200"/>
+                <Column size="60"/>
+                <Column size="140"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="순번"/>
+                <Cell col="1" text="구분"/>
+                <Cell col="2" text="취소금액"/>
+                <Cell col="3" text="취소후잔액"/>
+                <Cell col="4" text="사유"/>
+                <Cell col="5" text="클레임번호"/>
+                <Cell col="6" text="처리결과"/>
+                <Cell col="7" text="응답코드"/>
+                <Cell col="8" text="응답메시지"/>
+                <Cell col="9" text="재시도"/>
+                <Cell col="10" text="취소일시"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CNCL_SEQ"/>
+                <Cell col="1" text="bind:CNCL_TYPE_NM"/>
+                <Cell col="2" text="bind:CNCL_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="3" text="bind:REMAIN_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="4" text="bind:CNCL_RSN"/>
+                <Cell col="5" text="bind:CLM_NO"/>
+                <Cell col="6" text="bind:CNCL_STAT_NM" color="expr:CNCL_STAT == 'F' ? 'red' : ''"/>
+                <Cell col="7" text="bind:PG_RES_CD"/>
+                <Cell col="8" text="bind:PG_RES_MSG"/>
+                <Cell col="9" text="bind:RETRY_CNT" textAlign="right"/>
+                <Cell col="10" text="bind:CNCL_DT"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="FROM_DT" type="STRING" size="8"/>
+          <Column id="TO_DT" type="STRING" size="8"/>
+          <Column id="PAY_MTHD" type="STRING" size="10"/>
+          <Column id="PAY_STAT" type="STRING" size="1"/>
+          <Column id="CARD_CO" type="STRING" size="10"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="PG_TID" type="STRING" size="50"/>
+          <Column id="CNCL_YN" type="STRING" size="1"/>
+          <Column id="PAGE_NO" type="INT" size="4"/>
+          <Column id="PAGE_SIZE" type="INT" size="4"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="PAGE_NO">1</Col>
+            <Col id="PAGE_SIZE">100</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_pay">
+        <ColumnInfo>
+          <Column id="PAY_NO" type="STRING" size="20"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="PAY_MTHD" type="STRING" size="10"/>
+          <Column id="PAY_MTHD_NM" type="STRING" size="20"/>
+          <Column id="CARD_CO" type="STRING" size="10"/>
+          <Column id="INST_MM" type="INT" size="2"/>
+          <Column id="FREE_INST_YN" type="STRING" size="1"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REMAIN_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PAY_STAT" type="STRING" size="1"/>
+          <Column id="PAY_STAT_NM" type="STRING" size="20"/>
+          <Column id="PG_TID" type="STRING" size="50"/>
+          <Column id="APRV_DT" type="STRING" size="19"/>
+          <Column id="FAIL_CNT" type="INT" size="4"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_payInfo">
+        <ColumnInfo>
+          <Column id="PAY_NO" type="STRING" size="20"/>
+          <Column id="PAY_STAT" type="STRING" size="1"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_AMT" type="BIGDECIMAL" size="12"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_cncl">
+        <ColumnInfo>
+          <Column id="PAY_NO" type="STRING" size="20"/>
+          <Column id="CNCL_SEQ" type="INT" size="5"/>
+          <Column id="CNCL_TYPE" type="STRING" size="1"/>
+          <Column id="CNCL_TYPE_NM" type="STRING" size="10"/>
+          <Column id="CNCL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REMAIN_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_RSN" type="STRING" size="200"/>
+          <Column id="CLM_NO" type="STRING" size="20"/>
+          <Column id="CNCL_STAT" type="STRING" size="1"/>
+          <Column id="CNCL_STAT_NM" type="STRING" size="10"/>
+          <Column id="PG_RES_CD" type="STRING" size="10"/>
+          <Column id="PG_RES_MSG" type="STRING" size="500"/>
+          <Column id="RETRY_CNT" type="INT" size="3"/>
+          <Column id="CNCL_DT" type="STRING" size="19"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_retry">
+        <ColumnInfo>
+          <Column id="PAY_NO" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_payMthdCbo"/>
+      <Dataset id="ds_payStatCbo"/>
+      <Dataset id="ds_cardCoCbo"/>
+      <Dataset id="ds_cardCo"/>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.cal_from" propid="value" datasetid="ds_search" columnid="FROM_DT"/>
+      <BindItem id="item1" compid="div_search.form.cal_to" propid="value" datasetid="ds_search" columnid="TO_DT"/>
+      <BindItem id="item2" compid="div_search.form.cbo_payMthd" propid="value" datasetid="ds_search" columnid="PAY_MTHD"/>
+      <BindItem id="item3" compid="div_search.form.cbo_payStat" propid="value" datasetid="ds_search" columnid="PAY_STAT"/>
+      <BindItem id="item4" compid="div_search.form.cbo_cardCo" propid="value" datasetid="ds_search" columnid="CARD_CO"/>
+      <BindItem id="item5" compid="div_search.form.edt_ordNo" propid="value" datasetid="ds_search" columnid="ORD_NO"/>
+      <BindItem id="item6" compid="div_search.form.edt_pgTid" propid="value" datasetid="ds_search" columnid="PG_TID"/>
+      <BindItem id="item7" compid="div_search.form.chk_cnclYn" propid="value" datasetid="ds_search" columnid="CNCL_YN"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.PayMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_payMthdCbo", "PAY_MTHD");
+	this.gfn_setCode("ds_payStatCbo", "PAY_STAT");
+	this.gfn_setCode("ds_cardCoCbo", "CARD_CO");
+	this.gfn_setCode("ds_cardCo", "CARD_CO");
+	var sToday = this.gfn_today();
+	this.ds_search.setColumn(0, "FROM_DT", sToday.substr(0, 6) + "01");
+	this.ds_search.setColumn(0, "TO_DT", sToday);
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	var sOrdNo = this.ds_search.getColumn(0, "ORD_NO");
+	var sTid = this.ds_search.getColumn(0, "PG_TID");
+	var sFrom = this.ds_search.getColumn(0, "FROM_DT");
+	var sTo = this.ds_search.getColumn(0, "TO_DT");
+	// 주문번호/TID로 찾을 때는 기간 무시
+	if (this.gfn_isEmpty(sOrdNo) && this.gfn_isEmpty(sTid)) {
+		if (this.gfn_isEmpty(sFrom) || this.gfn_isEmpty(sTo)) {
+			this.gfn_alert("결제일을 입력하세요.");
+			return;
+		}
+		if (this.gfn_diffDay(sFrom, sTo) < 0) {
+			this.gfn_alert("시작일이 종료일보다 늦습니다.");
+			return;
+		}
+		if (this.gfn_diffDay(sFrom, sTo) > 92) {
+			this.gfn_alert("조회기간은 3개월을 넘을 수 없습니다.");
+			return;
+		}
+	} else {
+		this.ds_search.setColumn(0, "FROM_DT", "");
+		this.ds_search.setColumn(0, "TO_DT", "");
+	}
+	this.ds_cncl.clearData();
+	this.gfn_callApi("pay.list", "ds_search=ds_search", "ds_pay=ds_pay", "fn_callback");
+};
+
+this.grd_pay_oncellclick = function(obj, e)
+{
+	var sPayNo = this.ds_pay.getColumn(e.row, "PAY_NO");
+	if (this.gfn_isEmpty(sPayNo)) return;
+	this.gfn_callApi("pay.detail", "", "ds_payInfo=ds_payInfo ds_cncl=ds_cncl", "fn_callback", "PAY_NO=" + sPayNo);
+};
+
+this.btn_retry_onclick = function(obj, e)
+{
+	var nRow = this.ds_pay.rowposition;
+	if (nRow < 0) {
+		this.gfn_alert("재처리할 결제를 선택하세요.");
+		return;
+	}
+	if (this.ds_pay.getColumn(nRow, "PAY_STAT") != "E") {
+		this.gfn_alert("취소실패 상태의 결제만 재처리할 수 있습니다.");
+		return;
+	}
+	var sPayNo = this.ds_pay.getColumn(nRow, "PAY_NO");
+	if (!this.gfn_confirm("[" + sPayNo + "] PG 취소를 다시 요청하시겠습니까?")) return;
+
+	this.ds_retry.clearData();
+	this.ds_retry.setColumn(this.ds_retry.addRow(), "PAY_NO", sPayNo);
+	this.gfn_callApi("pay.retryCancel", "ds_retry=ds_retry", "", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		if (svcId == "pay.retryCancel") {
+			this.fn_search();
+		}
+		return;
+	}
+	if (svcId == "pay.list") {
+		this.sta_cnt.set_text("총 " + this.gfn_numFormat(this.ds_pay.rowcount) + "건");
+	} else if (svcId == "pay.retryCancel") {
+		this.gfn_alert("재처리되었습니다.");
+		this.fn_search();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

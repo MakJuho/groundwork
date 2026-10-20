@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="CpnMng" width="1280" height="720" titletext="쿠폰 정책 관리" onload="CpnMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="쿠폰 정책 관리" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_cpnNm" taborder="1" text="쿠폰명" left="20" top="56" width="60" height="28"/>
+        <Edit id="edt_cpnNm" taborder="2" left="84" top="56" width="200" height="28"/>
+        <Static id="sta_cpnType" taborder="3" text="쿠폰유형" left="300" top="56" width="70" height="28"/>
+        <Combo id="cbo_cpnType" taborder="4" left="374" top="56" width="120" height="28" innerdataset="ds_cpnTypeAll" codecolumn="CD" datacolumn="CD_NM"/>
+        <Static id="sta_useYn" taborder="5" text="사용여부" left="510" top="56" width="70" height="28"/>
+        <Combo id="cbo_useYn" taborder="6" left="584" top="56" width="100" height="28" innerdataset="ds_useYn" codecolumn="CD" datacolumn="CD_NM"/>
+        <Button id="btn_search" taborder="7" text="조회" left="1184" top="56" width="76" height="28" onclick="btn_search_onclick"/>
+        <Button id="btn_add" taborder="8" text="추가" left="1018" top="100" width="76" height="28" onclick="btn_add_onclick"/>
+        <Button id="btn_del" taborder="9" text="사용중지" left="1100" top="100" width="76" height="28" onclick="btn_del_onclick"/>
+        <Button id="btn_save" taborder="10" text="저장" left="1184" top="100" width="76" height="28" onclick="btn_save_onclick"/>
+        <Static id="sta_guide" taborder="11" text="※ 정률 쿠폰은 할인율 1~90%, 최대할인액 필수 / 발급한도 0은 무제한" left="20" top="100" width="600" height="28"/>
+        <Grid id="grd_cpn" taborder="12" binddataset="ds_cpn" left="20" top="138" width="1240" height="562" autoenter="select">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="110"/>
+                <Column size="220"/>
+                <Column size="90"/>
+                <Column size="90"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="80"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="70"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="쿠폰ID"/>
+                <Cell col="1" text="쿠폰명"/>
+                <Cell col="2" text="유형"/>
+                <Cell col="3" text="할인값"/>
+                <Cell col="4" text="최대할인액"/>
+                <Cell col="5" text="최소주문금액"/>
+                <Cell col="6" text="유효일수"/>
+                <Cell col="7" text="발급한도"/>
+                <Cell col="8" text="발급수"/>
+                <Cell col="9" text="사용수"/>
+                <Cell col="10" text="발급시작일"/>
+                <Cell col="11" text="발급종료일"/>
+                <Cell col="12" text="사용"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CPN_ID"/>
+                <Cell col="1" text="bind:CPN_NM" edittype="normal"/>
+                <Cell col="2" text="bind:CPN_TYPE" displaytype="combotext" edittype="combo" combodataset="ds_cpnType" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="3" text="bind:DC_VAL" displaytype="number" edittype="mask" textAlign="right"/>
+                <Cell col="4" text="bind:MAX_DC_AMT" displaytype="number" edittype="mask" textAlign="right"/>
+                <Cell col="5" text="bind:MIN_ORD_AMT" displaytype="number" edittype="mask" textAlign="right"/>
+                <Cell col="6" text="bind:VALID_DAYS" displaytype="number" edittype="mask" textAlign="right"/>
+                <Cell col="7" text="bind:ISSUE_LMT_CNT" displaytype="number" edittype="mask" textAlign="right"/>
+                <Cell col="8" text="bind:ISSUE_CNT" displaytype="number" textAlign="right"/>
+                <Cell col="9" text="bind:USE_CNT" displaytype="number" textAlign="right"/>
+                <Cell col="10" text="bind:ISSUE_STRT_DT" displaytype="date" edittype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="11" text="bind:ISSUE_END_DT" displaytype="date" edittype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="12" text="bind:USE_YN"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="CPN_NM" type="STRING" size="100"/>
+          <Column id="CPN_TYPE" type="STRING" size="10"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_cpn">
+        <ColumnInfo>
+          <Column id="CPN_ID" type="STRING" size="20"/>
+          <Column id="CPN_NM" type="STRING" size="100"/>
+          <Column id="CPN_TYPE" type="STRING" size="10"/>
+          <Column id="DC_VAL" type="BIGDECIMAL" size="12"/>
+          <Column id="MAX_DC_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="MIN_ORD_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="VALID_DAYS" type="INT" size="4"/>
+          <Column id="ISSUE_LMT_CNT" type="INT" size="10"/>
+          <Column id="ISSUE_CNT" type="INT" size="10"/>
+          <Column id="USE_CNT" type="INT" size="10"/>
+          <Column id="ISSUE_STRT_DT" type="STRING" size="8"/>
+          <Column id="ISSUE_END_DT" type="STRING" size="8"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+          <Column id="RMK" type="STRING" size="500"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_cpnType"/>
+      <Dataset id="ds_cpnTypeAll">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="10"/>
+          <Column id="CD_NM" type="STRING" size="50"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">AMT</Col><Col id="CD_NM">정액할인</Col></Row>
+          <Row><Col id="CD">RATE</Col><Col id="CD_NM">정률할인</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_useYn">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="1"/>
+          <Column id="CD_NM" type="STRING" size="10"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">Y</Col><Col id="CD_NM">사용</Col></Row>
+          <Row><Col id="CD">N</Col><Col id="CD_NM">중지</Col></Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edt_cpnNm" propid="value" datasetid="ds_search" columnid="CPN_NM"/>
+      <BindItem id="item1" compid="cbo_cpnType" propid="value" datasetid="ds_search" columnid="CPN_TYPE"/>
+      <BindItem id="item2" compid="cbo_useYn" propid="value" datasetid="ds_search" columnid="USE_YN"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.CpnMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_cpnType", "CPN_TYPE");
+	this.ds_search.setColumn(0, "USE_YN", "Y");
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("cpn.list", "ds_search=ds_search", "ds_cpn=ds_cpn", "fn_callback");
+};
+
+this.btn_add_onclick = function(obj, e)
+{
+	var nRow = this.ds_cpn.addRow();
+	this.ds_cpn.setColumn(nRow, "CPN_TYPE", "AMT");
+	this.ds_cpn.setColumn(nRow, "MIN_ORD_AMT", 0);
+	this.ds_cpn.setColumn(nRow, "VALID_DAYS", 30);
+	this.ds_cpn.setColumn(nRow, "ISSUE_LMT_CNT", 0);
+	this.ds_cpn.setColumn(nRow, "USE_YN", "Y");
+	this.grd_cpn.setCellPos(1);
+};
+
+this.btn_del_onclick = function(obj, e)
+{
+	var nRow = this.ds_cpn.rowposition;
+	if (nRow < 0) {
+		this.gfn_alert("사용중지할 쿠폰을 선택하세요.");
+		return;
+	}
+	if (this.ds_cpn.getRowType(nRow) == Dataset.ROWTYPE_INSERT) {
+		this.ds_cpn.deleteRow(nRow);
+		return;
+	}
+	if (!this.gfn_confirm("선택한 쿠폰을 사용중지 하시겠습니까?\n이미 발급된 쿠폰은 유효기간까지 사용할 수 있습니다.")) {
+		return;
+	}
+	this.ds_cpn.deleteRow(nRow);
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	if (!this.fn_validate()) {
+		return;
+	}
+	if (!this.gfn_confirm("저장하시겠습니까?")) {
+		return;
+	}
+	this.gfn_callApi("cpn.save", "ds_cpn=ds_cpn:U", "", "fn_callback",
+		"USER_ID=" + nexacro.getApplication().gv_userId);
+};
+
+this.fn_validate = function()
+{
+	for (var i = 0; i < this.ds_cpn.rowcount; i++) {
+		var rowType = this.ds_cpn.getRowType(i);
+		if (rowType != Dataset.ROWTYPE_INSERT && rowType != Dataset.ROWTYPE_UPDATE) {
+			continue;
+		}
+		var cpnNm   = this.ds_cpn.getColumn(i, "CPN_NM");
+		var cpnType = this.ds_cpn.getColumn(i, "CPN_TYPE");
+		var dcVal   = nexacro.toNumber(this.gfn_nvl(this.ds_cpn.getColumn(i, "DC_VAL"), 0));
+		var maxDc   = nexacro.toNumber(this.gfn_nvl(this.ds_cpn.getColumn(i, "MAX_DC_AMT"), 0));
+
+		if (this.gfn_isEmpty(cpnNm)) {
+			this.gfn_alert((i + 1) + "행: 쿠폰명을 입력하세요.");
+			this.ds_cpn.rowposition = i;
+			return false;
+		}
+		if (this.gfn_isEmpty(cpnType)) {
+			this.gfn_alert((i + 1) + "행: 쿠폰유형을 선택하세요.");
+			this.ds_cpn.rowposition = i;
+			return false;
+		}
+		if (dcVal <= 0) {
+			this.gfn_alert((i + 1) + "행: 할인값을 입력하세요.");
+			this.ds_cpn.rowposition = i;
+			return false;
+		}
+		if (cpnType == "RATE") {
+			if (dcVal < 1 || dcVal > 90) {
+				this.gfn_alert((i + 1) + "행: 정률 할인율은 1~90% 사이로 입력하세요.");
+				this.ds_cpn.rowposition = i;
+				return false;
+			}
+			if (maxDc <= 0) {
+				this.gfn_alert((i + 1) + "행: 정률 쿠폰은 최대할인액을 입력해야 합니다.");
+				this.ds_cpn.rowposition = i;
+				return false;
+			}
+		}
+		if (nexacro.toNumber(this.gfn_nvl(this.ds_cpn.getColumn(i, "VALID_DAYS"), 0)) <= 0) {
+			this.gfn_alert((i + 1) + "행: 유효일수를 입력하세요.");
+			this.ds_cpn.rowposition = i;
+			return false;
+		}
+		var strtDt = this.ds_cpn.getColumn(i, "ISSUE_STRT_DT");
+		var endDt  = this.ds_cpn.getColumn(i, "ISSUE_END_DT");
+		if (!this.gfn_isEmpty(strtDt) && !this.gfn_isEmpty(endDt) && strtDt > endDt) {
+			this.gfn_alert((i + 1) + "행: 발급종료일이 시작일보다 빠릅니다.");
+			this.ds_cpn.rowposition = i;
+			return false;
+		}
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "cpn.save") {
+		this.gfn_alert("저장되었습니다.");
+		this.fn_search();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project version="2.1">
+  <EnvironmentDefinition url="environment.xml"/>
+  <AppInfos>
+    <AppInfo url="Application_Desktop.xadl"/>
+  </AppInfos>
+  <TypeDefinition url="typedefinition.xml">
+    <Services>
+      <Service prefixid="lib" type="js" url="./lib/"/>
+      <Service prefixid="cmm" type="form" url="./forms/cmm/"/>
+      <Service prefixid="mbr" type="form" url="./forms/mbr/"/>
+      <Service prefixid="prd" type="form" url="./forms/prd/"/>
+      <Service prefixid="stk" type="form" url="./forms/stk/"/>
+      <Service prefixid="ord" type="form" url="./forms/ord/"/>
+      <Service prefixid="pay" type="form" url="./forms/pay/"/>
+      <Service prefixid="cpn" type="form" url="./forms/cpn/"/>
+      <Service prefixid="pnt" type="form" url="./forms/pnt/"/>
+      <Service prefixid="dlv" type="form" url="./forms/dlv/"/>
+      <Service prefixid="clm" type="form" url="./forms/clm/"/>
+      <Service prefixid="stl" type="form" url="./forms/stl/"/>
+      <Service prefixid="svc" type="JSP" url="http://localhost:8080/commerce"/>
+    </Services>
+  </TypeDefinition>
+</Project>

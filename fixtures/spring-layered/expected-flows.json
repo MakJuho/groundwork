@@ -1,0 +1,16 @@
+{
+  "flows": [
+    {
+      "trigger": "POST /api/loans",
+      "steps": [
+        { "id": "F1", "file": "src/main/java/com/example/library/controller/LoanController.java", "anchor": "return service.borrow(req);" },
+        { "id": "F2", "file": "src/main/java/com/example/library/service/LoanService.java", "anchor": "books.findById(req.bookId())" },
+        { "id": "F3", "file": "src/main/java/com/example/library/service/LoanService.java", "anchor": "members.findById(req.memberId())" },
+        { "id": "F4", "file": "src/main/java/com/example/library/service/LoanService.java", "anchor": "if (!book.isAvailable())" },
+        { "id": "F5", "file": "src/main/java/com/example/library/service/LoanService.java", "anchor": ">= MAX_ACTIVE_LOANS" },
+        { "id": "F6", "file": "src/main/java/com/example/library/service/LoanService.java", "anchor": "book.setAvailable(false);" },
+        { "id": "F7", "file": "src/main/java/com/example/library/service/LoanService.java", "anchor": "loans.save(new Loan(" }
+      ]
+    }
+  ]
+}

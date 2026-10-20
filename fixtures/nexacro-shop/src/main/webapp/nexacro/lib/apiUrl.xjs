@@ -1,0 +1,11 @@
+/**
+ * 서비스 키 → 서버 URL 매핑. 화면은 URL 대신 키로 호출한다(gfn_callApi).
+ */
+this.gv_apiUrl = {
+	"member.list"   : "/member/list.do",
+	"member.save"   : "/member/save.do",
+	"order.list"    : "/order/list.do",
+	"order.cancel"  : "/order/cancel.do",
+	"product.list"  : "/product/list.do",
+	"product.save"  : "/product/save.do"
+};

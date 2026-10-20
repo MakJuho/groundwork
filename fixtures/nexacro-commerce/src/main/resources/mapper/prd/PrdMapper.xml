@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.prd.PrdMapper">
+
+  <sql id="prdCols">
+    P.PRD_CD, P.PRD_NM, P.SELLER_ID, P.CTG_CD, P.SALE_PRC, P.SALE_STAT, NVL(P.RTN_FEE, 3000) AS RTN_FEE
+  </sql>
+
+  <select id="selectPrdList" parameterType="map" resultType="map">
+    SELECT <include refid="prdCols"/>,
+           S.SELLER_NM, S.SELLER_STAT, C.CTG_NM, C.UPPER_CTG_CD, UC.CTG_NM AS UPPER_CTG_NM,
+           P.SUPPLY_PRC, P.DLV_FEE_TYPE, P.MAX_ORD_QTY, P.STOP_RSN,
+           NVL(K.STK_QTY, 0) AS STK_QTY,
+           NVL(K.STK_QTY, 0) - NVL(K.RSV_QTY, 0) AS AVAIL_QTY,
+           <!-- 주문가능: 판매중 + 가용재고 있음. 판매중지/종료는 재고와 무관하게 불가 -->
+           CASE WHEN P.SALE_STAT = 'ON' AND NVL(K.STK_QTY, 0) - NVL(K.RSV_QTY, 0) > 0 THEN 'Y'
+                ELSE 'N' END AS ORD_ABLE_YN,
+           TO_CHAR(P.REG_DT, 'YYYYMMDD') AS REG_DT,
+           TO_CHAR(P.UPD_DT, 'YYYY-MM-DD HH24:MI') AS UPD_DT
+      FROM TB_PRD P
+      JOIN TB_SELLER S ON S.SELLER_ID = P.SELLER_ID
+      JOIN TB_PRD_CTG C ON C.CTG_CD = P.CTG_CD
+      LEFT JOIN TB_PRD_CTG UC ON UC.CTG_CD = C.UPPER_CTG_CD
+      LEFT JOIN TB_STK K ON K.PRD_CD = P.PRD_CD
+    <where>
+      <if test="PRD_CD != null and PRD_CD != ''">AND P.PRD_CD LIKE #{PRD_CD} || '%'</if>
+      <if test="PRD_NM != null and PRD_NM != ''">AND P.PRD_NM LIKE '%' || #{PRD_NM} || '%'</if>
+      <if test="SELLER_ID != null and SELLER_ID != ''">AND P.SELLER_ID = #{SELLER_ID}</if>
+      <if test="CTG_CD != null and CTG_CD != ''">
+        AND (P.CTG_CD = #{CTG_CD} OR C.UPPER_CTG_CD = #{CTG_CD})
+      </if>
+      <if test="SALE_STAT != null and SALE_STAT != ''">AND P.SALE_STAT = #{SALE_STAT}</if>
+      <if test="PRC_FROM != null and PRC_FROM != ''">AND P.SALE_PRC <![CDATA[>=]]> #{PRC_FROM}</if>
+      <if test="PRC_TO != null and PRC_TO != ''">AND P.SALE_PRC <![CDATA[<=]]> #{PRC_TO}</if>
+    </where>
+     ORDER BY P.REG_DT DESC, P.PRD_CD
+  </select>
+
+  <select id="selectPrd" parameterType="string" resultType="map">
+    SELECT <include refid="prdCols"/>
+      FROM TB_PRD P
+     WHERE P.PRD_CD = #{prdCd}
+  </select>
+
+  <!-- 수수료율 산정 기초: 판매자 개별 / 카테고리 / 상위 카테고리 -->
+  <select id="selectPrdCommBase" parameterType="string" resultType="map">
+    SELECT P.PRD_CD,
+           S.COMM_RATE  AS SELLER_COMM_RATE,
+           C.COMM_RATE  AS CTG_COMM_RATE,
+           UC.COMM_RATE AS UPPER_CTG_COMM_RATE
+      FROM TB_PRD P
+      JOIN TB_SELLER S ON S.SELLER_ID = P.SELLER_ID
+      JOIN TB_PRD_CTG C ON C.CTG_CD = P.CTG_CD
+      LEFT JOIN TB_PRD_CTG UC ON UC.CTG_CD = C.UPPER_CTG_CD
+     WHERE P.PRD_CD = #{prdCd}
+  </select>
+
+  <insert id="insertPrd" parameterType="map">
+    INSERT INTO TB_PRD (PRD_CD, PRD_NM, SELLER_ID, CTG_CD, SALE_PRC, SUPPLY_PRC, SALE_STAT, RTN_FEE,
+                        DLV_FEE_TYPE, MAX_ORD_QTY, REG_DT, REG_ID)
+    VALUES (#{PRD_CD}, #{PRD_NM}, #{SELLER_ID}, #{CTG_CD}, #{SALE_PRC}, #{SUPPLY_PRC}, #{SALE_STAT}, #{RTN_FEE},
+            NVL(#{DLV_FEE_TYPE}, 'B'), #{MAX_ORD_QTY}, SYSDATE, #{USER_ID})
+  </insert>
+
+  <update id="updatePrd" parameterType="map">
+    UPDATE TB_PRD
+       SET PRD_NM       = #{PRD_NM},
+           CTG_CD       = #{CTG_CD},
+           SALE_PRC     = #{SALE_PRC},
+           SUPPLY_PRC   = #{SUPPLY_PRC},
+           SALE_STAT    = #{SALE_STAT},
+           RTN_FEE      = #{RTN_FEE},
+           DLV_FEE_TYPE = NVL(#{DLV_FEE_TYPE}, DLV_FEE_TYPE),
+           MAX_ORD_QTY  = #{MAX_ORD_QTY},
+           STOP_RSN     = DECODE(#{SALE_STAT}, 'ON', NULL, NVL(#{STOP_RSN}, STOP_RSN)),
+           UPD_ID       = #{USER_ID},
+           UPD_DT       = SYSDATE
+     WHERE PRD_CD = #{PRD_CD}
+  </update>
+
+  <!-- 카테고리: 대분류 아래 중분류 순으로 정렬 (트리 표시용 LVL) -->
+  <select id="selectCtgList" parameterType="map" resultType="map">
+    SELECT C.CTG_CD, C.CTG_NM, C.UPPER_CTG_CD, C.CTG_LVL, C.COMM_RATE,
+           NVL(C.COMM_RATE, UC.COMM_RATE) AS APPLY_COMM_RATE,
+           C.SORT_ORD, C.USE_YN,
+           (SELECT COUNT(*) FROM TB_PRD P WHERE P.CTG_CD = C.CTG_CD) AS PRD_CNT
+      FROM TB_PRD_CTG C
+      LEFT JOIN TB_PRD_CTG UC ON UC.CTG_CD = C.UPPER_CTG_CD
+    <where>
+      <if test="CTG_NM != null and CTG_NM != ''">AND C.CTG_NM LIKE '%' || #{CTG_NM} || '%'</if>
+      <if test="USE_YN != null and USE_YN != ''">AND C.USE_YN = #{USE_YN}</if>
+    </where>
+     ORDER BY NVL(UC.SORT_ORD, C.SORT_ORD), NVL(C.UPPER_CTG_CD, C.CTG_CD), C.CTG_LVL, C.SORT_ORD
+  </select>
+
+  <select id="selectCtg" parameterType="string" resultType="map">
+    SELECT CTG_CD, CTG_NM, UPPER_CTG_CD, COMM_RATE, USE_YN FROM TB_PRD_CTG WHERE CTG_CD = #{ctgCd}
+  </select>
+
+  <select id="countChildCtg" parameterType="string" resultType="int">
+    SELECT COUNT(*) FROM TB_PRD_CTG WHERE UPPER_CTG_CD = #{ctgCd}
+  </select>
+
+  <select id="countPrdByCtg" parameterType="string" resultType="int">
+    SELECT COUNT(*) FROM TB_PRD WHERE CTG_CD = #{ctgCd}
+  </select>
+
+  <update id="mergeCtg" parameterType="map">
+    MERGE INTO TB_PRD_CTG T
+    USING (SELECT #{CTG_CD} AS CTG_CD FROM DUAL) S
+       ON (T.CTG_CD = S.CTG_CD)
+     WHEN MATCHED THEN
+          UPDATE SET CTG_NM = #{CTG_NM}, UPPER_CTG_CD = #{UPPER_CTG_CD}, CTG_LVL = #{CTG_LVL},
+                     COMM_RATE = #{COMM_RATE}, SORT_ORD = NVL(#{SORT_ORD}, 0), USE_YN = NVL(#{USE_YN}, 'Y'),
+                     UPD_ID = #{USER_ID}, UPD_DT = SYSDATE
+     WHEN NOT MATCHED THEN
+          INSERT (CTG_CD, CTG_NM, UPPER_CTG_CD, CTG_LVL, COMM_RATE, SORT_ORD, USE_YN, REG_DT)
+          VALUES (#{CTG_CD}, #{CTG_NM}, #{UPPER_CTG_CD}, #{CTG_LVL}, #{COMM_RATE}, NVL(#{SORT_ORD}, 0), NVL(#{USE_YN}, 'Y'), SYSDATE)
+  </update>
+
+  <delete id="deleteCtg" parameterType="string">
+    DELETE FROM TB_PRD_CTG WHERE CTG_CD = #{ctgCd}
+  </delete>
+
+  <select id="selectSeller" parameterType="string" resultType="map">
+    SELECT SELLER_ID, SELLER_NM, BIZ_NO, COMM_RATE, STL_ACCT_NO, BANK_CD, SELLER_STAT
+      FROM TB_SELLER
+     WHERE SELLER_ID = #{sellerId}
+  </select>
+
+  <update id="updateSellerStat" parameterType="map">
+    UPDATE TB_SELLER
+       SET SELLER_STAT = #{SELLER_STAT},
+           STOP_RSN    = DECODE(#{SELLER_STAT}, 'A', NULL, #{STOP_RSN}),
+           STOP_DT     = DECODE(#{SELLER_STAT}, 'A', NULL, SYSDATE),
+           UPD_ID      = #{USER_ID},
+           UPD_DT      = SYSDATE
+     WHERE SELLER_ID = #{SELLER_ID}
+  </update>
+
+  <!-- 판매자 정지 시 판매중 상품 일괄 판매중지 -->
+  <update id="updatePrdStopBySeller" parameterType="map">
+    UPDATE TB_PRD
+       SET SALE_STAT = 'STOP',
+           STOP_RSN  = #{STOP_RSN},
+           UPD_ID    = #{USER_ID},
+           UPD_DT    = SYSDATE
+     WHERE SELLER_ID = #{SELLER_ID}
+       AND SALE_STAT = 'ON'
+  </update>
+</mapper>

@@ -1,0 +1,22 @@
+{
+  "screens": [
+    { "id": "MemberMng", "file": "src/main/webapp/nexacro/forms/member/MemberMng.xfdl", "title": "회원 관리",
+      "buttons": [
+        { "id": "btn_search", "left": 1170, "top": 58, "url": "/member/list.do", "endpoint": "MemberController.list" },
+        { "id": "btn_add", "url": null, "endpoint": null },
+        { "id": "btn_delete", "url": null, "endpoint": null },
+        { "id": "btn_save", "left": 1184, "top": 106, "url": "/member/save.do", "endpoint": "MemberController.save", "inDatasets": ["ds_member"], "callback": "fn_callback" }
+      ] },
+    { "id": "OrderMng", "file": "src/main/webapp/nexacro/forms/order/OrderMng.xfdl", "title": "주문 관리",
+      "buttons": [
+        { "id": "btn_search", "url": "/order/list.do", "endpoint": "OrderController.list" },
+        { "id": "btn_cancel", "url": "/order/cancel.do", "endpoint": "OrderController.cancel", "inDatasets": ["ds_cancel"] }
+      ] },
+    { "id": "ProductMng", "file": "src/main/webapp/nexacro/forms/product/ProductMng.xfdl", "title": "상품 관리",
+      "buttons": [
+        { "id": "btn_search", "url": "/product/list.do", "endpoint": "ProductController.list" },
+        { "id": "btn_add", "url": null, "endpoint": null },
+        { "id": "btn_save", "left": 1184, "top": 100, "url": "/product/save.do", "endpoint": "ProductController.save" }
+      ] }
+  ]
+}

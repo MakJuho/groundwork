@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.shop.product.ProductMapper">
+
+  <select id="selectProducts" parameterType="map" resultType="com.example.shop.product.ProductDto">
+    SELECT PRODUCT_CD, PRODUCT_NM, PRICE, STOCK_QTY FROM TB_PRODUCT
+    <where>
+      <if test="PRODUCT_NM != null and PRODUCT_NM != ''">PRODUCT_NM LIKE '%' || #{PRODUCT_NM} || '%'</if>
+    </where>
+     ORDER BY PRODUCT_CD
+  </select>
+
+  <insert id="insertProduct" parameterType="com.example.shop.product.ProductDto">
+    INSERT INTO TB_PRODUCT (PRODUCT_CD, PRODUCT_NM, PRICE, STOCK_QTY, REG_DT)
+    VALUES (#{productCd}, #{productNm}, #{price}, #{stockQty}, SYSDATE)
+  </insert>
+
+  <update id="updateProduct" parameterType="com.example.shop.product.ProductDto">
+    UPDATE TB_PRODUCT SET PRODUCT_NM = #{productNm}, PRICE = #{price}, STOCK_QTY = #{stockQty}, UPD_DT = SYSDATE
+     WHERE PRODUCT_CD = #{productCd}
+  </update>
+</mapper>

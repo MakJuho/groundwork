@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="MbrGradeHist" width="1280" height="720" titletext="회원 등급 이력" onload="MbrGradeHist_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="회원 등급 이력 / 등급 변경" left="20" top="12" width="300" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="44" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_mbrId" taborder="0" text="회원ID" left="12" top="8" width="60" height="28"/>
+              <Edit id="edt_mbrId" taborder="1" left="76" top="8" width="140" height="28"/>
+              <Static id="sta_chgType" taborder="2" text="구분" left="232" top="8" width="40" height="28"/>
+              <Combo id="cbo_chgType" taborder="3" left="276" top="8" width="100" height="28" innerdataset="ds_chgType" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_chgDt" taborder="4" text="변경일" left="392" top="8" width="50" height="28"/>
+              <Calendar id="cal_from" taborder="5" left="446" top="8" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Static id="sta_wave" taborder="6" text="~" left="580" top="8" width="16" height="28"/>
+              <Calendar id="cal_to" taborder="7" left="598" top="8" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Button id="btn_search" taborder="8" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Grid id="grd_hist" taborder="2" binddataset="ds_hist" left="20" top="104" width="1240" height="440" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="120"/>
+                <Column size="100"/>
+                <Column size="60"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="60"/>
+                <Column size="120"/>
+                <Column size="300"/>
+                <Column size="160"/>
+                <Column size="100"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="회원ID"/>
+                <Cell col="1" text="회원명"/>
+                <Cell col="2" text="순번"/>
+                <Cell col="3" text="변경전"/>
+                <Cell col="4" text="변경후"/>
+                <Cell col="5" text="구분"/>
+                <Cell col="6" text="6개월 구매확정"/>
+                <Cell col="7" text="사유"/>
+                <Cell col="8" text="변경일시"/>
+                <Cell col="9" text="처리자"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:MBR_ID"/>
+                <Cell col="1" text="bind:MBR_NM"/>
+                <Cell col="2" text="bind:HIST_SEQ"/>
+                <Cell col="3" text="bind:BF_GRADE_CD" displaytype="combotext" combodataset="ds_grade" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="4" text="bind:AF_GRADE_CD" displaytype="combotext" combodataset="ds_grade" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="5" text="bind:CHG_TYPE_NM"/>
+                <Cell col="6" text="bind:CNFM_AMT_6M" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:CHG_RSN"/>
+                <Cell col="8" text="bind:CHG_DT"/>
+                <Cell col="9" text="bind:CHG_ID"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Div id="div_change" taborder="3" left="20" top="556" width="1240" height="144" text="" cssclass="div_detail">
+          <Layouts>
+            <Layout>
+              <Static id="sta_subTitle" taborder="0" text="등급 수동 변경" left="12" top="8" width="200" height="24" cssclass="sta_subtitle"/>
+              <Static id="sta_mbrId" taborder="1" text="회원ID" left="12" top="40" width="70" height="28"/>
+              <Edit id="edt_mbrId" taborder="2" left="86" top="40" width="160" height="28"/>
+              <Static id="sta_bfGrade" taborder="3" text="현재등급" left="262" top="40" width="70" height="28"/>
+              <Combo id="cbo_bfGrade" taborder="4" left="336" top="40" width="110" height="28" readonly="true" innerdataset="ds_grade" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_afGrade" taborder="5" text="변경등급" left="462" top="40" width="70" height="28"/>
+              <Combo id="cbo_afGrade" taborder="6" left="536" top="40" width="110" height="28" innerdataset="ds_grade" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_rsn" taborder="7" text="변경사유" left="12" top="76" width="70" height="28"/>
+              <TextArea id="txt_rsn" taborder="8" left="86" top="76" width="900" height="56" maxlength="300"/>
+              <Button id="btn_change" taborder="9" text="등급변경" left="1150" top="76" width="76" height="28" onclick="btn_change_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="CHG_TYPE" type="STRING" size="1"/>
+          <Column id="FROM_DT" type="STRING" size="8"/>
+          <Column id="TO_DT" type="STRING" size="8"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_hist">
+        <ColumnInfo>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="MBR_NM" type="STRING" size="50"/>
+          <Column id="HIST_SEQ" type="INT" size="6"/>
+          <Column id="BF_GRADE_CD" type="STRING" size="10"/>
+          <Column id="AF_GRADE_CD" type="STRING" size="10"/>
+          <Column id="CHG_TYPE_NM" type="STRING" size="10"/>
+          <Column id="CNFM_AMT_6M" type="BIGDECIMAL" size="15"/>
+          <Column id="CHG_RSN" type="STRING" size="300"/>
+          <Column id="CHG_DT" type="STRING" size="20"/>
+          <Column id="CHG_ID" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_grade"/>
+      <Dataset id="ds_gradeIn">
+        <ColumnInfo>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="BF_GRADE_CD" type="STRING" size="10"/>
+          <Column id="AF_GRADE_CD" type="STRING" size="10"/>
+          <Column id="CHG_RSN" type="STRING" size="300"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_chgType">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="1"/>
+          <Column id="CD_NM" type="STRING" size="10"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">B</Col><Col id="CD_NM">배치</Col></Row>
+          <Row><Col id="CD">M</Col><Col id="CD_NM">수동</Col></Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_mbrId" propid="value" datasetid="ds_search" columnid="MBR_ID"/>
+      <BindItem id="item1" compid="div_search.form.cbo_chgType" propid="value" datasetid="ds_search" columnid="CHG_TYPE"/>
+      <BindItem id="item2" compid="div_search.form.cal_from" propid="value" datasetid="ds_search" columnid="FROM_DT"/>
+      <BindItem id="item3" compid="div_search.form.cal_to" propid="value" datasetid="ds_search" columnid="TO_DT"/>
+      <BindItem id="item4" compid="div_change.form.edt_mbrId" propid="value" datasetid="ds_gradeIn" columnid="MBR_ID"/>
+      <BindItem id="item5" compid="div_change.form.cbo_bfGrade" propid="value" datasetid="ds_gradeIn" columnid="BF_GRADE_CD"/>
+      <BindItem id="item6" compid="div_change.form.cbo_afGrade" propid="value" datasetid="ds_gradeIn" columnid="AF_GRADE_CD"/>
+      <BindItem id="item7" compid="div_change.form.txt_rsn" propid="value" datasetid="ds_gradeIn" columnid="CHG_RSN"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.MbrGradeHist_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_grade", "MBR_GRADE");
+
+	var sToday = this.gfn_today();
+	this.ds_search.setColumn(0, "FROM_DT", sToday.substr(0, 4) + "0101");
+	this.ds_search.setColumn(0, "TO_DT", sToday);
+
+	// 회원관리 화면에서 넘어온 경우
+	var sMbrId = nexacro.getApplication().gv_paramMbrId;
+	if (!this.gfn_isEmpty(sMbrId)) {
+		this.ds_search.setColumn(0, "MBR_ID", sMbrId);
+		this.ds_gradeIn.setColumn(0, "MBR_ID", sMbrId);
+		nexacro.getApplication().gv_paramMbrId = "";
+		this.fn_search();
+	}
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("mbr.grade.hist", "ds_search=ds_search", "ds_hist=ds_hist", "fn_callback");
+};
+
+this.btn_change_onclick = function(obj, e)
+{
+	if (!this.fn_validate()) return;
+
+	var sAf = this.ds_gradeIn.getColumn(0, "AF_GRADE_CD");
+	var sMsg = "[" + this.ds_gradeIn.getColumn(0, "MBR_ID") + "] 회원 등급을 "
+		+ this.gfn_getCodeVal(this.ds_grade, sAf) + "(으)로 변경하시겠습니까?";
+	if (!this.gfn_confirm(sMsg)) return;
+
+	this.gfn_callApi("mbr.grade.change", "ds_grade=ds_gradeIn", "", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+/** 등급 변경 검사: 회원/변경등급/사유 필수, 현재등급과 동일 불가 */
+this.fn_validate = function()
+{
+	var sMbrId = this.ds_gradeIn.getColumn(0, "MBR_ID");
+	var sBf = this.ds_gradeIn.getColumn(0, "BF_GRADE_CD");
+	var sAf = this.ds_gradeIn.getColumn(0, "AF_GRADE_CD");
+	var sRsn = this.ds_gradeIn.getColumn(0, "CHG_RSN");
+
+	if (this.gfn_isEmpty(sMbrId)) {
+		this.gfn_alert("회원ID를 입력하세요.");
+		this.div_change.form.edt_mbrId.setFocus();
+		return false;
+	}
+	if (this.gfn_isEmpty(sAf)) {
+		this.gfn_alert("변경할 등급을 선택하세요.");
+		this.div_change.form.cbo_afGrade.setFocus();
+		return false;
+	}
+	if (!this.gfn_isEmpty(sBf) && sBf == sAf) {
+		this.gfn_alert("현재 등급과 같습니다.");
+		return false;
+	}
+	if (this.gfn_isEmpty(sRsn) || String(sRsn).trim().length < 5) {
+		this.gfn_alert("변경 사유를 5자 이상 입력하세요.");
+		this.div_change.form.txt_rsn.setFocus();
+		return false;
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "mbr.grade.hist":
+			// 최근 이력의 변경후 등급을 현재등급으로 표시
+			if (this.ds_hist.rowcount > 0 && !this.gfn_isEmpty(this.ds_search.getColumn(0, "MBR_ID"))) {
+				this.ds_gradeIn.setColumn(0, "MBR_ID", this.ds_hist.getColumn(0, "MBR_ID"));
+				this.ds_gradeIn.setColumn(0, "BF_GRADE_CD", this.ds_hist.getColumn(0, "AF_GRADE_CD"));
+			}
+			break;
+		case "mbr.grade.change":
+			this.gfn_alert("등급이 변경되었습니다.");
+			this.ds_gradeIn.setColumn(0, "AF_GRADE_CD", "");
+			this.ds_gradeIn.setColumn(0, "CHG_RSN", "");
+			this.ds_search.setColumn(0, "MBR_ID", this.ds_gradeIn.getColumn(0, "MBR_ID"));
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

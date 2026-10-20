@@ -1,0 +1,58 @@
+/**
+ * 서비스 키 → 서버 URL 매핑. 화면은 URL 대신 키로 호출한다(gfn_callApi).
+ */
+this.gv_apiUrl = {
+	// 공통
+	"cmm.code.list"      : "/cmm/selectCodeList.do",
+	"cmm.code.save"      : "/cmm/saveCode.do",
+	// 회원
+	"mbr.list"           : "/mbr/selectMbrList.do",
+	"mbr.save"           : "/mbr/saveMbr.do",
+	"mbr.grade.hist"     : "/mbr/selectGradeHist.do",
+	"mbr.grade.change"   : "/mbr/changeGrade.do",
+	// 상품
+	"prd.list"           : "/prd/selectPrdList.do",
+	"prd.save"           : "/prd/savePrd.do",
+	"prd.ctg.list"       : "/prd/selectCtgList.do",
+	"prd.ctg.save"       : "/prd/saveCtg.do",
+	// 재고
+	"stk.list"           : "/stk/selectStkList.do",
+	"stk.adjust"         : "/stk/adjustStk.do",
+	// 주문
+	"ord.list"           : "/ord/selectOrdList.do",
+	"ord.detail"         : "/ord/selectOrdDetail.do",
+	"ord.prepare"        : "/ord/prepareOrd.do",
+	"ord.cancel"         : "/ord/cancelOrd.do",
+	"ord.partCancel"     : "/ord/partCancelOrd.do",
+	"ord.confirm"        : "/ord/confirmPurchase.do",
+	// 결제
+	"pay.list"           : "/pay/selectPayList.do",
+	"pay.detail"         : "/pay/selectPayDetail.do",
+	"pay.retryCancel"    : "/pay/retryCancel.do",
+	// 쿠폰
+	"cpn.list"           : "/cpn/selectCpnList.do",
+	"cpn.save"           : "/cpn/saveCpn.do",
+	"cpn.issue.list"     : "/cpn/selectIssueList.do",
+	"cpn.issue"          : "/cpn/issueCpn.do",
+	// 포인트
+	"pnt.list"           : "/pnt/selectPntList.do",
+	"pnt.adjust"         : "/pnt/adjustPnt.do",
+	// 배송
+	"dlv.list"           : "/dlv/selectDlvList.do",
+	"dlv.ship"           : "/dlv/shipDlv.do",
+	"dlv.complete"       : "/dlv/completeDlv.do",
+	"dlv.track"          : "/dlv/trackDlv.do",
+	// 클레임(반품·환불)
+	"clm.list"           : "/clm/selectClmList.do",
+	"clm.detail"         : "/clm/selectClmDetail.do",
+	"clm.return.req"     : "/clm/requestReturn.do",
+	"clm.return.complete": "/clm/completeReturn.do",
+	"clm.reject"         : "/clm/rejectClm.do",
+	// 정산
+	"stl.list"           : "/stl/selectStlList.do",
+	"stl.detail"         : "/stl/selectStlDetail.do",
+	"stl.hold"           : "/stl/holdStl.do",
+	"stl.release"        : "/stl/releaseHold.do",
+	"stl.confirm"        : "/stl/confirmStl.do"
+	//"stl.excel"        : "/stl/excelDown.do"  2022.03 엑셀 다운로드는 리포트 서버로 이관
+};

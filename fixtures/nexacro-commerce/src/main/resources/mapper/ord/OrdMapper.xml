@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.ord.OrdMapper">
+
+  <sql id="ordStatNm">
+    DECODE(O.ORD_STAT, '10', '주문접수', '20', '결제완료', '30', '상품준비', '40', '출고',
+                       '50', '배송완료', '60', '구매확정', '80', '부분취소', '90', '주문취소', O.ORD_STAT)
+  </sql>
+
+  <sql id="ordCols">
+           O.ORD_NO, O.MBR_ID, O.ORD_STAT, <include refid="ordStatNm"/> AS ORD_STAT_NM,
+           O.ORD_AMT, O.CPN_DC_AMT, O.PNT_USE_AMT, O.DLV_FEE, O.PAY_AMT, O.CNCL_AMT,
+           TO_CHAR(O.ORD_DT, 'YYYY-MM-DD HH24:MI:SS') AS ORD_DT,
+           TO_CHAR(O.PAY_DT, 'YYYY-MM-DD HH24:MI:SS') AS PAY_DT,
+           TO_CHAR(O.CNFM_DT, 'YYYY-MM-DD HH24:MI:SS') AS CNFM_DT,
+           TO_CHAR(O.CNCL_DT, 'YYYY-MM-DD HH24:MI:SS') AS CNCL_DT,
+           O.CNFM_TYPE, O.RCV_NM, O.RCV_HP, O.RCV_ZIP, O.RCV_ADDR, O.RCV_ADDR_DTL, O.DLV_MSG, O.ORD_CHNL, O.CNCL_RSN
+  </sql>
+
+  <!-- 주문 목록 검색조건 -->
+  <sql id="ordListWhere">
+    <where>
+      <if test="FROM_DT != null and FROM_DT != ''">
+        <choose>
+          <when test="DT_TYPE == 'PAY'">AND O.PAY_DT &gt;= TO_DATE(#{FROM_DT}, 'YYYYMMDD')</when>
+          <when test="DT_TYPE == 'CNFM'">AND O.CNFM_DT &gt;= TO_DATE(#{FROM_DT}, 'YYYYMMDD')</when>
+          <otherwise>AND O.ORD_DT &gt;= TO_DATE(#{FROM_DT}, 'YYYYMMDD')</otherwise>
+        </choose>
+      </if>
+      <if test="TO_DT != null and TO_DT != ''">
+        <choose>
+          <when test="DT_TYPE == 'PAY'">AND O.PAY_DT &lt; TO_DATE(#{TO_DT}, 'YYYYMMDD') + 1</when>
+          <when test="DT_TYPE == 'CNFM'">AND O.CNFM_DT &lt; TO_DATE(#{TO_DT}, 'YYYYMMDD') + 1</when>
+          <otherwise>AND O.ORD_DT &lt; TO_DATE(#{TO_DT}, 'YYYYMMDD') + 1</otherwise>
+        </choose>
+      </if>
+      <if test="ORD_STAT_LIST != null and ORD_STAT_LIST.size() > 0">
+        AND O.ORD_STAT IN
+        <foreach collection="ORD_STAT_LIST" item="stat" open="(" separator="," close=")">#{stat}</foreach>
+      </if>
+      <if test="ORD_NO != null and ORD_NO != ''">AND O.ORD_NO = #{ORD_NO}</if>
+      <if test="MBR_ID != null and MBR_ID != ''">AND O.MBR_ID = #{MBR_ID}</if>
+      <if test="MBR_NM != null and MBR_NM != ''">
+        AND EXISTS (SELECT 1 FROM TB_MBR M WHERE M.MBR_ID = O.MBR_ID AND M.MBR_NM LIKE #{MBR_NM} || '%')
+      </if>
+      <if test="RCV_NM != null and RCV_NM != ''">AND O.RCV_NM LIKE #{RCV_NM} || '%'</if>
+      <if test="RCV_HP != null and RCV_HP != ''">AND REPLACE(O.RCV_HP, '-', '') LIKE '%' || REPLACE(#{RCV_HP}, '-', '')</if>
+      <if test="(PRD_CD != null and PRD_CD != '') or (PRD_NM != null and PRD_NM != '') or (SELLER_ID != null and SELLER_ID != '')">
+        AND EXISTS (
+            SELECT 1
+              FROM TB_ORD_ITEM I
+              JOIN TB_PRD P ON P.PRD_CD = I.PRD_CD
+             WHERE I.ORD_NO = O.ORD_NO
+            <if test="PRD_CD != null and PRD_CD != ''">AND I.PRD_CD = #{PRD_CD}</if>
+            <if test="PRD_NM != null and PRD_NM != ''">AND P.PRD_NM LIKE '%' || #{PRD_NM} || '%'</if>
+            <if test="SELLER_ID != null and SELLER_ID != ''">AND I.SELLER_ID = #{SELLER_ID}</if>
+        )
+      </if>
+      <if test="PAY_MTHD != null and PAY_MTHD != ''">
+        AND EXISTS (SELECT 1 FROM TB_PAY Y WHERE Y.ORD_NO = O.ORD_NO AND Y.PAY_MTHD = #{PAY_MTHD})
+      </if>
+      <if test="ORD_CHNL != null and ORD_CHNL != ''">AND O.ORD_CHNL = #{ORD_CHNL}</if>
+      <if test="MIN_PAY_AMT != null and MIN_PAY_AMT != ''">AND O.PAY_AMT &gt;= #{MIN_PAY_AMT}</if>
+      <if test="CPN_USE_YN == 'Y'">AND O.CPN_DC_AMT &gt; 0</if>
+      <if test="PNT_USE_YN == 'Y'">AND O.PNT_USE_AMT &gt; 0</if>
+    </where>
+  </sql>
+
+  <select id="selectOrdList" parameterType="map" resultType="map">
+    SELECT *
+      FROM (
+            SELECT ROWNUM AS RNUM, A.*
+              FROM (
+                    SELECT <include refid="ordCols"/>,
+                           (SELECT M.MBR_NM FROM TB_MBR M WHERE M.MBR_ID = O.MBR_ID) AS MBR_NM,
+                           (SELECT COUNT(*) FROM TB_ORD_ITEM I WHERE I.ORD_NO = O.ORD_NO) AS ITEM_CNT,
+                           (SELECT P.PRD_NM
+                              FROM TB_ORD_ITEM I JOIN TB_PRD P ON P.PRD_CD = I.PRD_CD
+                             WHERE I.ORD_NO = O.ORD_NO AND I.ITEM_SEQ = 1) AS REP_PRD_NM,
+                           (SELECT Y.PAY_MTHD FROM TB_PAY Y
+                             WHERE Y.ORD_NO = O.ORD_NO AND ROWNUM = 1) AS PAY_MTHD,
+                           (SELECT D.DLV_STAT FROM TB_DLV D WHERE D.ORD_NO = O.ORD_NO AND ROWNUM = 1) AS DLV_STAT,
+                           'N' AS CHK
+                      FROM TB_ORD O
+                    <include refid="ordListWhere"/>
+                    <choose>
+                      <when test="SORT == 'AMT'"> ORDER BY O.PAY_AMT DESC, O.ORD_NO DESC</when>
+                      <otherwise> ORDER BY O.ORD_DT DESC, O.ORD_NO DESC</otherwise>
+                    </choose>
+                   ) A
+             WHERE ROWNUM &lt;= #{PAGE_NO} * #{PAGE_SIZE}
+           )
+     WHERE RNUM &gt; (#{PAGE_NO} - 1) * #{PAGE_SIZE}
+  </select>
+
+  <select id="selectOrdListCnt" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+      FROM TB_ORD O
+    <include refid="ordListWhere"/>
+  </select>
+
+  <select id="selectOrd" parameterType="string" resultType="map">
+    SELECT <include refid="ordCols"/>,
+           (SELECT M.MBR_NM FROM TB_MBR M WHERE M.MBR_ID = O.MBR_ID) AS MBR_NM
+      FROM TB_ORD O
+     WHERE O.ORD_NO = #{ordNo}
+  </select>
+
+  <select id="selectOrdForUpdate" parameterType="string" resultType="map">
+    SELECT O.ORD_NO, O.MBR_ID, O.ORD_STAT, O.ORD_AMT, O.CPN_DC_AMT, O.PNT_USE_AMT, O.DLV_FEE, O.PAY_AMT, O.CNCL_AMT
+      FROM TB_ORD O
+     WHERE O.ORD_NO = #{ordNo}
+       FOR UPDATE
+  </select>
+
+  <select id="selectOrdItemList" parameterType="string" resultType="map">
+    SELECT I.ORD_NO, I.ITEM_SEQ, I.PRD_CD, P.PRD_NM, I.SELLER_ID,
+           (SELECT S.SELLER_NM FROM TB_SELLER S WHERE S.SELLER_ID = I.SELLER_ID) AS SELLER_NM,
+           I.QTY, I.UNIT_PRC, I.ITEM_AMT, I.ITEM_STAT,
+           DECODE(I.ITEM_STAT, 'N', '정상', 'C', '취소', 'R', '반품요청', 'X', '반품완료', I.ITEM_STAT) AS ITEM_STAT_NM,
+           I.CPN_DC_SHARE_AMT, I.PNT_SHARE_AMT, I.REFUND_AMT,
+           TO_CHAR(I.CNCL_DT, 'YYYY-MM-DD HH24:MI:SS') AS CNCL_DT,
+           'N' AS CHK
+      FROM TB_ORD_ITEM I
+      LEFT OUTER JOIN TB_PRD P ON P.PRD_CD = I.PRD_CD
+     WHERE I.ORD_NO = #{ordNo}
+     ORDER BY I.ITEM_SEQ
+  </select>
+
+  <select id="selectOrdItem" parameterType="map" resultType="map">
+    SELECT ORD_NO, ITEM_SEQ, PRD_CD, SELLER_ID, QTY, UNIT_PRC, ITEM_AMT, ITEM_STAT
+      FROM TB_ORD_ITEM
+     WHERE ORD_NO = #{ORD_NO}
+       AND ITEM_SEQ = #{ITEM_SEQ}
+  </select>
+
+  <select id="selectStatHistList" parameterType="string" resultType="map">
+    SELECT H.ORD_NO, H.HIST_SEQ, H.BF_STAT, H.AF_STAT,
+           DECODE(H.AF_STAT, '10', '주문접수', '20', '결제완료', '30', '상품준비', '40', '출고',
+                             '50', '배송완료', '60', '구매확정', '80', '부분취소', '90', '주문취소') AS AF_STAT_NM,
+           H.CHG_RSN, TO_CHAR(H.CHG_DT, 'YYYY-MM-DD HH24:MI:SS') AS CHG_DT, H.CHG_ID
+      FROM TB_ORD_STAT_HIST H
+     WHERE H.ORD_NO = #{ordNo}
+     ORDER BY H.HIST_SEQ
+  </select>
+
+  <!-- 자동 구매확정 대상: 배송완료 상태로 일정 기간 이상 머문 주문 (배송완료일 최종 판단은 서비스에서) -->
+  <select id="selectAutoCnfmTargetList" parameterType="map" resultType="map">
+    SELECT O.ORD_NO, O.MBR_ID, TO_CHAR(O.UPD_DT, 'YYYYMMDD') AS UPD_YMD
+      FROM TB_ORD O
+     WHERE O.ORD_STAT = '50'
+       AND O.UPD_DT &lt; TRUNC(SYSDATE) - #{CNFM_DAYS} + 1
+       AND NOT EXISTS (SELECT 1 FROM TB_ORD_ITEM I WHERE I.ORD_NO = O.ORD_NO AND I.ITEM_STAT = 'R')
+     ORDER BY O.ORD_NO
+  </select>
+
+  <update id="updateOrdStat" parameterType="map">
+    UPDATE TB_ORD
+       SET ORD_STAT = #{AF_STAT}
+         <if test="AF_STAT == '20'">, PAY_DT = NVL(PAY_DT, SYSDATE)</if>
+         <if test="AF_STAT == '60'">, CNFM_DT = SYSDATE, CNFM_TYPE = #{CNFM_TYPE}</if>
+         <if test="AF_STAT == '90'">, CNCL_DT = SYSDATE</if>
+         <if test="CNCL_RSN != null and CNCL_RSN != ''">, CNCL_RSN = #{CNCL_RSN}</if>
+         , UPD_DT = SYSDATE
+         , UPD_ID = #{CHG_ID}
+     WHERE ORD_NO = #{ORD_NO}
+  </update>
+
+  <insert id="insertStatHist" parameterType="map">
+    <selectKey keyProperty="HIST_SEQ" resultType="int" order="BEFORE">
+      SELECT NVL(MAX(HIST_SEQ), 0) + 1 FROM TB_ORD_STAT_HIST WHERE ORD_NO = #{ORD_NO}
+    </selectKey>
+    INSERT INTO TB_ORD_STAT_HIST (ORD_NO, HIST_SEQ, BF_STAT, AF_STAT, CHG_RSN, CHG_DT, CHG_ID)
+    VALUES (#{ORD_NO}, #{HIST_SEQ}, #{BF_STAT}, #{AF_STAT}, SUBSTRB(#{CHG_RSN}, 1, 200), SYSDATE, NVL(#{CHG_ID}, 'SYSTEM'))
+  </insert>
+
+  <update id="updateItemStat" parameterType="map">
+    UPDATE TB_ORD_ITEM
+       SET ITEM_STAT = #{ITEM_STAT}
+         <if test="ITEM_STAT == 'C'">, CNCL_DT = NVL(CNCL_DT, SYSDATE)</if>
+         , UPD_DT = SYSDATE
+     WHERE ORD_NO = #{ORD_NO}
+    <if test="ITEM_SEQ != null">
+       AND ITEM_SEQ = #{ITEM_SEQ}
+    </if>
+    <if test="BF_ITEM_STAT != null and BF_ITEM_STAT != ''">
+       AND ITEM_STAT = #{BF_ITEM_STAT}
+    </if>
+  </update>
+
+  <update id="updateItemCncl" parameterType="map">
+    UPDATE TB_ORD_ITEM
+       SET ITEM_STAT        = 'C'
+         , CPN_DC_SHARE_AMT = #{CPN_DC_SHARE_AMT}
+         , PNT_SHARE_AMT    = #{PNT_SHARE_AMT}
+         , REFUND_AMT       = #{REFUND_AMT}
+         , CNCL_DT          = SYSDATE
+         , UPD_DT           = SYSDATE
+     WHERE ORD_NO   = #{ORD_NO}
+       AND ITEM_SEQ = #{ITEM_SEQ}
+       AND ITEM_STAT = 'N'
+  </update>
+
+  <update id="updateOrdCnclAmt" parameterType="map">
+    UPDATE TB_ORD
+       SET CNCL_AMT = CNCL_AMT + #{ADD_CNCL_AMT}
+         , UPD_DT   = SYSDATE
+         , UPD_ID   = #{CHG_ID}
+     WHERE ORD_NO = #{ORD_NO}
+  </update>
+</mapper>

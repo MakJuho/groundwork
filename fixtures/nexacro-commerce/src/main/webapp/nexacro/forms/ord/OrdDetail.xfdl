@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="OrdDetail" width="1100" height="720" titletext="주문 상세" onload="OrdDetail_onload">
+    <Layouts>
+      <Layout height="720" width="1100">
+        <Static id="sta_title" taborder="0" text="주문 상세" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Button id="btn_close" taborder="1" text="닫기" left="1004" top="12" width="76" height="28" onclick="btn_close_onclick"/>
+        <!-- 주문 요약 -->
+        <Static id="sta_ordNoL" taborder="2" text="주문번호" left="20" top="52" width="80" height="26"/>
+        <Edit id="edt_ordNo" taborder="3" left="104" top="52" width="160" height="26" readonly="true"/>
+        <Static id="sta_ordStatL" taborder="4" text="주문상태" left="280" top="52" width="70" height="26"/>
+        <Edit id="edt_ordStat" taborder="5" left="354" top="52" width="100" height="26" readonly="true"/>
+        <Static id="sta_ordDtL" taborder="6" text="주문일시" left="470" top="52" width="70" height="26"/>
+        <Edit id="edt_ordDt" taborder="7" left="544" top="52" width="150" height="26" readonly="true"/>
+        <Static id="sta_mbrL" taborder="8" text="회원" left="710" top="52" width="50" height="26"/>
+        <Edit id="edt_mbr" taborder="9" left="764" top="52" width="180" height="26" readonly="true"/>
+        <Static id="sta_rcvL" taborder="10" text="수령인" left="20" top="84" width="80" height="26"/>
+        <Edit id="edt_rcvNm" taborder="11" left="104" top="84" width="100" height="26" readonly="true"/>
+        <Edit id="edt_rcvHp" taborder="12" left="208" top="84" width="120" height="26" readonly="true"/>
+        <Edit id="edt_rcvAddr" taborder="13" left="332" top="84" width="612" height="26" readonly="true"/>
+        <!-- 금액 -->
+        <Static id="sta_amtTitle" taborder="14" text="결제 금액" left="20" top="122" width="200" height="26" cssclass="sta_subtitle"/>
+        <Static id="sta_ordAmtL" taborder="15" text="상품금액" left="20" top="152" width="70" height="26"/>
+        <MaskEdit id="msk_ordAmt" taborder="16" left="94" top="152" width="100" height="26" readonly="true" format="#,##0" type="number"/>
+        <Static id="sta_cpnL" taborder="17" text="- 쿠폰" left="206" top="152" width="50" height="26"/>
+        <MaskEdit id="msk_cpnDc" taborder="18" left="260" top="152" width="90" height="26" readonly="true" format="#,##0" type="number"/>
+        <Static id="sta_pntL" taborder="19" text="- 포인트" left="362" top="152" width="60" height="26"/>
+        <MaskEdit id="msk_pntUse" taborder="20" left="426" top="152" width="90" height="26" readonly="true" format="#,##0" type="number"/>
+        <Static id="sta_dlvFeeL" taborder="21" text="+ 배송비" left="528" top="152" width="60" height="26"/>
+        <MaskEdit id="msk_dlvFee" taborder="22" left="592" top="152" width="80" height="26" readonly="true" format="#,##0" type="number"/>
+        <Static id="sta_payAmtL" taborder="23" text="= 결제금액" left="684" top="152" width="74" height="26"/>
+        <MaskEdit id="msk_payAmt" taborder="24" left="762" top="152" width="110" height="26" readonly="true" format="#,##0" type="number"/>
+        <Static id="sta_cnclAmtL" taborder="25" text="취소금액" left="884" top="152" width="60" height="26"/>
+        <MaskEdit id="msk_cnclAmt" taborder="26" left="948" top="152" width="100" height="26" readonly="true" format="#,##0" type="number"/>
+        <Static id="sta_amtChk" taborder="27" text="" left="20" top="182" width="1060" height="22" color="red"/>
+        <!-- 결제 / 배송 -->
+        <Static id="sta_payL" taborder="28" text="결제" left="20" top="210" width="70" height="26"/>
+        <Edit id="edt_payInfo" taborder="29" left="94" top="210" width="420" height="26" readonly="true"/>
+        <Static id="sta_dlvL" taborder="30" text="배송" left="530" top="210" width="50" height="26"/>
+        <Edit id="edt_dlvInfo" taborder="31" left="584" top="210" width="496" height="26" readonly="true"/>
+        <!-- 주문상품 -->
+        <Static id="sta_itemTitle" taborder="32" text="주문 상품" left="20" top="248" width="200" height="26" cssclass="sta_subtitle"/>
+        <Static id="sta_selAmt" taborder="33" text="" left="560" top="248" width="250" height="26"/>
+        <Edit id="edt_cnclRsn" taborder="34" left="816" top="248" width="170" height="26"/>
+        <Button id="btn_partCancel" taborder="35" text="부분취소" left="994" top="248" width="86" height="26" onclick="btn_partCancel_onclick"/>
+        <Grid id="grd_item" taborder="36" binddataset="ds_item" left="20" top="280" width="1060" height="250" autofittype="col" oncellclick="grd_item_oncellclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="36"/>
+                <Column size="40"/>
+                <Column size="110"/>
+                <Column size="240"/>
+                <Column size="110"/>
+                <Column size="50"/>
+                <Column size="90"/>
+                <Column size="100"/>
+                <Column size="70"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="90"/>
+                <Column size="140"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell displaytype="checkboxcontrol" edittype="checkbox" text="0"/>
+                <Cell col="1" text="순번"/>
+                <Cell col="2" text="상품코드"/>
+                <Cell col="3" text="상품명"/>
+                <Cell col="4" text="판매자"/>
+                <Cell col="5" text="수량"/>
+                <Cell col="6" text="단가"/>
+                <Cell col="7" text="상품금액"/>
+                <Cell col="8" text="상태"/>
+                <Cell col="9" text="쿠폰안분"/>
+                <Cell col="10" text="포인트안분"/>
+                <Cell col="11" text="환불액"/>
+                <Cell col="12" text="취소일시"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CHK" displaytype="expr:ITEM_STAT == 'N' ? 'checkboxcontrol' : 'none'" edittype="expr:ITEM_STAT == 'N' ? 'checkbox' : 'none'"/>
+                <Cell col="1" text="bind:ITEM_SEQ"/>
+                <Cell col="2" text="bind:PRD_CD"/>
+                <Cell col="3" text="bind:PRD_NM"/>
+                <Cell col="4" text="bind:SELLER_NM"/>
+                <Cell col="5" text="bind:QTY" displaytype="number" textAlign="right"/>
+                <Cell col="6" text="bind:UNIT_PRC" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:ITEM_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="8" text="bind:ITEM_STAT_NM" color="expr:ITEM_STAT == 'N' ? '' : 'red'"/>
+                <Cell col="9" text="bind:CPN_DC_SHARE_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="10" text="bind:PNT_SHARE_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="11" text="bind:REFUND_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="12" text="bind:CNCL_DT"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <!-- 상태이력 -->
+        <Static id="sta_histTitle" taborder="37" text="상태 변경 이력" left="20" top="540" width="200" height="26" cssclass="sta_subtitle"/>
+        <Grid id="grd_hist" taborder="38" binddataset="ds_hist" left="20" top="570" width="1060" height="130" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="50"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="400"/>
+                <Column size="150"/>
+                <Column size="100"/>
+              </Columns>
+              <Rows>
+                <Row size="28" band="head"/>
+                <Row size="28"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="순번"/>
+                <Cell col="1" text="이전상태"/>
+                <Cell col="2" text="변경상태"/>
+                <Cell col="3" text="사유"/>
+                <Cell col="4" text="변경일시"/>
+                <Cell col="5" text="변경자"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:HIST_SEQ"/>
+                <Cell col="1" text="bind:BF_STAT" displaytype="combotext" combodataset="ds_ordStat" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="2" text="bind:AF_STAT_NM"/>
+                <Cell col="3" text="bind:CHG_RSN"/>
+                <Cell col="4" text="bind:CHG_DT"/>
+                <Cell col="5" text="bind:CHG_ID"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_ord">
+        <ColumnInfo>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="MBR_NM" type="STRING" size="50"/>
+          <Column id="GRADE_CD" type="STRING" size="10"/>
+          <Column id="ORD_STAT" type="STRING" size="2"/>
+          <Column id="ORD_STAT_NM" type="STRING" size="20"/>
+          <Column id="ORD_DT" type="STRING" size="19"/>
+          <Column id="ORD_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CPN_DC_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PNT_USE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="DLV_FEE" type="BIGDECIMAL" size="8"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="RCV_NM" type="STRING" size="50"/>
+          <Column id="RCV_HP" type="STRING" size="20"/>
+          <Column id="RCV_ZIP" type="STRING" size="6"/>
+          <Column id="RCV_ADDR" type="STRING" size="300"/>
+          <Column id="RCV_ADDR_DTL" type="STRING" size="200"/>
+          <Column id="CPN_ISSUE_NO" type="STRING" size="20"/>
+          <Column id="AMT_CHK_YN" type="STRING" size="1"/>
+          <Column id="AMT_CHK_MSG" type="STRING" size="200"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_item">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="1"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="ITEM_SEQ" type="INT" size="4"/>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SELLER_NM" type="STRING" size="100"/>
+          <Column id="QTY" type="INT" size="5"/>
+          <Column id="UNIT_PRC" type="BIGDECIMAL" size="10"/>
+          <Column id="ITEM_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="ITEM_STAT" type="STRING" size="1"/>
+          <Column id="ITEM_STAT_NM" type="STRING" size="20"/>
+          <Column id="CPN_DC_SHARE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PNT_SHARE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REFUND_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_DT" type="STRING" size="19"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_pay">
+        <ColumnInfo>
+          <Column id="PAY_NO" type="STRING" size="20"/>
+          <Column id="PAY_MTHD" type="STRING" size="10"/>
+          <Column id="PAY_MTHD_NM" type="STRING" size="20"/>
+          <Column id="CARD_CO" type="STRING" size="10"/>
+          <Column id="INST_MM" type="INT" size="2"/>
+          <Column id="FREE_INST_YN" type="STRING" size="1"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CNCL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PAY_STAT" type="STRING" size="1"/>
+          <Column id="PAY_STAT_NM" type="STRING" size="20"/>
+          <Column id="VBANK_NO" type="STRING" size="30"/>
+          <Column id="VBANK_DUE_DT" type="STRING" size="8"/>
+          <Column id="APRV_DT" type="STRING" size="19"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_dlv">
+        <ColumnInfo>
+          <Column id="DLV_NO" type="STRING" size="20"/>
+          <Column id="DLV_STAT" type="STRING" size="1"/>
+          <Column id="CARRIER_CD" type="STRING" size="10"/>
+          <Column id="INVC_NO" type="STRING" size="30"/>
+          <Column id="ADD_FEE" type="BIGDECIMAL" size="8"/>
+          <Column id="SHIP_DT" type="STRING" size="8"/>
+          <Column id="DLV_CMPL_DT" type="STRING" size="8"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_hist">
+        <ColumnInfo>
+          <Column id="HIST_SEQ" type="INT" size="5"/>
+          <Column id="BF_STAT" type="STRING" size="2"/>
+          <Column id="AF_STAT" type="STRING" size="2"/>
+          <Column id="AF_STAT_NM" type="STRING" size="20"/>
+          <Column id="CHG_RSN" type="STRING" size="200"/>
+          <Column id="CHG_DT" type="STRING" size="19"/>
+          <Column id="CHG_ID" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_partCancel">
+        <ColumnInfo>
+          <Column id="ITEM_SEQ" type="INT" size="4"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_ordStat"/>
+      <Dataset id="ds_dlvStat"/>
+      <Dataset id="ds_carrier"/>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edt_ordNo" propid="value" datasetid="ds_ord" columnid="ORD_NO"/>
+      <BindItem id="item1" compid="edt_ordStat" propid="value" datasetid="ds_ord" columnid="ORD_STAT_NM"/>
+      <BindItem id="item2" compid="edt_ordDt" propid="value" datasetid="ds_ord" columnid="ORD_DT"/>
+      <BindItem id="item3" compid="edt_rcvNm" propid="value" datasetid="ds_ord" columnid="RCV_NM"/>
+      <BindItem id="item4" compid="edt_rcvHp" propid="value" datasetid="ds_ord" columnid="RCV_HP"/>
+      <BindItem id="item5" compid="msk_ordAmt" propid="value" datasetid="ds_ord" columnid="ORD_AMT"/>
+      <BindItem id="item6" compid="msk_cpnDc" propid="value" datasetid="ds_ord" columnid="CPN_DC_AMT"/>
+      <BindItem id="item7" compid="msk_pntUse" propid="value" datasetid="ds_ord" columnid="PNT_USE_AMT"/>
+      <BindItem id="item8" compid="msk_dlvFee" propid="value" datasetid="ds_ord" columnid="DLV_FEE"/>
+      <BindItem id="item9" compid="msk_payAmt" propid="value" datasetid="ds_ord" columnid="PAY_AMT"/>
+      <BindItem id="item10" compid="msk_cnclAmt" propid="value" datasetid="ds_ord" columnid="CNCL_AMT"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.sOrdNo = "";
+this.bChanged = false;
+
+this.OrdDetail_onload = function(obj, e)
+{
+	this.sOrdNo = this.parent.ORD_NO;
+	this.gfn_setCode("ds_ordStat", "ORD_STAT");
+	this.gfn_setCode("ds_dlvStat", "DLV_STAT");
+	this.gfn_setCode("ds_carrier", "CARRIER");
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("ord.detail", "",
+		"ds_ord=ds_ord ds_item=ds_item ds_pay=ds_pay ds_dlv=ds_dlv ds_hist=ds_hist",
+		"fn_callback", "ORD_NO=" + this.sOrdNo);
+};
+
+this.fn_setSummary = function()
+{
+	this.edt_mbr.set_value(this.ds_ord.getColumn(0, "MBR_NM") + " (" + this.ds_ord.getColumn(0, "MBR_ID") + "/"
+		+ this.gfn_nvl(this.ds_ord.getColumn(0, "GRADE_CD"), "-") + ")");
+	this.edt_rcvAddr.set_value("[" + this.gfn_nvl(this.ds_ord.getColumn(0, "RCV_ZIP"), "") + "] "
+		+ this.gfn_nvl(this.ds_ord.getColumn(0, "RCV_ADDR"), "") + " " + this.gfn_nvl(this.ds_ord.getColumn(0, "RCV_ADDR_DTL"), ""));
+
+	if (this.ds_ord.getColumn(0, "AMT_CHK_YN") == "N") {
+		this.sta_amtChk.set_text("※ 금액 확인 필요: " + this.ds_ord.getColumn(0, "AMT_CHK_MSG"));
+	} else {
+		this.sta_amtChk.set_text("");
+	}
+
+	if (this.ds_pay.rowcount > 0) {
+		var sPay = this.ds_pay.getColumn(0, "PAY_MTHD_NM") + " / " + this.ds_pay.getColumn(0, "PAY_STAT_NM")
+			+ " / " + this.gfn_numFormat(this.gfn_nvl(this.ds_pay.getColumn(0, "PAY_AMT"), 0)) + "원";
+		if (this.ds_pay.getColumn(0, "PAY_MTHD") == "CARD") {
+			var nInst = this.gfn_nvl(this.ds_pay.getColumn(0, "INST_MM"), 0);
+			sPay += " / " + (nInst <= 1 ? "일시불" : nInst + "개월" + (this.ds_pay.getColumn(0, "FREE_INST_YN") == "Y" ? "(무이자)" : ""));
+		} else if (this.ds_pay.getColumn(0, "PAY_MTHD") == "VBANK" && this.ds_pay.getColumn(0, "PAY_STAT") == "W") {
+			sPay += " / 입금기한 " + this.ds_pay.getColumn(0, "VBANK_DUE_DT");
+		}
+		this.edt_payInfo.set_value(sPay);
+	} else {
+		this.edt_payInfo.set_value("결제정보 없음");
+	}
+
+	if (this.ds_dlv.rowcount > 0) {
+		var sDlv = this.gfn_getCodeVal(this.ds_dlvStat, this.ds_dlv.getColumn(0, "DLV_STAT"))
+			+ " / " + this.gfn_getCodeVal(this.ds_carrier, this.ds_dlv.getColumn(0, "CARRIER_CD"))
+			+ " " + this.gfn_nvl(this.ds_dlv.getColumn(0, "INVC_NO"), "");
+		if (this.gfn_nvl(this.ds_dlv.getColumn(0, "ADD_FEE"), 0) > 0) {
+			sDlv += " / 추가배송비 " + this.gfn_numFormat(this.ds_dlv.getColumn(0, "ADD_FEE"));
+		}
+		if (!this.gfn_isEmpty(this.ds_dlv.getColumn(0, "DLV_CMPL_DT"))) {
+			sDlv += " / 완료 " + this.ds_dlv.getColumn(0, "DLV_CMPL_DT");
+		}
+		this.edt_dlvInfo.set_value(sDlv);
+	} else {
+		this.edt_dlvInfo.set_value("");
+	}
+
+	var sStat = this.ds_ord.getColumn(0, "ORD_STAT");
+	this.btn_partCancel.set_enable(sStat == "20" || sStat == "30" || sStat == "80");
+};
+
+this.grd_item_oncellclick = function(obj, e)
+{
+	if (e.cell != 0) return;
+	var nSum = 0;
+	for (var i = 0; i < this.ds_item.rowcount; i++) {
+		if (this.ds_item.getColumn(i, "CHK") == "1") {
+			nSum += parseInt(this.ds_item.getColumn(i, "ITEM_AMT"));
+		}
+	}
+	this.sta_selAmt.set_text(nSum > 0 ? "선택 상품금액 " + this.gfn_numFormat(nSum) + "원" : "");
+};
+
+/**
+ * 부분취소 검사
+ *  - 결제완료/상품준비/부분취소 상태만
+ *  - 정상(N) 상품만 선택 가능
+ *  - 포인트 사용 주문은 안분 포인트가 환원되고, 쿠폰은 전체 취소 시에만 복원
+ */
+this.fn_validatePartCancel = function()
+{
+	var sStat = this.ds_ord.getColumn(0, "ORD_STAT");
+	if (sStat != "20" && sStat != "30" && sStat != "80") {
+		this.gfn_alert("출고 전(결제완료/상품준비) 주문만 부분취소할 수 있습니다.");
+		return false;
+	}
+	if (this.ds_pay.rowcount > 0 && this.ds_pay.getColumn(0, "PAY_STAT") == "E") {
+		this.gfn_alert("취소실패 건이 있습니다. 결제관리에서 재처리 후 진행하세요.");
+		return false;
+	}
+	this.ds_partCancel.clearData();
+	for (var i = 0; i < this.ds_item.rowcount; i++) {
+		if (this.ds_item.getColumn(i, "CHK") != "1") continue;
+		if (this.ds_item.getColumn(i, "ITEM_STAT") != "N") {
+			this.gfn_alert("정상 상태의 상품만 취소할 수 있습니다. [" + this.ds_item.getColumn(i, "ITEM_SEQ") + "번 상품]");
+			return false;
+		}
+		this.ds_partCancel.setColumn(this.ds_partCancel.addRow(), "ITEM_SEQ", this.ds_item.getColumn(i, "ITEM_SEQ"));
+	}
+	if (this.ds_partCancel.rowcount == 0) {
+		this.gfn_alert("취소할 상품을 선택하세요.");
+		return false;
+	}
+	return true;
+};
+
+this.btn_partCancel_onclick = function(obj, e)
+{
+	if (!this.fn_validatePartCancel()) return;
+
+	var sMsg = "선택한 " + this.ds_partCancel.rowcount + "개 상품을 취소하시겠습니까?";
+	if (this.gfn_nvl(this.ds_ord.getColumn(0, "PNT_USE_AMT"), 0) > 0 || !this.gfn_isEmpty(this.ds_ord.getColumn(0, "CPN_ISSUE_NO"))) {
+		sMsg += "\n쿠폰할인/사용포인트는 상품금액 비율로 나누어 환불액에서 제외됩니다.";
+	}
+	if (!this.gfn_confirm(sMsg)) return;
+
+	var sRsn = this.gfn_nvl(this.edt_cnclRsn.value, "관리자 부분취소");
+	this.gfn_callApi("ord.partCancel", "ds_partCancel=ds_partCancel", "", "fn_callback",
+		"ORD_NO=" + this.sOrdNo + " CNCL_RSN=" + nexacro.wrapQuote(sRsn)
+		+ " USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+this.btn_close_onclick = function(obj, e)
+{
+	this.close(this.bChanged ? "CHANGED" : "");
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "ord.detail") {
+		this.fn_setSummary();
+		this.sta_selAmt.set_text("");
+	} else if (svcId == "ord.partCancel") {
+		this.bChanged = true;
+		this.gfn_alert("부분취소되었습니다. 환불금액: " + this.gfn_numFormat(this.gfn_nvl(this.REFUND_AMT, 0)) + "원");
+		this.edt_cnclRsn.set_value("");
+		this.fn_search();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

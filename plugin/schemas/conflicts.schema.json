@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Groundwork policy conflicts",
+  "type": "object",
+  "required": ["conflicts"],
+  "properties": {
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "type", "scenario", "impact", "severity", "confidence", "status", "firstSeen", "sides"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^CFL-\\d{3}$", "description": "충돌 번호. 한 번 매기면 유지한다(match-conflicts가 맞춘다)" },
+          "title": { "type": "string", "description": "업무 언어 한 줄. 예: 연속 휴가 한도: 화면 10일, 서버 14일" },
+          "type": { "enum": ["screen-server", "value-mismatch", "cross-module-timing", "calculation-mismatch"], "description": "화면·서버 불일치 / 같은 기준값이 다름 / 모듈 간 기간·순서 어긋남 / 같은 금액을 다르게 계산" },
+          "scenario": { "type": "string", "description": "실제 값으로 쓴 구체적 입력과 서로 다른 두 결과" },
+          "impact": { "type": "string", "description": "누가 무엇을 손해 보는지" },
+          "severity": { "enum": ["high", "medium", "low"], "description": "high=돈·법적 문제, medium=고객 불만·운영 수작업, low=표시 오류" },
+          "confidence": { "enum": ["high", "medium"], "description": "high=양쪽 코드에 값이 명시, medium=여러 코드를 종합해야 함. low는 쓰지 않는다" },
+          "status": { "enum": ["open", "unverified"], "description": "verify-citations가 정한다. 에이전트는 open으로 쓴다" },
+          "firstSeen": { "type": "string", "description": "처음 발견한 커밋·변경 이름 또는 시각" },
+          "verifyFailed": { "type": "boolean", "description": "verify-citations가 근거 검증 실패 시 쓴다. 직접 쓰지 않는다" },
+          "sides": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["label", "ruleIds", "evidence"],
+              "properties": {
+                "label": { "type": "string", "description": "예: 화면, 서버, 배치, 공통코드" },
+                "ruleIds": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z]{2,4}-\\d{3}$" }, "description": "관련 facts 규칙 번호. 규칙으로 잡히지 않은 근거면 빈 배열" },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": ["file", "line", "snippet"],
+                    "properties": {
+                      "file": { "type": "string", "description": "대상 폴더 기준 상대 경로(posix)" },
+                      "line": { "type": "integer", "minimum": 1 },
+                      "snippet": { "type": "string", "description": "해당 줄의 코드 원문 일부" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

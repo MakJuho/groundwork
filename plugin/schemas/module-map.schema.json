@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Groundwork module map",
+  "type": "object",
+  "required": ["project", "modules"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "required": ["name", "root", "summary", "stacks"],
+      "properties": {
+        "name": { "type": "string", "description": "프로젝트 이름(폴더명)" },
+        "root": { "type": "string", "description": "대상 폴더 절대 경로" },
+        "summary": { "type": "string", "description": "업무 언어로 쓴 서비스 한두 문장 설명" },
+        "stacks": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "abbrev", "name", "codeName", "summary", "paths", "fileCount", "dependsOn"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "kebab-case 영문 ID, 출력 폴더명으로 쓰임" },
+          "abbrev": { "type": "string", "pattern": "^[A-Z]{2,4}$", "description": "정책 번호 접두어, 모듈 간 중복 불가" },
+          "name": { "type": "string", "description": "업무 이름(한국어), 예: 주문" },
+          "codeName": { "type": "string", "description": "코드상 이름, 예: order" },
+          "summary": { "type": "string" },
+          "paths": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "대상 폴더 기준 상대 경로(posix). 폴더, 파일, glob 패턴(예: src/**/Order*.java) 모두 가능" },
+          "fileCount": { "type": "integer", "minimum": 0, "description": "resolve-modules 스크립트가 계산해 채운다" },
+          "dependsOn": { "type": "array", "items": { "type": "string" }, "description": "이 모듈이 호출하는 다른 모듈 id" },
+          "basis": { "enum": ["manual", "build-module", "folder", "name-prefix", "url-prefix", "mixed"], "description": "모듈 경계를 정한 기준. manual=.groundwork-modules.json, build-module=빌드 서브모듈, folder=기능 폴더, name-prefix=클래스·파일 이름 접두어, url-prefix=API 경로 접두어, mixed=여러 기준 조합" }
+        }
+      }
+    }
+  }
+}

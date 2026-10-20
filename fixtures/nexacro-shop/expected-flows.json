@@ -1,0 +1,21 @@
+{
+  "flows": [
+    {
+      "trigger": "MemberMng.btn_save",
+      "steps": [
+        { "id": "U1", "file": "src/main/webapp/nexacro/forms/member/MemberMng.xfdl", "anchor": "if (!this.fn_validate()) return;" },
+        { "id": "U2", "file": "src/main/webapp/nexacro/forms/member/MemberMng.xfdl", "anchor": "this.gfn_alert(\"아이디는 필수입니다.\");" },
+        { "id": "U3", "file": "src/main/webapp/nexacro/forms/member/MemberMng.xfdl", "anchor": "this.gfn_callApi(\"member.save\"" },
+        { "id": "U4", "file": "src/main/webapp/nexacro/lib/common.xjs", "anchor": "var url = this.gv_apiUrl[svcId];" },
+        { "id": "U5", "file": "src/main/webapp/nexacro/lib/common.xjs", "anchor": "this.transaction(svcId, \"svc::\" + url" },
+        { "id": "U6", "file": "src/main/java/com/example/shop/member/MemberController.java", "anchor": "memberService.saveMembers(members)" },
+        { "id": "U7", "file": "src/main/java/com/example/shop/member/MemberService.java", "anchor": "memberMapper.countById(member.getMemberId()) > 0" },
+        { "id": "U8", "file": "src/main/java/com/example/shop/member/MemberService.java", "anchor": "memberMapper.insertMember(member)" },
+        { "id": "U9", "file": "src/main/resources/mapper/member/MemberMapper.xml", "anchor": "INSERT INTO TB_MEMBER" },
+        { "id": "U10", "file": "src/main/java/com/example/shop/member/MemberController.java", "anchor": "result.addDataSet(\"ds_result\", List.of(row));" },
+        { "id": "U11", "file": "src/main/webapp/nexacro/forms/member/MemberMng.xfdl", "anchor": "this.gfn_alert(errorMsg);" },
+        { "id": "U12", "file": "src/main/webapp/nexacro/forms/member/MemberMng.xfdl", "anchor": "건 저장되었습니다." }
+      ]
+    }
+  ]
+}

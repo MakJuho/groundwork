@@ -1,0 +1,42 @@
+-- 쿠폰 정책
+CREATE TABLE TB_CPN (
+    CPN_ID          VARCHAR2(20)   NOT NULL,
+    CPN_NM          VARCHAR2(100)  NOT NULL,
+    CPN_TYPE        VARCHAR2(10)   NOT NULL,          -- AMT 정액 / RATE 정률
+    DC_VAL          NUMBER(12)     NOT NULL,          -- 정액: 원, 정률: %
+    MAX_DC_AMT      NUMBER(12),                       -- 정률 최대 할인액
+    MIN_ORD_AMT     NUMBER(12)     DEFAULT 0 NOT NULL,
+    VALID_DAYS      NUMBER(4)      DEFAULT 30 NOT NULL,
+    ISSUE_LMT_CNT   NUMBER(10)     DEFAULT 0 NOT NULL, -- 0: 무제한
+    ISSUE_CNT       NUMBER(10)     DEFAULT 0 NOT NULL,
+    ISSUE_STRT_DT   CHAR(8),
+    ISSUE_END_DT    CHAR(8),
+    USE_YN          CHAR(1)        DEFAULT 'Y' NOT NULL,
+    RMK             VARCHAR2(500),
+    REG_DT          DATE           DEFAULT SYSDATE NOT NULL,
+    REG_ID          VARCHAR2(20),
+    UPD_DT          DATE,
+    UPD_ID          VARCHAR2(20),
+    CONSTRAINT PK_TB_CPN PRIMARY KEY (CPN_ID)
+);
+
+-- 쿠폰 발급
+CREATE TABLE TB_CPN_ISSUE (
+    ISSUE_NO        VARCHAR2(20)   NOT NULL,
+    CPN_ID          VARCHAR2(20)   NOT NULL,
+    MBR_ID          VARCHAR2(20)   NOT NULL,
+    ISSUE_DT        CHAR(8)        NOT NULL,
+    EXP_DT          CHAR(8)        NOT NULL,
+    USE_YN          CHAR(1)        DEFAULT 'N' NOT NULL,
+    USE_DT          DATE,
+    ORD_NO          VARCHAR2(20),
+    DC_AMT          NUMBER(12)     DEFAULT 0 NOT NULL,
+    ISSUE_TYPE      VARCHAR2(10)   DEFAULT 'MANUAL' NOT NULL,
+    REG_DT          DATE           DEFAULT SYSDATE NOT NULL,
+    REG_ID          VARCHAR2(20),
+    CONSTRAINT PK_TB_CPN_ISSUE PRIMARY KEY (ISSUE_NO),
+    CONSTRAINT FK_TB_CPN_ISSUE_CPN FOREIGN KEY (CPN_ID) REFERENCES TB_CPN (CPN_ID)
+);
+
+CREATE INDEX IX_TB_CPN_ISSUE_01 ON TB_CPN_ISSUE (MBR_ID, CPN_ID);
+CREATE INDEX IX_TB_CPN_ISSUE_02 ON TB_CPN_ISSUE (ORD_NO);

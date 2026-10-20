@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.cmm.CmmCodeMapper">
+
+  <select id="selectCodeList" parameterType="map" resultType="map">
+    SELECT C.GRP_CD, G.GRP_NM, C.CD, C.CD_NM, C.CD_VAL1, C.CD_VAL2, C.SORT_ORD, C.USE_YN
+      FROM TB_CMM_CODE C
+      JOIN TB_CMM_CODE_GRP G ON G.GRP_CD = C.GRP_CD
+    <where>
+      <if test="GRP_CD != null and GRP_CD != ''">AND C.GRP_CD = #{GRP_CD}</if>
+      <if test="USE_YN != null and USE_YN != ''">AND C.USE_YN = #{USE_YN}</if>
+    </where>
+     ORDER BY C.GRP_CD, C.SORT_ORD
+  </select>
+
+  <select id="selectCodeVal" parameterType="map" resultType="string">
+    SELECT CD_VAL1 FROM TB_CMM_CODE WHERE GRP_CD = #{GRP_CD} AND CD = #{CD} AND USE_YN = 'Y'
+  </select>
+
+  <update id="mergeCode" parameterType="map">
+    MERGE INTO TB_CMM_CODE T
+    USING (SELECT #{GRP_CD} AS GRP_CD, #{CD} AS CD FROM DUAL) S
+       ON (T.GRP_CD = S.GRP_CD AND T.CD = S.CD)
+     WHEN MATCHED THEN
+          UPDATE SET CD_NM = #{CD_NM}, CD_VAL1 = #{CD_VAL1}, CD_VAL2 = #{CD_VAL2},
+                     SORT_ORD = NVL(#{SORT_ORD}, 0), USE_YN = NVL(#{USE_YN}, 'Y'), UPD_DT = SYSDATE
+     WHEN NOT MATCHED THEN
+          INSERT (GRP_CD, CD, CD_NM, CD_VAL1, CD_VAL2, SORT_ORD, USE_YN, REG_DT)
+          VALUES (#{GRP_CD}, #{CD}, #{CD_NM}, #{CD_VAL1}, #{CD_VAL2}, NVL(#{SORT_ORD}, 0), NVL(#{USE_YN}, 'Y'), SYSDATE)
+  </update>
+
+  <delete id="deleteCode" parameterType="map">
+    DELETE FROM TB_CMM_CODE WHERE GRP_CD = #{GRP_CD} AND CD = #{CD}
+  </delete>
+</mapper>

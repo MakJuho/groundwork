@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="PrdMng" width="1280" height="720" titletext="상품 관리" onload="PrdMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="상품 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="80" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_prdCd" taborder="0" text="상품코드" left="12" top="8" width="64" height="28"/>
+              <Edit id="edt_prdCd" taborder="1" left="80" top="8" width="150" height="28"/>
+              <Static id="sta_prdNm" taborder="2" text="상품명" left="246" top="8" width="56" height="28"/>
+              <Edit id="edt_prdNm" taborder="3" left="306" top="8" width="220" height="28"/>
+              <Static id="sta_seller" taborder="4" text="판매자ID" left="542" top="8" width="64" height="28"/>
+              <Edit id="edt_seller" taborder="5" left="610" top="8" width="130" height="28"/>
+              <Static id="sta_ctg" taborder="6" text="카테고리" left="12" top="44" width="64" height="28"/>
+              <Combo id="cbo_ctg" taborder="7" left="80" top="44" width="200" height="28" innerdataset="ds_ctgCbo" codecolumn="CTG_CD" datacolumn="CTG_DISP_NM"/>
+              <Static id="sta_saleStat" taborder="8" text="판매상태" left="296" top="44" width="64" height="28"/>
+              <Combo id="cbo_saleStat" taborder="9" left="364" top="44" width="120" height="28" innerdataset="ds_saleStatAll" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_prc" taborder="10" text="판매가" left="500" top="44" width="50" height="28"/>
+              <MaskEdit id="msk_prcFrom" taborder="11" left="554" top="44" width="100" height="28" format="#,###" type="number"/>
+              <Static id="sta_wave" taborder="12" text="~" left="658" top="44" width="16" height="28"/>
+              <MaskEdit id="msk_prcTo" taborder="13" left="676" top="44" width="100" height="28" format="#,###" type="number"/>
+              <Button id="btn_search" taborder="14" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_cnt" taborder="2" text="총 0건" left="20" top="142" width="200" height="28"/>
+        <Button id="btn_stop" taborder="3" text="판매중지" left="926" top="142" width="76" height="28" onclick="btn_stop_onclick"/>
+        <Button id="btn_add" taborder="4" text="추가" left="1012" top="142" width="76" height="28" onclick="btn_add_onclick"/>
+        <Button id="btn_cancel" taborder="5" text="취소" left="1098" top="142" width="76" height="28" onclick="btn_cancel_onclick"/>
+        <Button id="btn_save" taborder="6" text="저장" left="1184" top="142" width="76" height="28" onclick="btn_save_onclick"/>
+        <Grid id="grd_prd" taborder="7" binddataset="ds_prd" left="20" top="180" width="1240" height="520" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="140"/>
+                <Column size="240"/>
+                <Column size="100"/>
+                <Column size="120"/>
+                <Column size="140"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="70"/>
+                <Column size="70"/>
+                <Column size="70"/>
+                <Column size="160"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="상품코드"/>
+                <Cell col="1" text="상품명"/>
+                <Cell col="2" text="판매자ID"/>
+                <Cell col="3" text="판매자명"/>
+                <Cell col="4" text="카테고리"/>
+                <Cell col="5" text="판매가"/>
+                <Cell col="6" text="반품비"/>
+                <Cell col="7" text="판매상태"/>
+                <Cell col="8" text="재고"/>
+                <Cell col="9" text="가용"/>
+                <Cell col="10" text="주문가능"/>
+                <Cell col="11" text="중지사유"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:PRD_CD"/>
+                <Cell col="1" text="bind:PRD_NM" edittype="normal"/>
+                <Cell col="2" text="bind:SELLER_ID" edittype="expr:dataset.getRowType(currow) == 2 ? 'normal' : 'none'"/>
+                <Cell col="3" text="bind:SELLER_NM"/>
+                <Cell col="4" text="bind:CTG_CD" displaytype="combotext" edittype="combo" combodataset="ds_ctgCbo" combocodecol="CTG_CD" combodatacol="CTG_DISP_NM"/>
+                <Cell col="5" text="bind:SALE_PRC" displaytype="number" edittype="mask" maskeditformat="#,###" textAlign="right"/>
+                <Cell col="6" text="bind:RTN_FEE" displaytype="number" edittype="mask" maskeditformat="#,###" textAlign="right"/>
+                <Cell col="7" text="bind:SALE_STAT" displaytype="combotext" edittype="combo" combodataset="ds_saleStat" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="8" text="bind:STK_QTY" displaytype="number" textAlign="right"/>
+                <Cell col="9" text="bind:AVAIL_QTY" displaytype="number" textAlign="right"/>
+                <Cell col="10" text="expr:ORD_ABLE_YN == 'Y' ? '가능' : '불가'" color="expr:ORD_ABLE_YN == 'Y' ? '' : 'red'"/>
+                <Cell col="11" text="bind:STOP_RSN" edittype="normal"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="CTG_CD" type="STRING" size="10"/>
+          <Column id="SALE_STAT" type="STRING" size="4"/>
+          <Column id="PRC_FROM" type="BIGDECIMAL" size="12"/>
+          <Column id="PRC_TO" type="BIGDECIMAL" size="12"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_prd">
+        <ColumnInfo>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SELLER_NM" type="STRING" size="100"/>
+          <Column id="SELLER_STAT" type="STRING" size="1"/>
+          <Column id="CTG_CD" type="STRING" size="10"/>
+          <Column id="CTG_NM" type="STRING" size="100"/>
+          <Column id="SALE_PRC" type="BIGDECIMAL" size="12"/>
+          <Column id="SUPPLY_PRC" type="BIGDECIMAL" size="12"/>
+          <Column id="RTN_FEE" type="BIGDECIMAL" size="8"/>
+          <Column id="SALE_STAT" type="STRING" size="4"/>
+          <Column id="STK_QTY" type="INT" size="8"/>
+          <Column id="AVAIL_QTY" type="INT" size="8"/>
+          <Column id="ORD_ABLE_YN" type="STRING" size="1"/>
+          <Column id="STOP_RSN" type="STRING" size="300"/>
+          <Column id="DLV_FEE_TYPE" type="STRING" size="1"/>
+          <Column id="MAX_ORD_QTY" type="INT" size="4"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_ctgSearch">
+        <ColumnInfo>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="USE_YN">Y</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_ctgCbo">
+        <ColumnInfo>
+          <Column id="CTG_CD" type="STRING" size="10"/>
+          <Column id="CTG_NM" type="STRING" size="100"/>
+          <Column id="UPPER_CTG_CD" type="STRING" size="10"/>
+          <Column id="CTG_LVL" type="INT" size="1"/>
+          <Column id="CTG_DISP_NM" type="STRING" size="120"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_saleStat">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="4"/>
+          <Column id="CD_NM" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD">ON</Col><Col id="CD_NM">판매중</Col></Row>
+          <Row><Col id="CD">STOP</Col><Col id="CD_NM">판매중지</Col></Row>
+          <Row><Col id="CD">END</Col><Col id="CD_NM">판매종료</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_saleStatAll">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="4"/>
+          <Column id="CD_NM" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">ON</Col><Col id="CD_NM">판매중</Col></Row>
+          <Row><Col id="CD">STOP</Col><Col id="CD_NM">판매중지</Col></Row>
+          <Row><Col id="CD">END</Col><Col id="CD_NM">판매종료</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_result">
+        <ColumnInfo>
+          <Column id="RESULT_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_prdCd" propid="value" datasetid="ds_search" columnid="PRD_CD"/>
+      <BindItem id="item1" compid="div_search.form.edt_prdNm" propid="value" datasetid="ds_search" columnid="PRD_NM"/>
+      <BindItem id="item2" compid="div_search.form.edt_seller" propid="value" datasetid="ds_search" columnid="SELLER_ID"/>
+      <BindItem id="item3" compid="div_search.form.cbo_ctg" propid="value" datasetid="ds_search" columnid="CTG_CD"/>
+      <BindItem id="item4" compid="div_search.form.cbo_saleStat" propid="value" datasetid="ds_search" columnid="SALE_STAT"/>
+      <BindItem id="item5" compid="div_search.form.msk_prcFrom" propid="value" datasetid="ds_search" columnid="PRC_FROM"/>
+      <BindItem id="item6" compid="div_search.form.msk_prcTo" propid="value" datasetid="ds_search" columnid="PRC_TO"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.PrdMng_onload = function(obj, e)
+{
+	this.gfn_callApi("prd.ctg.list", "ds_search=ds_ctgSearch", "ds_ctgCbo=ds_ctg", "fn_callback");
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("prd.list", "ds_search=ds_search", "ds_prd=ds_prd", "fn_callback");
+};
+
+this.btn_add_onclick = function(obj, e)
+{
+	var nRow = this.ds_prd.addRow();
+	this.ds_prd.setColumn(nRow, "SALE_STAT", "ON");
+	this.ds_prd.setColumn(nRow, "RTN_FEE", 3000);
+	this.ds_prd.setColumn(nRow, "DLV_FEE_TYPE", "B");
+	this.grd_prd.setCellPos(1);
+};
+
+this.btn_cancel_onclick = function(obj, e)
+{
+	var nRow = this.ds_prd.rowposition;
+	if (nRow < 0) return;
+	if (this.ds_prd.getRowType(nRow) == Dataset.ROWTYPE_INSERT) {
+		this.ds_prd.deleteRow(nRow);
+	} else {
+		this.ds_prd.reset();
+	}
+};
+
+/** 선택 상품 판매중지 (저장 버튼으로 반영) */
+this.btn_stop_onclick = function(obj, e)
+{
+	var nRow = this.ds_prd.rowposition;
+	if (nRow < 0) {
+		this.gfn_alert("상품을 선택하세요.");
+		return;
+	}
+	if (this.ds_prd.getColumn(nRow, "SALE_STAT") != "ON") {
+		this.gfn_alert("판매중인 상품만 판매중지할 수 있습니다.");
+		return;
+	}
+	this.ds_prd.setColumn(nRow, "SALE_STAT", "STOP");
+	this.ds_prd.setColumn(nRow, "ORD_ABLE_YN", "N");
+	this.grd_prd.setCellPos(11);
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	this.fn_save();
+};
+
+this.fn_save = function()
+{
+	if (!this.fn_validate()) return;
+	if (!this.gfn_confirm("저장하시겠습니까?")) return;
+	this.gfn_callApi("prd.save", "ds_prd=ds_prd:U", "ds_result=ds_result", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+/**
+ * 상품 저장 검사
+ *  - 상품명/판매자/카테고리 필수
+ *  - 판매가 100원 단위
+ *  - 반품비 0 이상
+ */
+this.fn_validate = function()
+{
+	var nChg = 0;
+	for (var i = 0; i < this.ds_prd.rowcount; i++) {
+		var rowType = this.ds_prd.getRowType(i);
+		if (rowType != Dataset.ROWTYPE_INSERT && rowType != Dataset.ROWTYPE_UPDATE) continue;
+		nChg++;
+
+		if (this.gfn_isEmpty(this.ds_prd.getColumn(i, "PRD_NM"))) {
+			this.gfn_alert("상품명은 필수입니다.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+		if (this.gfn_isEmpty(this.ds_prd.getColumn(i, "SELLER_ID"))) {
+			this.gfn_alert("판매자ID는 필수입니다.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+		if (this.gfn_isEmpty(this.ds_prd.getColumn(i, "CTG_CD"))) {
+			this.gfn_alert("카테고리를 선택하세요.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+		var nPrc = parseInt(this.gfn_nvl(this.ds_prd.getColumn(i, "SALE_PRC"), 0));
+		if (nPrc <= 0) {
+			this.gfn_alert("판매가를 입력하세요.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+		if (nPrc % 100 != 0) {
+			this.gfn_alert("판매가는 100원 단위로 입력하세요.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+		var sRtnFee = this.ds_prd.getColumn(i, "RTN_FEE");
+		if (!this.gfn_isEmpty(sRtnFee) && parseInt(sRtnFee) < 0) {
+			this.gfn_alert("반품비는 0원 이상이어야 합니다.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+		if (this.ds_prd.getColumn(i, "SALE_STAT") == "ON" && this.ds_prd.getColumn(i, "SELLER_STAT") == "S") {
+			this.gfn_alert("정지된 판매자의 상품은 판매중으로 변경할 수 없습니다.");
+			this.ds_prd.set_rowposition(i);
+			return false;
+		}
+	}
+	if (nChg == 0) {
+		this.gfn_alert("변경된 내용이 없습니다.");
+		return false;
+	}
+	return true;
+};
+
+/** 카테고리 콤보 표시명 (대분류 > 중분류) */
+this.fn_setCtgDispNm = function()
+{
+	this.ds_ctgCbo.set_enableevent(false);
+	if (this.ds_ctgCbo.getColumnInfo("CTG_DISP_NM") == null) {
+		this.ds_ctgCbo.addColumn("CTG_DISP_NM", "string", 120);
+	}
+	for (var i = 0; i < this.ds_ctgCbo.rowcount; i++) {
+		var sNm = this.ds_ctgCbo.getColumn(i, "CTG_NM");
+		var sUpper = this.ds_ctgCbo.getColumn(i, "UPPER_CTG_CD");
+		if (!this.gfn_isEmpty(sUpper)) {
+			var nUp = this.ds_ctgCbo.findRow("CTG_CD", sUpper);
+			if (nUp >= 0) sNm = this.ds_ctgCbo.getColumn(nUp, "CTG_NM") + " > " + sNm;
+		}
+		this.ds_ctgCbo.setColumn(i, "CTG_DISP_NM", sNm);
+	}
+	var nRow = this.ds_ctgCbo.insertRow(0);
+	this.ds_ctgCbo.setColumn(nRow, "CTG_DISP_NM", "전체");
+	this.ds_ctgCbo.applyChange();
+	this.ds_ctgCbo.set_enableevent(true);
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "prd.ctg.list":
+			this.fn_setCtgDispNm();
+			break;
+		case "prd.list":
+			this.sta_cnt.set_text("총 " + this.gfn_numFormat(this.ds_prd.rowcount) + "건");
+			break;
+		case "prd.save":
+			this.gfn_alert(this.ds_result.getColumn(0, "RESULT_CNT") + "건 저장되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

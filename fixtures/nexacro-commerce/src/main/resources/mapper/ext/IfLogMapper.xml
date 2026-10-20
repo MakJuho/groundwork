@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.ext.IfLogMapper">
+
+  <insert id="insertIfLog" parameterType="map">
+    INSERT INTO TB_IF_LOG (
+           IF_LOG_NO, IF_CD, IF_SVC, IF_URL, REF_NO,
+           REQ_BODY, RES_BODY, RES_CD, RES_MSG, SUCC_YN, ELAPSED_MS, REG_DT
+    ) VALUES (
+           SEQ_TB_IF_LOG.NEXTVAL, #{IF_CD}, #{IF_SVC}, #{IF_URL}, #{REF_NO},
+           #{REQ_BODY, jdbcType=CLOB}, #{RES_BODY, jdbcType=CLOB}, #{RES_CD}, SUBSTRB(#{RES_MSG}, 1, 500),
+           NVL(#{SUCC_YN}, 'N'), #{ELAPSED_MS}, SYSDATE
+    )
+  </insert>
+
+  <select id="selectIfLogList" parameterType="map" resultType="map">
+    SELECT IF_LOG_NO, IF_CD, IF_SVC, REF_NO, RES_CD, RES_MSG, SUCC_YN, ELAPSED_MS,
+           TO_CHAR(REG_DT, 'YYYY-MM-DD HH24:MI:SS') AS REG_DT
+      FROM TB_IF_LOG
+    <where>
+      <if test="IF_CD != null and IF_CD != ''">AND IF_CD = #{IF_CD}</if>
+      <if test="REF_NO != null and REF_NO != ''">AND REF_NO = #{REF_NO}</if>
+      <if test="SUCC_YN != null and SUCC_YN != ''">AND SUCC_YN = #{SUCC_YN}</if>
+    </where>
+     ORDER BY IF_LOG_NO DESC
+  </select>
+</mapper>

@@ -1,0 +1,58 @@
+-- 판매자 (입점업체)
+CREATE TABLE TB_SELLER (
+    SELLER_ID       VARCHAR2(20)  NOT NULL,
+    SELLER_NM       VARCHAR2(100) NOT NULL,
+    BIZ_NO          VARCHAR2(12)  NOT NULL,
+    CEO_NM          VARCHAR2(50),
+    TEL_NO          VARCHAR2(20),
+    COMM_RATE       NUMBER(5,2),                       -- 판매자 개별 수수료율(%). NULL 이면 카테고리 수수료율
+    STL_ACCT_NO     VARCHAR2(30),
+    BANK_CD         VARCHAR2(10),
+    SELLER_STAT     CHAR(1)       DEFAULT 'A' NOT NULL, -- A 정상, S 정지, C 계약종료
+    STOP_RSN        VARCHAR2(300),
+    STOP_DT         DATE,
+    REG_DT          DATE          DEFAULT SYSDATE NOT NULL,
+    UPD_ID          VARCHAR2(20),
+    UPD_DT          DATE,
+    CONSTRAINT PK_TB_SELLER PRIMARY KEY (SELLER_ID)
+);
+
+-- 상품 카테고리 (2단계: 대/중)
+CREATE TABLE TB_PRD_CTG (
+    CTG_CD          VARCHAR2(10)  NOT NULL,
+    CTG_NM          VARCHAR2(100) NOT NULL,
+    UPPER_CTG_CD    VARCHAR2(10),
+    CTG_LVL         NUMBER(1)     DEFAULT 1 NOT NULL,
+    COMM_RATE       NUMBER(5,2),                       -- 카테고리 수수료율(%) 0~30
+    SORT_ORD        NUMBER(4)     DEFAULT 0 NOT NULL,
+    USE_YN          CHAR(1)       DEFAULT 'Y' NOT NULL,
+    REG_DT          DATE          DEFAULT SYSDATE NOT NULL,
+    UPD_ID          VARCHAR2(20),
+    UPD_DT          DATE,
+    CONSTRAINT PK_TB_PRD_CTG PRIMARY KEY (CTG_CD)
+);
+
+-- 상품
+CREATE TABLE TB_PRD (
+    PRD_CD          VARCHAR2(20)  NOT NULL,
+    PRD_NM          VARCHAR2(200) NOT NULL,
+    SELLER_ID       VARCHAR2(20)  NOT NULL,
+    CTG_CD          VARCHAR2(10)  NOT NULL,
+    SALE_PRC        NUMBER(12)    NOT NULL,
+    SUPPLY_PRC      NUMBER(12),
+    SALE_STAT       VARCHAR2(4)   DEFAULT 'ON' NOT NULL, -- ON 판매중, STOP 판매중지, END 판매종료
+    RTN_FEE         NUMBER(8)     DEFAULT 3000,          -- 편도 반품비. 상품별 지정
+    DLV_FEE_TYPE    CHAR(1)       DEFAULT 'B' NOT NULL,  -- B 기본정책, F 무료
+    MAX_ORD_QTY     NUMBER(4),
+    STOP_RSN        VARCHAR2(300),
+    REG_DT          DATE          DEFAULT SYSDATE NOT NULL,
+    REG_ID          VARCHAR2(20),
+    UPD_DT          DATE,
+    UPD_ID          VARCHAR2(20),
+    CONSTRAINT PK_TB_PRD PRIMARY KEY (PRD_CD),
+    CONSTRAINT FK_TB_PRD_SELLER FOREIGN KEY (SELLER_ID) REFERENCES TB_SELLER (SELLER_ID),
+    CONSTRAINT FK_TB_PRD_CTG FOREIGN KEY (CTG_CD) REFERENCES TB_PRD_CTG (CTG_CD)
+);
+
+CREATE INDEX IX_TB_PRD_01 ON TB_PRD (SELLER_ID, SALE_STAT);
+CREATE INDEX IX_TB_PRD_02 ON TB_PRD (CTG_CD);

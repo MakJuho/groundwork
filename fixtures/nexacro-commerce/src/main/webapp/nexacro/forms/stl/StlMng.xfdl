@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="StlMng" width="1280" height="760" titletext="정산 관리" onload="StlMng_onload">
+    <Layouts>
+      <Layout height="760" width="1280">
+        <Static id="sta_title" taborder="0" text="정산 관리" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_dateType" taborder="1" text="기간" left="20" top="56" width="50" height="28"/>
+        <Combo id="cbo_dateType" taborder="2" left="72" top="56" width="110" height="28" innerdataset="ds_dateType" codecolumn="CD" datacolumn="CD_NM"/>
+        <Calendar id="cal_from" taborder="3" left="188" top="56" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Static id="sta_wave" taborder="4" text="~" left="312" top="56" width="14" height="28"/>
+        <Calendar id="cal_to" taborder="5" left="330" top="56" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Static id="sta_seller" taborder="6" text="판매자" left="470" top="56" width="50" height="28"/>
+        <Edit id="edt_sellerId" taborder="7" left="522" top="56" width="120" height="28"/>
+        <Edit id="edt_sellerNm" taborder="8" left="646" top="56" width="140" height="28"/>
+        <Static id="sta_stlStat" taborder="9" text="정산상태" left="806" top="56" width="60" height="28"/>
+        <Combo id="cbo_stlStat" taborder="10" left="868" top="56" width="120" height="28" innerdataset="ds_stlStat" codecolumn="CD" datacolumn="CD_NM"/>
+        <Static id="sta_ordNo" taborder="11" text="주문번호" left="1004" top="56" width="60" height="28"/>
+        <Edit id="edt_ordNo" taborder="12" left="1066" top="56" width="110" height="28"/>
+        <Button id="btn_search" taborder="13" text="조회" left="1184" top="56" width="76" height="28" onclick="btn_search_onclick"/>
+        <Static id="sta_rsn" taborder="14" text="처리 사유" left="20" top="100" width="70" height="28"/>
+        <Edit id="edt_rsn" taborder="15" left="92" top="100" width="520" height="28" maxlength="200"/>
+        <Button id="btn_hold" taborder="16" text="지급 보류" left="908" top="100" width="96" height="28" onclick="btn_hold_onclick"/>
+        <Button id="btn_release" taborder="17" text="보류 해제" left="1010" top="100" width="96" height="28" onclick="btn_release_onclick"/>
+        <Button id="btn_confirm" taborder="18" text="수동 확정" left="1112" top="100" width="96" height="28" onclick="btn_confirm_onclick"/>
+        <Grid id="grd_stl" taborder="19" binddataset="ds_stl" left="20" top="138" width="1240" height="520" autoenter="select">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="30"/>
+                <Column size="140"/>
+                <Column size="90"/>
+                <Column size="120"/>
+                <Column size="140"/>
+                <Column size="50"/>
+                <Column size="90"/>
+                <Column size="60"/>
+                <Column size="80"/>
+                <Column size="90"/>
+                <Column size="70"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="180"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell displaytype="checkboxcontrol" edittype="checkbox" text="0"/>
+                <Cell col="1" text="정산번호"/>
+                <Cell col="2" text="판매자ID"/>
+                <Cell col="3" text="판매자명"/>
+                <Cell col="4" text="주문번호"/>
+                <Cell col="5" text="순번"/>
+                <Cell col="6" text="판매금액"/>
+                <Cell col="7" text="수수료율"/>
+                <Cell col="8" text="수수료"/>
+                <Cell col="9" text="정산금액"/>
+                <Cell col="10" text="상태"/>
+                <Cell col="11" text="기준일"/>
+                <Cell col="12" text="확정일"/>
+                <Cell col="13" text="지급예정일"/>
+                <Cell col="14" text="보류사유"/>
+              </Band>
+              <Band id="body">
+                <Cell displaytype="checkboxcontrol" edittype="checkbox" text="bind:CHK"/>
+                <Cell col="1" text="bind:STL_NO"/>
+                <Cell col="2" text="bind:SELLER_ID"/>
+                <Cell col="3" text="bind:SELLER_NM"/>
+                <Cell col="4" text="bind:ORD_NO"/>
+                <Cell col="5" text="bind:ITEM_SEQ" textAlign="center"/>
+                <Cell col="6" text="bind:SALE_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:COMM_RATE" textAlign="right"/>
+                <Cell col="8" text="bind:COMM_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="9" text="bind:STL_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="10" text="bind:STL_STAT_NM" textAlign="center"/>
+                <Cell col="11" text="bind:BASE_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="12" text="bind:CNFM_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="13" text="bind:PAY_SCHD_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="14" text="bind:HOLD_RSN"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="sta_totCnt" taborder="20" text="건수" left="20" top="668" width="40" height="26"/>
+        <Static id="sta_totCntVal" taborder="21" left="62" top="668" width="80" height="26" textAlign="right"/>
+        <Static id="sta_totSale" taborder="22" text="판매금액" left="160" top="668" width="60" height="26"/>
+        <Static id="sta_totSaleVal" taborder="23" left="222" top="668" width="120" height="26" textAlign="right"/>
+        <Static id="sta_totComm" taborder="24" text="수수료" left="360" top="668" width="50" height="26"/>
+        <Static id="sta_totCommVal" taborder="25" left="412" top="668" width="120" height="26" textAlign="right"/>
+        <Static id="sta_totStl" taborder="26" text="정산금액" left="550" top="668" width="60" height="26"/>
+        <Static id="sta_totStlVal" taborder="27" left="612" top="668" width="120" height="26" textAlign="right"/>
+        <Static id="sta_rdy" taborder="28" text="대기" left="20" top="700" width="40" height="26"/>
+        <Static id="sta_rdyVal" taborder="29" left="62" top="700" width="110" height="26" textAlign="right"/>
+        <Static id="sta_cnf" taborder="30" text="확정" left="190" top="700" width="40" height="26"/>
+        <Static id="sta_cnfVal" taborder="31" left="232" top="700" width="110" height="26" textAlign="right"/>
+        <Static id="sta_paid" taborder="32" text="지급" left="360" top="700" width="40" height="26"/>
+        <Static id="sta_paidVal" taborder="33" left="402" top="700" width="110" height="26" textAlign="right"/>
+        <Static id="sta_hold" taborder="34" text="보류" left="530" top="700" width="40" height="26"/>
+        <Static id="sta_holdVal" taborder="35" left="572" top="700" width="110" height="26" textAlign="right"/>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="DATE_TYPE" type="STRING" size="10"/>
+          <Column id="FROM_YMD" type="STRING" size="8"/>
+          <Column id="TO_YMD" type="STRING" size="8"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SELLER_NM" type="STRING" size="100"/>
+          <Column id="STL_STAT" type="STRING" size="4"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="PAGE_NO" type="INT" size="4"/>
+          <Column id="PAGE_SIZE" type="INT" size="4"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="DATE_TYPE">BASE</Col>
+            <Col id="PAGE_NO">1</Col>
+            <Col id="PAGE_SIZE">500</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_dateType">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="10"/>
+          <Column id="CD_NM" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD">BASE</Col><Col id="CD_NM">기준일</Col></Row>
+          <Row><Col id="CD">CNFM</Col><Col id="CD_NM">확정일</Col></Row>
+          <Row><Col id="CD">PAY</Col><Col id="CD_NM">지급예정일</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_stlStat">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="10"/>
+          <Column id="CD_NM" type="STRING" size="100"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_stl">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="1"/>
+          <Column id="STL_NO" type="STRING" size="20"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SELLER_NM" type="STRING" size="100"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="ITEM_SEQ" type="INT" size="5"/>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="SALE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="COMM_RATE" type="BIGDECIMAL" size="5"/>
+          <Column id="COMM_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="STL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="STL_STAT" type="STRING" size="4"/>
+          <Column id="STL_STAT_NM" type="STRING" size="20"/>
+          <Column id="BASE_DT" type="STRING" size="8"/>
+          <Column id="CNFM_DT" type="STRING" size="8"/>
+          <Column id="CNFM_TYPE_NM" type="STRING" size="10"/>
+          <Column id="CNFM_RSN" type="STRING" size="200"/>
+          <Column id="PAY_SCHD_DT" type="STRING" size="8"/>
+          <Column id="PAY_DT" type="STRING" size="8"/>
+          <Column id="HOLD_RSN" type="STRING" size="200"/>
+          <Column id="HOLD_DT" type="STRING" size="8"/>
+          <Column id="SELLER_STAT" type="STRING" size="2"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_stlSum">
+        <ColumnInfo>
+          <Column id="TOT_CNT" type="INT" size="10"/>
+          <Column id="TOT_SALE_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="TOT_COMM_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="TOT_STL_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="RDY_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="CNF_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="PAID_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="HOLD_AMT" type="BIGDECIMAL" size="14"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_proc">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="1"/>
+          <Column id="STL_NO" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="cbo_dateType" propid="value" datasetid="ds_search" columnid="DATE_TYPE"/>
+      <BindItem id="item1" compid="cal_from" propid="value" datasetid="ds_search" columnid="FROM_YMD"/>
+      <BindItem id="item2" compid="cal_to" propid="value" datasetid="ds_search" columnid="TO_YMD"/>
+      <BindItem id="item3" compid="edt_sellerId" propid="value" datasetid="ds_search" columnid="SELLER_ID"/>
+      <BindItem id="item4" compid="edt_sellerNm" propid="value" datasetid="ds_search" columnid="SELLER_NM"/>
+      <BindItem id="item5" compid="cbo_stlStat" propid="value" datasetid="ds_search" columnid="STL_STAT"/>
+      <BindItem id="item6" compid="edt_ordNo" propid="value" datasetid="ds_search" columnid="ORD_NO"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.StlMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_stlStat", "STL_STAT");
+	var today = this.gfn_today();
+	this.ds_search.setColumn(0, "FROM_YMD", today.substr(0, 6) + "01");
+	this.ds_search.setColumn(0, "TO_YMD", today);
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	var fromYmd = this.ds_search.getColumn(0, "FROM_YMD");
+	var toYmd = this.ds_search.getColumn(0, "TO_YMD");
+	if (this.gfn_isEmpty(fromYmd) || this.gfn_isEmpty(toYmd)) {
+		this.gfn_alert("조회 기간을 입력하세요.");
+		return;
+	}
+	if (fromYmd > toYmd) {
+		this.gfn_alert("시작일이 종료일보다 늦습니다.");
+		return;
+	}
+	// 2020.05 운영요청 #0921 - 조회 기간 3개월 제한
+	if (this.gfn_diffDay(fromYmd, toYmd) > 92) {
+		this.gfn_alert("조회 기간은 3개월을 넘을 수 없습니다.");
+		return;
+	}
+	this.gfn_callApi("stl.list", "ds_search=ds_search", "ds_stl=ds_stl ds_stlSum=ds_stlSum", "fn_callback");
+};
+
+this.btn_hold_onclick = function(obj, e)
+{
+	if (!this.fn_validateHold()) return;
+	if (!this.gfn_confirm("선택한 정산 건을 지급 보류하시겠습니까?")) return;
+
+	this.fn_makeProc();
+	var rsn = this.edt_rsn.value;
+	this.gfn_callApi("stl.hold", "ds_stl=ds_proc", "", "fn_callback", "HOLD_RSN=" + nexacro.wrapQuote(rsn));
+};
+
+this.btn_release_onclick = function(obj, e)
+{
+	if (!this.fn_validateRelease()) return;
+	if (!this.gfn_confirm("선택한 정산 건의 보류를 해제하시겠습니까?")) return;
+
+	this.fn_makeProc();
+	this.gfn_callApi("stl.release", "ds_stl=ds_proc", "", "fn_callback");
+};
+
+this.btn_confirm_onclick = function(obj, e)
+{
+	if (!this.fn_validateConfirm()) return;
+	if (!this.gfn_confirm("선택한 정산 건을 수동 확정하시겠습니까?\n확정 후 다음 지급일에 지급됩니다.")) return;
+
+	this.fn_makeProc();
+	var rsn = this.edt_rsn.value;
+	this.gfn_callApi("stl.confirm", "ds_stl=ds_proc", "", "fn_callback", "CNFM_RSN=" + nexacro.wrapQuote(rsn));
+};
+
+/** 체크된 행 수 */
+this.fn_checkedCnt = function()
+{
+	var cnt = 0;
+	for (var i = 0; i < this.ds_stl.rowcount; i++) {
+		if (this.ds_stl.getColumn(i, "CHK") == "1") cnt++;
+	}
+	return cnt;
+};
+
+/** 지급 보류 검사: 사유 필수, 정산대기/정산확정만, 지급완료 불가 */
+this.fn_validateHold = function()
+{
+	if (this.fn_checkedCnt() == 0) {
+		this.gfn_alert("보류할 정산 건을 선택하세요.");
+		return false;
+	}
+	if (this.gfn_isEmpty(this.edt_rsn.value)) {
+		this.gfn_alert("보류 사유를 입력하세요.");
+		this.edt_rsn.setFocus();
+		return false;
+	}
+	for (var i = 0; i < this.ds_stl.rowcount; i++) {
+		if (this.ds_stl.getColumn(i, "CHK") != "1") continue;
+		var stat = this.ds_stl.getColumn(i, "STL_STAT");
+		if (stat == "PAID") {
+			this.gfn_alert("지급완료된 정산은 보류할 수 없습니다.\n(" + this.ds_stl.getColumn(i, "STL_NO") + ")");
+			return false;
+		}
+		if (stat != "RDY" && stat != "CNF") {
+			this.gfn_alert("정산대기/정산확정 상태만 보류할 수 있습니다.\n(" + this.ds_stl.getColumn(i, "STL_NO") + ")");
+			return false;
+		}
+	}
+	return true;
+};
+
+this.fn_validateRelease = function()
+{
+	if (this.fn_checkedCnt() == 0) {
+		this.gfn_alert("해제할 정산 건을 선택하세요.");
+		return false;
+	}
+	for (var i = 0; i < this.ds_stl.rowcount; i++) {
+		if (this.ds_stl.getColumn(i, "CHK") != "1") continue;
+		if (this.ds_stl.getColumn(i, "STL_STAT") != "HOLD") {
+			this.gfn_alert("지급보류 상태만 해제할 수 있습니다.\n(" + this.ds_stl.getColumn(i, "STL_NO") + ")");
+			return false;
+		}
+		// 2022.09 정지 판매자는 판매자 상태 정상화 후 해제
+		if (this.ds_stl.getColumn(i, "SELLER_STAT") == "S") {
+			this.gfn_alert("정지된 판매자의 정산은 해제할 수 없습니다.\n(" + this.ds_stl.getColumn(i, "SELLER_ID") + ")");
+			return false;
+		}
+	}
+	return true;
+};
+
+/** 수동 확정 검사: 사유 필수, 정산대기만 */
+this.fn_validateConfirm = function()
+{
+	if (this.fn_checkedCnt() == 0) {
+		this.gfn_alert("확정할 정산 건을 선택하세요.");
+		return false;
+	}
+	if (this.gfn_isEmpty(this.edt_rsn.value)) {
+		this.gfn_alert("수동 확정 사유를 입력하세요.");
+		this.edt_rsn.setFocus();
+		return false;
+	}
+	for (var i = 0; i < this.ds_stl.rowcount; i++) {
+		if (this.ds_stl.getColumn(i, "CHK") != "1") continue;
+		if (this.ds_stl.getColumn(i, "STL_STAT") != "RDY") {
+			this.gfn_alert("정산대기 상태만 수동 확정할 수 있습니다.\n(" + this.ds_stl.getColumn(i, "STL_NO") + ")");
+			return false;
+		}
+	}
+	return true;
+};
+
+this.fn_makeProc = function()
+{
+	this.ds_proc.clearData();
+	for (var i = 0; i < this.ds_stl.rowcount; i++) {
+		if (this.ds_stl.getColumn(i, "CHK") != "1") continue;
+		var nRow = this.ds_proc.addRow();
+		this.ds_proc.setColumn(nRow, "CHK", "1");
+		this.ds_proc.setColumn(nRow, "STL_NO", this.ds_stl.getColumn(i, "STL_NO"));
+	}
+};
+
+this.fn_setSum = function()
+{
+	if (this.ds_stlSum.rowcount == 0) return;
+	this.sta_totCntVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "TOT_CNT"), 0)));
+	this.sta_totSaleVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "TOT_SALE_AMT"), 0)));
+	this.sta_totCommVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "TOT_COMM_AMT"), 0)));
+	this.sta_totStlVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "TOT_STL_AMT"), 0)));
+	this.sta_rdyVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "RDY_AMT"), 0)));
+	this.sta_cnfVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "CNF_AMT"), 0)));
+	this.sta_paidVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "PAID_AMT"), 0)));
+	this.sta_holdVal.set_text(this.gfn_numFormat(this.gfn_nvl(this.ds_stlSum.getColumn(0, "HOLD_AMT"), 0)));
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "stl.list") {
+		this.fn_setSum();
+		if (this.ds_stl.rowcount == 0) {
+			this.gfn_alert("조회된 정산 내역이 없습니다.");
+		}
+	} else if (svcId == "stl.hold") {
+		this.gfn_alert("지급 보류 처리되었습니다.");
+		this.edt_rsn.set_value("");
+		this.fn_search();
+	} else if (svcId == "stl.release") {
+		this.gfn_alert("보류 해제되었습니다.");
+		this.fn_search();
+	} else if (svcId == "stl.confirm") {
+		this.gfn_alert("수동 확정되었습니다.");
+		this.edt_rsn.set_value("");
+		this.fn_search();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

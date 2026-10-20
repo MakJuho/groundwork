@@ -1,0 +1,32 @@
+{
+  "modules": [
+    {
+      "name": "도서",
+      "files": [
+        "src/main/java/com/example/library/controller/BookController.java",
+        "src/main/java/com/example/library/service/BookService.java",
+        "src/main/java/com/example/library/repository/BookRepository.java",
+        "src/main/java/com/example/library/entity/Book.java"
+      ]
+    },
+    {
+      "name": "대출",
+      "files": [
+        "src/main/java/com/example/library/controller/LoanController.java",
+        "src/main/java/com/example/library/service/LoanService.java",
+        "src/main/java/com/example/library/repository/LoanRepository.java",
+        "src/main/java/com/example/library/entity/Loan.java",
+        "src/main/java/com/example/library/dto/LoanRequest.java"
+      ]
+    },
+    {
+      "name": "회원",
+      "files": [
+        "src/main/java/com/example/library/controller/MemberController.java",
+        "src/main/java/com/example/library/service/MemberService.java",
+        "src/main/java/com/example/library/repository/MemberRepository.java",
+        "src/main/java/com/example/library/entity/Member.java"
+      ]
+    }
+  ]
+}

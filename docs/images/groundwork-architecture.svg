@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8B95A1"/>
+    </marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#3182F6"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="600" fill="#FFFFFF"/>
+
+  <!-- 사내 Git -->
+  <rect x="30" y="80" width="150" height="110" rx="14" fill="#F2F4F6"/>
+  <text x="105" y="122" text-anchor="middle" font-size="17" font-weight="700" fill="#191F28">사내 Git</text>
+  <text x="105" y="146" text-anchor="middle" font-size="12.5" fill="#4E5968">서비스 저장소들</text>
+  <text x="105" y="166" text-anchor="middle" font-size="12.5" fill="#4E5968">(최대 2만 파일)</text>
+  <text x="225" y="112" text-anchor="middle" font-size="12" fill="#4E5968">머지 알림</text>
+  <text x="225" y="152" text-anchor="middle" font-size="12" fill="#4E5968">읽기 전용</text>
+  <line x1="182" y1="130" x2="286" y2="130" stroke="#8B95A1" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- 분석 서버 -->
+  <rect x="270" y="40" width="460" height="480" rx="20" fill="#FFFFFF" stroke="#D1D6DB" stroke-width="1.5"/>
+  <text x="292" y="70" font-size="16" font-weight="700" fill="#191F28">분석 서버 <tspan font-weight="400" font-size="13" fill="#6B7684">· 운영자 계정</tspan></text>
+
+  <rect x="290" y="90" width="130" height="80" rx="12" fill="#F2F4F6"/>
+  <text x="355" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#191F28">갱신 작업</text>
+  <text x="355" y="142" text-anchor="middle" font-size="11.5" fill="#4E5968">바뀐 파일 →</text>
+  <text x="355" y="158" text-anchor="middle" font-size="11.5" fill="#4E5968">영향받는 모듈 계산</text>
+
+  <rect x="435" y="90" width="130" height="80" rx="12" fill="#F2F4F6"/>
+  <text x="500" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#191F28">실행기</text>
+  <text x="500" y="142" text-anchor="middle" font-size="11.5" fill="#4E5968">Claude Agent SDK</text>
+  <text x="500" y="158" text-anchor="middle" font-size="11.5" fill="#4E5968">프로젝트 잠금 · 토큰 한도</text>
+
+  <rect x="580" y="90" width="130" height="80" rx="12" fill="#F2F4F6"/>
+  <text x="645" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#191F28">요청 대기열</text>
+  <text x="645" y="142" text-anchor="middle" font-size="11.5" fill="#4E5968">흐름 추적 요청</text>
+  <text x="645" y="158" text-anchor="middle" font-size="11.5" fill="#4E5968">운영자 승인 후 실행</text>
+
+  <line x1="420" y1="130" x2="433" y2="130" stroke="#8B95A1" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="580" y1="130" x2="567" y2="130" stroke="#8B95A1" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="500" y1="170" x2="500" y2="198" stroke="#8B95A1" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- 플러그인 -->
+  <rect x="290" y="200" width="420" height="175" rx="14" fill="#E8F3FF" stroke="#3182F6" stroke-width="1.5"/>
+  <text x="308" y="228" font-size="15" font-weight="700" fill="#1B64DA">Groundwork 플러그인 <tspan font-weight="400" font-size="12.5" fill="#4E5968">· 분석 엔진</tspan></text>
+
+  <rect x="308" y="242" width="186" height="118" rx="10" fill="#FFFFFF"/>
+  <rect x="320" y="254" width="52" height="20" rx="10" fill="#F2F4F6"/>
+  <text x="346" y="268" text-anchor="middle" font-size="11" font-weight="700" fill="#4E5968">스크립트</text>
+  <text x="320" y="296" font-size="12.5" fill="#333D4B">· 구조 스캔, 모듈 나누기</text>
+  <text x="320" y="316" font-size="12.5" fill="#333D4B">· 근거 줄 검증</text>
+  <text x="320" y="336" font-size="12.5" fill="#333D4B">· 정책 번호 맞추기, 변경 비교</text>
+
+  <rect x="506" y="242" width="186" height="118" rx="10" fill="#FFFFFF"/>
+  <rect x="518" y="254" width="52" height="20" rx="10" fill="#3182F6"/>
+  <text x="544" y="268" text-anchor="middle" font-size="11" font-weight="700" fill="#FFFFFF">Claude</text>
+  <text x="518" y="296" font-size="12.5" fill="#333D4B">· 코드에서 정책 찾기</text>
+  <text x="518" y="316" font-size="12.5" fill="#333D4B">· 요청 흐름 추적</text>
+  <text x="518" y="336" font-size="12.5" fill="#333D4B">· 사람이 읽을 문서 쓰기</text>
+
+  <line x1="500" y1="375" x2="500" y2="403" stroke="#8B95A1" stroke-width="2" marker-end="url(#a)"/>
+
+  <!-- 결과 -->
+  <rect x="290" y="405" width="420" height="95" rx="12" fill="#F2F4F6"/>
+  <text x="308" y="433" font-size="14" font-weight="700" fill="#191F28">분석 결과</text>
+  <text x="308" y="458" font-size="12.5" fill="#4E5968">정책서 · 기술 명세 · 다이어그램 · 온보딩 가이드</text>
+  <text x="308" y="480" font-size="12.5" fill="#4E5968">흐름 추적 · 데이터 생애 · 정책 변경 내역 · 근거 데이터</text>
+
+  <!-- 게시 화살표 -->
+  <path d="M710,452 H772 V300 H786" fill="none" stroke="#3182F6" stroke-width="2" marker-end="url(#ab)"/>
+  <text x="751" y="378" text-anchor="middle" font-size="11" fill="#1B64DA">완성본</text>
+  <text x="751" y="394" text-anchor="middle" font-size="11" fill="#1B64DA">통째로</text>
+  <text x="751" y="410" text-anchor="middle" font-size="11" fill="#1B64DA">게시</text>
+
+  <!-- 조회 포털 -->
+  <rect x="790" y="110" width="185" height="270" rx="14" fill="#FFFFFF" stroke="#3182F6" stroke-width="1.5"/>
+  <text x="882" y="142" text-anchor="middle" font-size="16" font-weight="700" fill="#191F28">조회 포털</text>
+  <text x="882" y="162" text-anchor="middle" font-size="11.5" fill="#6B7684">사내 SSO · 저장소 권한대로</text>
+  <rect x="806" y="178" width="153" height="34" rx="8" fill="#F2F4F6"/>
+  <text x="882" y="200" text-anchor="middle" font-size="12.5" fill="#333D4B">문서 · 다이어그램</text>
+  <rect x="806" y="218" width="153" height="34" rx="8" fill="#F2F4F6"/>
+  <text x="882" y="240" text-anchor="middle" font-size="12.5" fill="#333D4B">검색</text>
+  <rect x="806" y="258" width="153" height="34" rx="8" fill="#F2F4F6"/>
+  <text x="882" y="280" text-anchor="middle" font-size="12.5" fill="#333D4B">정책 변경 내역</text>
+  <rect x="806" y="298" width="153" height="34" rx="8" fill="#F2F4F6"/>
+  <text x="882" y="320" text-anchor="middle" font-size="12.5" fill="#333D4B">흐름 추적 요청</text>
+  <text x="882" y="360" text-anchor="middle" font-size="11.5" fill="#6B7684">읽기 전용</text>
+
+  <!-- 추적 요청 화살표 -->
+  <path d="M882,110 V58 H645 V88" fill="none" stroke="#8B95A1" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#a)"/>
+  <text x="764" y="50" text-anchor="middle" font-size="12" fill="#4E5968">흐름 추적 요청</text>
+
+  <!-- 사용자 -->
+  <rect x="790" y="430" width="185" height="90" rx="14" fill="#E5F8EF"/>
+  <text x="882" y="462" text-anchor="middle" font-size="14" font-weight="700" fill="#191F28">전사 구성원</text>
+  <text x="882" y="484" text-anchor="middle" font-size="12" fill="#4E5968">기획자 · 현업</text>
+  <text x="882" y="502" text-anchor="middle" font-size="12" fill="#4E5968">신규 입사자 · 개발자</text>
+  <line x1="882" y1="430" x2="882" y2="383" stroke="#8B95A1" stroke-width="2" marker-end="url(#a)"/>
+  <text x="896" y="412" font-size="12" fill="#4E5968">조회</text>
+
+  <!-- 개발자 PC -->
+  <rect x="30" y="250" width="150" height="125" rx="14" fill="#FFFFFF" stroke="#B0B8C1" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="105" y="284" text-anchor="middle" font-size="15" font-weight="700" fill="#191F28">개발자 PC</text>
+  <text x="105" y="308" text-anchor="middle" font-size="12" fill="#4E5968">Claude Code에서</text>
+  <text x="105" y="326" text-anchor="middle" font-size="12" fill="#4E5968">같은 플러그인 사용</text>
+  <text x="105" y="350" text-anchor="middle" font-size="12" fill="#4E5968">(변경 영향 확인)</text>
+  <line x1="182" y1="312" x2="288" y2="312" stroke="#B0B8C1" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#a)"/>
+  <text x="235" y="302" text-anchor="middle" font-size="12" fill="#4E5968">같은 엔진</text>
+
+  <!-- 범례 -->
+  <rect x="30" y="556" width="14" height="14" rx="3" fill="#3182F6"/>
+  <text x="52" y="568" font-size="12.5" fill="#4E5968">Claude가 판단하는 일</text>
+  <rect x="200" y="556" width="14" height="14" rx="3" fill="#D1D6DB"/>
+  <text x="222" y="568" font-size="12.5" fill="#4E5968">스크립트가 처리하는 일 (항상 같은 결과)</text>
+  <rect x="470" y="556" width="14" height="14" rx="3" fill="#B7EBD2"/>
+  <text x="492" y="568" font-size="12.5" fill="#4E5968">사람</text>
+</svg>

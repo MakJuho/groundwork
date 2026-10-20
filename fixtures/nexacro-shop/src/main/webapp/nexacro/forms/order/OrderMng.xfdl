@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="OrderMng" width="1280" height="720" titletext="주문 관리" onload="OrderMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="주문 관리" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_memberId" taborder="1" text="회원 아이디" left="20" top="56" width="80" height="28"/>
+        <Edit id="edt_memberId" taborder="2" left="104" top="56" width="180" height="28"/>
+        <Button id="btn_search" taborder="3" text="조회" left="1184" top="56" width="76" height="28" onclick="btn_search_onclick"/>
+        <Button id="btn_cancel" taborder="4" text="주문 취소" left="1164" top="100" width="96" height="28" onclick="btn_cancel_onclick"/>
+        <Grid id="grd_order" taborder="5" binddataset="ds_order" left="20" top="138" width="1240" height="562">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="160"/>
+                <Column size="160"/>
+                <Column size="120"/>
+                <Column size="160"/>
+                <Column size="160"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="주문번호"/>
+                <Cell col="1" text="회원"/>
+                <Cell col="2" text="상태"/>
+                <Cell col="3" text="금액"/>
+                <Cell col="4" text="주문일"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:ORDER_NO"/>
+                <Cell col="1" text="bind:MEMBER_ID"/>
+                <Cell col="2" text="bind:ORDER_STAT"/>
+                <Cell col="3" text="bind:TOTAL_AMT"/>
+                <Cell col="4" text="bind:ORDER_DT"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="MEMBER_ID" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_order">
+        <ColumnInfo>
+          <Column id="ORDER_NO" type="STRING" size="20"/>
+          <Column id="MEMBER_ID" type="STRING" size="20"/>
+          <Column id="ORDER_STAT" type="STRING" size="2"/>
+          <Column id="TOTAL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="ORDER_DT" type="STRING" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_cancel">
+        <ColumnInfo>
+          <Column id="ORDER_NO" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edt_memberId" propid="value" datasetid="ds_search" columnid="MEMBER_ID"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.OrderMng_onload = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("order.list", "ds_search=ds_search", "ds_order=ds_order", "fn_callback");
+};
+
+this.btn_cancel_onclick = function(obj, e)
+{
+	var nRow = this.ds_order.rowposition;
+	if (nRow < 0) {
+		this.gfn_alert("취소할 주문을 선택하세요.");
+		return;
+	}
+	this.ds_cancel.clearData();
+	this.ds_cancel.setColumn(this.ds_cancel.addRow(), "ORDER_NO", this.ds_order.getColumn(nRow, "ORDER_NO"));
+	this.gfn_callApi("order.cancel", "ds_cancel=ds_cancel", "", "fn_callback");
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "order.cancel") {
+		this.gfn_alert("주문이 취소되었습니다.");
+		this.fn_search();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

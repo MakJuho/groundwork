@@ -1,0 +1,96 @@
+include "lib::apiUrl.xjs";
+
+/**
+ * 공통 서버 호출. 서비스 키로 URL을 찾아 transaction을 부른다.
+ * @param svcId    서비스 키 (예: "ord.cancel")
+ * @param inDs     보낼 Dataset ("서버이름=화면Dataset[:U]")
+ * @param outDs    받을 Dataset ("화면Dataset=서버이름")
+ * @param callback 끝나면 부를 함수 이름
+ * @param args     추가 인자 ("이름=값 이름=값"), 생략 가능
+ */
+this.gfn_callApi = function(svcId, inDs, outDs, callback, args)
+{
+	var url = this.gv_apiUrl[svcId];
+	if (this.gfn_isEmpty(url)) {
+		this.gfn_alert("등록되지 않은 서비스입니다: " + svcId);
+		return;
+	}
+	this.transaction(svcId, "svc::" + url, inDs, outDs, this.gfn_nvl(args, ""), callback);
+};
+
+/**
+ * 공통코드 조회. 코드 그룹을 받아 화면의 Dataset에 채운다. 콤보 바인딩용.
+ * 예) this.gfn_setCode("ds_ordStat", "ORD_STAT");
+ */
+this.gfn_setCode = function(dsName, grpCd)
+{
+	this.transaction("cmm.code." + dsName, "svc::" + this.gv_apiUrl["cmm.code.list"],
+		"", dsName + "=ds_code", "GRP_CD=" + grpCd + " USE_YN=Y", "gfn_codeCallback");
+};
+
+this.gfn_codeCallback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+	}
+};
+
+/** 코드 Dataset에서 코드명/기준값을 찾는다. col 생략 시 CD_NM */
+this.gfn_getCodeVal = function(ds, cd, col)
+{
+	var nRow = ds.findRow("CD", cd);
+	if (nRow < 0) return "";
+	return ds.getColumn(nRow, this.gfn_nvl(col, "CD_NM"));
+};
+
+this.gfn_isEmpty = function(value)
+{
+	return value == null || value == undefined || String(value).trim() == "";
+};
+
+this.gfn_nvl = function(value, defVal)
+{
+	return this.gfn_isEmpty(value) ? defVal : value;
+};
+
+this.gfn_alert = function(msg)
+{
+	this.alert(msg);
+};
+
+this.gfn_confirm = function(msg)
+{
+	return this.confirm(msg);
+};
+
+/** yyyyMMdd 문자열 → Date */
+this.gfn_toDate = function(ymd)
+{
+	ymd = String(ymd).replace(/-/g, "");
+	return new Date(parseInt(ymd.substr(0, 4)), parseInt(ymd.substr(4, 2)) - 1, parseInt(ymd.substr(6, 2)));
+};
+
+this.gfn_today = function()
+{
+	var d = new Date();
+	return d.getFullYear() + String(d.getMonth() + 1).padLeft(2, "0") + String(d.getDate()).padLeft(2, "0");
+};
+
+/** 두 일자 사이 일수 (to - from). 달력 기준 */
+this.gfn_diffDay = function(fromYmd, toYmd)
+{
+	var ms = this.gfn_toDate(toYmd).getTime() - this.gfn_toDate(fromYmd).getTime();
+	return Math.floor(ms / (1000 * 60 * 60 * 24));
+};
+
+/** 10원 미만 절사 */
+this.gfn_truncWon = function(amt)
+{
+	return Math.floor(amt / 10) * 10;
+};
+
+/** 천 단위 콤마 */
+this.gfn_numFormat = function(n)
+{
+	return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};

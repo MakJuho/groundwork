@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.pay.PayMapper">
+
+  <sql id="payCols">
+           P.PAY_NO, P.ORD_NO, P.PAY_MTHD, P.CARD_CO, P.INST_MM, P.FREE_INST_YN,
+           P.PAY_AMT, P.CNCL_AMT, P.PAY_AMT - P.CNCL_AMT AS REMAIN_AMT, P.PAY_STAT,
+           DECODE(P.PAY_STAT, 'W', '입금대기', 'A', '승인', 'P', '부분취소', 'C', '전체취소', 'E', '취소실패', P.PAY_STAT) AS PAY_STAT_NM,
+           DECODE(P.PAY_MTHD, 'CARD', '신용카드', 'VBANK', '가상계좌', 'PNT', '포인트전액', P.PAY_MTHD) AS PAY_MTHD_NM,
+           P.PG_TID, P.APRV_NO, TO_CHAR(P.APRV_DT, 'YYYY-MM-DD HH24:MI:SS') AS APRV_DT,
+           P.VBANK_CD, P.VBANK_NO, P.VBANK_DUE_DT, TO_CHAR(P.DPST_DT, 'YYYY-MM-DD HH24:MI:SS') AS DPST_DT,
+           TO_CHAR(P.REG_DT, 'YYYY-MM-DD HH24:MI:SS') AS REG_DT
+  </sql>
+
+  <sql id="payListWhere">
+    <where>
+      <if test="FROM_DT != null and FROM_DT != ''">AND P.REG_DT &gt;= TO_DATE(#{FROM_DT}, 'YYYYMMDD')</if>
+      <if test="TO_DT != null and TO_DT != ''">AND P.REG_DT &lt; TO_DATE(#{TO_DT}, 'YYYYMMDD') + 1</if>
+      <if test="ORD_NO != null and ORD_NO != ''">AND P.ORD_NO = #{ORD_NO}</if>
+      <if test="PG_TID != null and PG_TID != ''">AND P.PG_TID = #{PG_TID}</if>
+      <if test="PAY_MTHD != null and PAY_MTHD != ''">AND P.PAY_MTHD = #{PAY_MTHD}</if>
+      <if test="CARD_CO != null and CARD_CO != ''">AND P.CARD_CO = #{CARD_CO}</if>
+      <choose>
+        <when test="PAY_STAT == 'E'">
+          AND P.PAY_STAT = 'E'
+        </when>
+        <when test="PAY_STAT != null and PAY_STAT != ''">
+          AND P.PAY_STAT = #{PAY_STAT}
+        </when>
+      </choose>
+      <if test="CNCL_YN == 'Y'">AND P.CNCL_AMT &gt; 0</if>
+    </where>
+  </sql>
+
+  <select id="selectPayList" parameterType="map" resultType="map">
+    SELECT *
+      FROM (
+            SELECT ROWNUM AS RNUM, A.*
+              FROM (
+                    SELECT <include refid="payCols"/>,
+                           O.MBR_ID,
+                           (SELECT COUNT(*) FROM TB_PAY_CNCL C WHERE C.PAY_NO = P.PAY_NO AND C.CNCL_STAT = 'F') AS FAIL_CNT
+                      FROM TB_PAY P
+                      JOIN TB_ORD O ON O.ORD_NO = P.ORD_NO
+                    <include refid="payListWhere"/>
+                     ORDER BY P.REG_DT DESC, P.PAY_NO DESC
+                   ) A
+             WHERE ROWNUM &lt;= #{PAGE_NO} * #{PAGE_SIZE}
+           )
+     WHERE RNUM &gt; (#{PAGE_NO} - 1) * #{PAGE_SIZE}
+  </select>
+
+  <select id="selectPayListCnt" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+      FROM TB_PAY P
+      JOIN TB_ORD O ON O.ORD_NO = P.ORD_NO
+    <include refid="payListWhere"/>
+  </select>
+
+  <select id="selectPay" parameterType="string" resultType="map">
+    SELECT <include refid="payCols"/>
+      FROM TB_PAY P
+     WHERE P.PAY_NO = #{payNo}
+  </select>
+
+  <!-- 주문의 유효 결제건 (취소 후 재결제한 경우 최신 건) -->
+  <select id="selectPayByOrdNo" parameterType="string" resultType="map">
+    SELECT *
+      FROM (
+            SELECT <include refid="payCols"/>
+              FROM TB_PAY P
+             WHERE P.ORD_NO = #{ordNo}
+             ORDER BY P.REG_DT DESC
+           )
+     WHERE ROWNUM = 1
+  </select>
+
+  <select id="selectPayForUpdate" parameterType="string" resultType="map">
+    SELECT PAY_NO, ORD_NO, PAY_MTHD, CARD_CO, INST_MM, FREE_INST_YN, PAY_AMT, CNCL_AMT, PAY_STAT, PG_TID
+      FROM TB_PAY
+     WHERE PAY_NO = #{payNo}
+       FOR UPDATE
+  </select>
+
+  <select id="selectCnclList" parameterType="string" resultType="map">
+    SELECT PAY_NO, CNCL_SEQ, CNCL_TYPE, DECODE(CNCL_TYPE, 'A', '전체', 'P', '부분') AS CNCL_TYPE_NM,
+           CNCL_AMT, REMAIN_AMT, CNCL_RSN, CLM_NO, PG_CNCL_TID,
+           CNCL_STAT, DECODE(CNCL_STAT, 'S', '성공', 'F', '실패', 'R', '재처리완료') AS CNCL_STAT_NM,
+           PG_RES_CD, PG_RES_MSG, RETRY_CNT, TO_CHAR(CNCL_DT, 'YYYY-MM-DD HH24:MI:SS') AS CNCL_DT
+      FROM TB_PAY_CNCL
+     WHERE PAY_NO = #{payNo}
+     ORDER BY CNCL_SEQ
+  </select>
+
+  <select id="selectLastFailCncl" parameterType="string" resultType="map">
+    SELECT *
+      FROM (
+            SELECT PAY_NO, CNCL_SEQ, CNCL_TYPE, CNCL_AMT, REMAIN_AMT, CNCL_RSN, CLM_NO, RETRY_CNT
+              FROM TB_PAY_CNCL
+             WHERE PAY_NO = #{payNo}
+               AND CNCL_STAT = 'F'
+             ORDER BY CNCL_SEQ DESC
+           )
+     WHERE ROWNUM = 1
+  </select>
+
+  <select id="selectNextCnclSeq" parameterType="string" resultType="int">
+    SELECT NVL(MAX(CNCL_SEQ), 0) + 1 FROM TB_PAY_CNCL WHERE PAY_NO = #{payNo}
+  </select>
+
+  <insert id="insertPay" parameterType="map">
+    INSERT INTO TB_PAY (
+           PAY_NO, ORD_NO, PAY_MTHD, CARD_CO, INST_MM, FREE_INST_YN, PAY_AMT, CNCL_AMT, PAY_STAT,
+           PG_TID, APRV_NO, APRV_DT, VBANK_CD, VBANK_NO, VBANK_DUE_DT, REG_DT
+    ) VALUES (
+           #{PAY_NO}, #{ORD_NO}, #{PAY_MTHD}, #{CARD_CO}, NVL(#{INST_MM}, 0), NVL(#{FREE_INST_YN}, 'N'), #{PAY_AMT}, 0, #{PAY_STAT},
+           #{PG_TID}, #{APRV_NO}, DECODE(#{PAY_STAT}, 'A', SYSDATE, NULL), #{VBANK_CD}, #{VBANK_NO}, #{VBANK_DUE_DT}, SYSDATE
+    )
+  </insert>
+
+  <insert id="insertPayCncl" parameterType="map">
+    INSERT INTO TB_PAY_CNCL (
+           PAY_NO, CNCL_SEQ, CNCL_TYPE, CNCL_AMT, REMAIN_AMT, CNCL_RSN, CLM_NO,
+           PG_CNCL_TID, CNCL_STAT, PG_RES_CD, PG_RES_MSG, CNCL_DT
+    ) VALUES (
+           #{PAY_NO}, #{CNCL_SEQ}, #{CNCL_TYPE}, #{CNCL_AMT}, #{REMAIN_AMT}, SUBSTRB(#{CNCL_RSN}, 1, 200), #{CLM_NO},
+           #{PG_CNCL_TID}, #{CNCL_STAT}, #{PG_RES_CD}, SUBSTRB(#{PG_RES_MSG}, 1, 500), SYSDATE
+    )
+  </insert>
+
+  <update id="updatePayStat" parameterType="map">
+    UPDATE TB_PAY
+       SET PAY_STAT = #{PAY_STAT}
+         , UPD_DT   = SYSDATE
+     WHERE PAY_NO   = #{PAY_NO}
+  </update>
+
+  <update id="updatePayCnclAmt" parameterType="map">
+    UPDATE TB_PAY
+       SET CNCL_AMT = CNCL_AMT + #{ADD_CNCL_AMT}
+         , PAY_STAT = CASE WHEN PAY_AMT - (CNCL_AMT + #{ADD_CNCL_AMT}) &lt;= 0 THEN 'C' ELSE 'P' END
+         , UPD_DT   = SYSDATE
+     WHERE PAY_NO   = #{PAY_NO}
+  </update>
+
+  <update id="updateCnclRetry" parameterType="map">
+    UPDATE TB_PAY_CNCL
+       SET CNCL_STAT   = #{CNCL_STAT}
+         , RETRY_CNT   = RETRY_CNT + 1
+         <if test="PG_CNCL_TID != null and PG_CNCL_TID != ''">, PG_CNCL_TID = #{PG_CNCL_TID}</if>
+         , PG_RES_CD   = #{PG_RES_CD}
+         , PG_RES_MSG  = SUBSTRB(#{PG_RES_MSG}, 1, 500)
+     WHERE PAY_NO   = #{PAY_NO}
+       AND CNCL_SEQ = #{CNCL_SEQ}
+  </update>
+</mapper>

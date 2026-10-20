@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="CmmCodeMng" width="1280" height="720" titletext="공통코드 관리" onload="CmmCodeMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="공통코드 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="44" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_grpCd" taborder="0" text="코드그룹" left="12" top="8" width="64" height="28"/>
+              <Edit id="edt_grpCd" taborder="1" left="80" top="8" width="160" height="28"/>
+              <Static id="sta_useYn" taborder="2" text="사용여부" left="256" top="8" width="64" height="28"/>
+              <Combo id="cbo_useYn" taborder="3" left="324" top="8" width="100" height="28" innerdataset="ds_useYn" codecolumn="CD" datacolumn="CD_NM"/>
+              <Button id="btn_search" taborder="4" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_guide" taborder="2" text="※ 기준값1/2는 업무 기준(등급 기준금액, 적립률, 배송비 등)으로 사용됩니다. 변경 즉시 반영됩니다." left="20" top="104" width="760" height="28"/>
+        <Button id="btn_add" taborder="3" text="추가" left="1012" top="104" width="76" height="28" onclick="btn_add_onclick"/>
+        <Button id="btn_delete" taborder="4" text="삭제" left="1098" top="104" width="76" height="28" onclick="btn_delete_onclick"/>
+        <Button id="btn_save" taborder="5" text="저장" left="1184" top="104" width="76" height="28" onclick="btn_save_onclick"/>
+        <Grid id="grd_code" taborder="6" binddataset="ds_code" left="20" top="142" width="1240" height="558" autofittype="col">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="120"/>
+                <Column size="140"/>
+                <Column size="100"/>
+                <Column size="200"/>
+                <Column size="140"/>
+                <Column size="140"/>
+                <Column size="70"/>
+                <Column size="60"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="코드그룹"/>
+                <Cell col="1" text="그룹명"/>
+                <Cell col="2" text="코드"/>
+                <Cell col="3" text="코드명"/>
+                <Cell col="4" text="기준값1"/>
+                <Cell col="5" text="기준값2"/>
+                <Cell col="6" text="정렬"/>
+                <Cell col="7" text="사용"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:GRP_CD" edittype="expr:dataset.getRowType(currow) == 2 ? 'normal' : 'none'"/>
+                <Cell col="1" text="bind:GRP_NM"/>
+                <Cell col="2" text="bind:CD" edittype="expr:dataset.getRowType(currow) == 2 ? 'normal' : 'none'"/>
+                <Cell col="3" text="bind:CD_NM" edittype="normal"/>
+                <Cell col="4" text="bind:CD_VAL1" edittype="normal"/>
+                <Cell col="5" text="bind:CD_VAL2" edittype="normal"/>
+                <Cell col="6" text="bind:SORT_ORD" edittype="normal" textAlign="right"/>
+                <Cell col="7" text="bind:USE_YN" displaytype="checkboxcontrol" edittype="checkbox"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="GRP_CD" type="STRING" size="20"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_code">
+        <ColumnInfo>
+          <Column id="GRP_CD" type="STRING" size="20"/>
+          <Column id="GRP_NM" type="STRING" size="100"/>
+          <Column id="CD" type="STRING" size="20"/>
+          <Column id="CD_NM" type="STRING" size="100"/>
+          <Column id="CD_VAL1" type="STRING" size="100"/>
+          <Column id="CD_VAL2" type="STRING" size="100"/>
+          <Column id="SORT_ORD" type="INT" size="4"/>
+          <Column id="USE_YN" type="STRING" size="1"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_useYn">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="1"/>
+          <Column id="CD_NM" type="STRING" size="10"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">Y</Col><Col id="CD_NM">사용</Col></Row>
+          <Row><Col id="CD">N</Col><Col id="CD_NM">미사용</Col></Row>
+        </Rows>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_grpCd" propid="value" datasetid="ds_search" columnid="GRP_CD"/>
+      <BindItem id="item1" compid="div_search.form.cbo_useYn" propid="value" datasetid="ds_search" columnid="USE_YN"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+// 기준값1이 숫자여야 하는 코드그룹 (금액/율/개월)
+this.NUM_VAL_GRP = ["MBR_GRADE", "PNT_RATE", "DLV_FEE", "CARD_CO"];
+
+this.CmmCodeMng_onload = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	var sGrpCd = this.ds_search.getColumn(0, "GRP_CD");
+	if (!this.gfn_isEmpty(sGrpCd)) {
+		this.ds_search.setColumn(0, "GRP_CD", String(sGrpCd).toUpperCase());
+	}
+	this.gfn_callApi("cmm.code.list", "ds_search=ds_search", "ds_code=ds_code", "fn_callback");
+};
+
+this.btn_add_onclick = function(obj, e)
+{
+	var nRow = this.ds_code.addRow();
+	var sGrpCd = this.ds_search.getColumn(0, "GRP_CD");
+	if (!this.gfn_isEmpty(sGrpCd)) {
+		this.ds_code.setColumn(nRow, "GRP_CD", sGrpCd);
+	}
+	this.ds_code.setColumn(nRow, "USE_YN", "Y");
+	this.ds_code.setColumn(nRow, "SORT_ORD", this.ds_code.rowcount);
+	this.grd_code.setCellPos(2);
+};
+
+this.btn_delete_onclick = function(obj, e)
+{
+	var nRow = this.ds_code.rowposition;
+	if (nRow < 0) return;
+	if (this.ds_code.getRowType(nRow) != Dataset.ROWTYPE_INSERT) {
+		if (!this.gfn_confirm("사용 중인 코드를 삭제하면 기존 데이터 표시가 깨질 수 있습니다.\n사용여부 해제를 권장합니다. 삭제하시겠습니까?")) return;
+	}
+	this.ds_code.deleteRow(nRow);
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	if (!this.fn_validate()) return;
+	if (!this.gfn_confirm("저장하시겠습니까?")) return;
+	this.gfn_callApi("cmm.code.save", "ds_code=ds_code:U", "", "fn_callback");
+};
+
+/** 코드 저장 검사: 그룹/코드/코드명 필수, 중복, 기준값 숫자 그룹 */
+this.fn_validate = function()
+{
+	for (var i = 0; i < this.ds_code.rowcount; i++) {
+		var rowType = this.ds_code.getRowType(i);
+		if (rowType != Dataset.ROWTYPE_INSERT && rowType != Dataset.ROWTYPE_UPDATE) continue;
+
+		var sGrpCd = this.ds_code.getColumn(i, "GRP_CD");
+		var sCd = this.ds_code.getColumn(i, "CD");
+		if (this.gfn_isEmpty(sGrpCd) || this.gfn_isEmpty(sCd)) {
+			this.gfn_alert("코드그룹과 코드는 필수입니다.");
+			this.ds_code.set_rowposition(i);
+			return false;
+		}
+		if (this.gfn_isEmpty(this.ds_code.getColumn(i, "CD_NM"))) {
+			this.gfn_alert("코드명은 필수입니다.");
+			this.ds_code.set_rowposition(i);
+			return false;
+		}
+		if (this.ds_code.findRowExpr("GRP_CD == '" + sGrpCd + "' && CD == '" + sCd + "' && currow != " + i) >= 0) {
+			this.gfn_alert("코드가 중복됩니다: " + sGrpCd + " / " + sCd);
+			this.ds_code.set_rowposition(i);
+			return false;
+		}
+		var sVal1 = this.ds_code.getColumn(i, "CD_VAL1");
+		if (this.NUM_VAL_GRP.indexOf(sGrpCd) >= 0 && !this.gfn_isEmpty(sVal1) && isNaN(Number(sVal1))) {
+			this.gfn_alert("[" + sGrpCd + "] 기준값1은 숫자로 입력하세요.");
+			this.ds_code.set_rowposition(i);
+			return false;
+		}
+	}
+	return true;
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "cmm.code.save":
+			this.gfn_alert("저장되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

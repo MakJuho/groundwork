@@ -1,0 +1,21 @@
+{
+  "name": "groundwork",
+  "owner": {
+    "name": "MakJuho"
+  },
+  "metadata": {
+    "description": "레거시 소스코드를 분석해 아키텍처 지도, 업무 흐름, 정책서, 명세서, 온보딩 가이드를 만드는 Claude Code 에이전트"
+  },
+  "plugins": [
+    {
+      "name": "groundwork",
+      "source": "./plugin",
+      "description": "로컬 소스코드를 분석해 아키텍처 다이어그램, 서비스 정책서, 기술 명세서, 온보딩 가이드를 만드는 에이전트"
+    },
+    {
+      "name": "diagram-design",
+      "source": "./vendor/diagram-design",
+      "description": "Groundwork가 다이어그램을 그릴 때 쓰는 서드파티 플러그인 (MIT, Cathryn Lavery)"
+    }
+  ]
+}

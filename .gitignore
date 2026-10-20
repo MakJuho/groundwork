@@ -1,0 +1,8 @@
+node_modules/
+groundwork-output/
+.env
+demo-output/
+notes/
+docs/demo/tools/work/
+docs/demo/tools/clips/
+docs/demo/tools/audio/

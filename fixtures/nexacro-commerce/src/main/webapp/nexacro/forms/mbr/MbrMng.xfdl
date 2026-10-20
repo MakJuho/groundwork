@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="MbrMng" width="1280" height="720" titletext="회원 관리" onload="MbrMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="회원 관리" left="20" top="12" width="200" height="30" cssclass="sta_title"/>
+        <Div id="div_search" taborder="1" left="20" top="50" width="1240" height="80" text="" cssclass="div_search">
+          <Layouts>
+            <Layout>
+              <Static id="sta_mbrId" taborder="0" text="회원ID" left="12" top="8" width="60" height="28"/>
+              <Edit id="edt_mbrId" taborder="1" left="76" top="8" width="140" height="28"/>
+              <Static id="sta_mbrNm" taborder="2" text="회원명" left="232" top="8" width="60" height="28"/>
+              <Edit id="edt_mbrNm" taborder="3" left="296" top="8" width="140" height="28"/>
+              <Static id="sta_hpNo" taborder="4" text="휴대폰" left="452" top="8" width="60" height="28"/>
+              <Edit id="edt_hpNo" taborder="5" left="516" top="8" width="140" height="28"/>
+              <Static id="sta_grade" taborder="6" text="등급" left="672" top="8" width="50" height="28"/>
+              <Combo id="cbo_grade" taborder="7" left="726" top="8" width="110" height="28" innerdataset="ds_gradeCbo" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_stat" taborder="8" text="상태" left="852" top="8" width="50" height="28"/>
+              <Combo id="cbo_stat" taborder="9" left="906" top="8" width="110" height="28" innerdataset="ds_statCbo" codecolumn="CD" datacolumn="CD_NM"/>
+              <Static id="sta_joinDt" taborder="10" text="가입일" left="12" top="44" width="60" height="28"/>
+              <Calendar id="cal_joinFrom" taborder="11" left="76" top="44" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Static id="sta_wave" taborder="12" text="~" left="210" top="44" width="16" height="28"/>
+              <Calendar id="cal_joinTo" taborder="13" left="228" top="44" width="130" height="28" dateformat="yyyy-MM-dd"/>
+              <Button id="btn_search" taborder="14" text="조회" left="1150" top="8" width="76" height="28" onclick="btn_search_onclick"/>
+            </Layout>
+          </Layouts>
+        </Div>
+        <Static id="sta_cnt" taborder="2" text="총 0건" left="20" top="142" width="200" height="28"/>
+        <Button id="btn_gradeHist" taborder="3" text="등급이력" left="926" top="142" width="76" height="28" onclick="btn_gradeHist_onclick"/>
+        <Button id="btn_add" taborder="4" text="추가" left="1012" top="142" width="76" height="28" onclick="btn_add_onclick"/>
+        <Button id="btn_cancel" taborder="5" text="취소" left="1098" top="142" width="76" height="28" onclick="btn_cancel_onclick"/>
+        <Button id="btn_save" taborder="6" text="저장" left="1184" top="142" width="76" height="28" onclick="btn_save_onclick"/>
+        <Grid id="grd_mbr" taborder="7" binddataset="ds_mbr" left="20" top="180" width="1240" height="520" autofittype="col" oncellclick="grd_mbr_oncellclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="40"/>
+                <Column size="120"/>
+                <Column size="100"/>
+                <Column size="130"/>
+                <Column size="200"/>
+                <Column size="90"/>
+                <Column size="80"/>
+                <Column size="80"/>
+                <Column size="60"/>
+                <Column size="60"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="200"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="No"/>
+                <Cell col="1" text="회원ID"/>
+                <Cell col="2" text="회원명"/>
+                <Cell col="3" text="휴대폰번호"/>
+                <Cell col="4" text="이메일"/>
+                <Cell col="5" text="생년월일"/>
+                <Cell col="6" text="등급"/>
+                <Cell col="7" text="상태"/>
+                <Cell col="8" text="SMS"/>
+                <Cell col="9" text="메일"/>
+                <Cell col="10" text="가입일"/>
+                <Cell col="11" text="최종로그인"/>
+                <Cell col="12" text="비고"/>
+              </Band>
+              <Band id="body">
+                <Cell expr="currow + 1"/>
+                <Cell col="1" text="bind:MBR_ID"/>
+                <Cell col="2" text="bind:MBR_NM" edittype="expr:MBR_STAT == 'W' ? 'none' : 'normal'"/>
+                <Cell col="3" text="bind:HP_NO" edittype="expr:MBR_STAT == 'W' ? 'none' : 'normal'"/>
+                <Cell col="4" text="bind:EMAIL" edittype="expr:MBR_STAT == 'W' ? 'none' : 'normal'"/>
+                <Cell col="5" text="bind:BIRTH_YMD" displaytype="date" calendardateformat="yyyy-MM-dd" edittype="date"/>
+                <Cell col="6" text="bind:GRADE_CD" displaytype="combotext" combodataset="ds_grade" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="7" text="bind:MBR_STAT" displaytype="combotext" edittype="expr:MBR_STAT == 'W' ? 'none' : 'combo'" combodataset="ds_mbrStat" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="8" text="bind:SMS_RCV_YN" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="9" text="bind:EMAIL_RCV_YN" displaytype="checkboxcontrol" edittype="checkbox"/>
+                <Cell col="10" text="bind:JOIN_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="11" text="bind:LAST_LOGIN_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="12" text="bind:RMK" edittype="normal"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="MBR_NM" type="STRING" size="50"/>
+          <Column id="HP_NO" type="STRING" size="13"/>
+          <Column id="GRADE_CD" type="STRING" size="10"/>
+          <Column id="MBR_STAT" type="STRING" size="1"/>
+          <Column id="JOIN_FROM" type="STRING" size="8"/>
+          <Column id="JOIN_TO" type="STRING" size="8"/>
+          <Column id="PAGE_NO" type="INT" size="4"/>
+          <Column id="PAGE_SIZE" type="INT" size="4"/>
+        </ColumnInfo>
+        <Rows>
+          <Row>
+            <Col id="PAGE_NO">1</Col>
+            <Col id="PAGE_SIZE">500</Col>
+          </Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_mbr">
+        <ColumnInfo>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="MBR_NM" type="STRING" size="50"/>
+          <Column id="HP_NO" type="STRING" size="13"/>
+          <Column id="EMAIL" type="STRING" size="100"/>
+          <Column id="BIRTH_YMD" type="STRING" size="8"/>
+          <Column id="GRADE_CD" type="STRING" size="10"/>
+          <Column id="MBR_STAT" type="STRING" size="1"/>
+          <Column id="SMS_RCV_YN" type="STRING" size="1"/>
+          <Column id="EMAIL_RCV_YN" type="STRING" size="1"/>
+          <Column id="JOIN_DT" type="STRING" size="8"/>
+          <Column id="LAST_LOGIN_DT" type="STRING" size="8"/>
+          <Column id="GRADE_CHG_DT" type="STRING" size="8"/>
+          <Column id="RMK" type="STRING" size="500"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_grade"/>
+      <Dataset id="ds_mbrStat"/>
+      <Dataset id="ds_gradeCbo"/>
+      <Dataset id="ds_statCbo"/>
+      <Dataset id="ds_result">
+        <ColumnInfo>
+          <Column id="RESULT_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="div_search.form.edt_mbrId" propid="value" datasetid="ds_search" columnid="MBR_ID"/>
+      <BindItem id="item1" compid="div_search.form.edt_mbrNm" propid="value" datasetid="ds_search" columnid="MBR_NM"/>
+      <BindItem id="item2" compid="div_search.form.edt_hpNo" propid="value" datasetid="ds_search" columnid="HP_NO"/>
+      <BindItem id="item3" compid="div_search.form.cbo_grade" propid="value" datasetid="ds_search" columnid="GRADE_CD"/>
+      <BindItem id="item4" compid="div_search.form.cbo_stat" propid="value" datasetid="ds_search" columnid="MBR_STAT"/>
+      <BindItem id="item5" compid="div_search.form.cal_joinFrom" propid="value" datasetid="ds_search" columnid="JOIN_FROM"/>
+      <BindItem id="item6" compid="div_search.form.cal_joinTo" propid="value" datasetid="ds_search" columnid="JOIN_TO"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.MbrMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_grade", "MBR_GRADE");
+	this.gfn_setCode("ds_mbrStat", "MBR_STAT");
+	this.gfn_setCode("ds_gradeCbo", "MBR_GRADE");
+	this.gfn_setCode("ds_statCbo", "MBR_STAT");
+	this.ds_search.setColumn(0, "JOIN_FROM", this.gfn_today().substr(0, 4) + "0101");
+	this.ds_search.setColumn(0, "JOIN_TO", this.gfn_today());
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	var sFrom = this.ds_search.getColumn(0, "JOIN_FROM");
+	var sTo = this.ds_search.getColumn(0, "JOIN_TO");
+	if (!this.gfn_isEmpty(sFrom) && !this.gfn_isEmpty(sTo) && this.gfn_diffDay(sFrom, sTo) < 0) {
+		this.gfn_alert("가입일 시작일이 종료일보다 늦습니다.");
+		return;
+	}
+	this.gfn_callApi("mbr.list", "ds_search=ds_search", "ds_mbr=ds_mbr", "fn_callback");
+};
+
+this.btn_add_onclick = function(obj, e)
+{
+	var nRow = this.ds_mbr.addRow();
+	this.ds_mbr.setColumn(nRow, "GRADE_CD", "GEN");
+	this.ds_mbr.setColumn(nRow, "MBR_STAT", "A");
+	this.ds_mbr.setColumn(nRow, "SMS_RCV_YN", "N");
+	this.ds_mbr.setColumn(nRow, "EMAIL_RCV_YN", "N");
+	this.grd_mbr.setCellPos(2);
+};
+
+this.btn_cancel_onclick = function(obj, e)
+{
+	var nRow = this.ds_mbr.rowposition;
+	if (nRow < 0) return;
+	if (this.ds_mbr.getRowType(nRow) == Dataset.ROWTYPE_INSERT) {
+		this.ds_mbr.deleteRow(nRow);
+	} else {
+		this.ds_mbr.reset();
+	}
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	this.fn_save();
+};
+
+this.fn_save = function()
+{
+	if (!this.fn_validate()) return;
+	if (!this.gfn_confirm("저장하시겠습니까?")) return;
+	this.gfn_callApi("mbr.save", "ds_mbr=ds_mbr:U", "ds_result=ds_result", "fn_callback",
+		"USER_ID=" + this.gfn_nvl(nexacro.getApplication().gv_userId, ""));
+};
+
+/**
+ * 저장 전 검사
+ *  - 회원명/휴대폰 필수, 휴대폰 형식(01X-XXXX-XXXX)
+ *  - 화면 내 휴대폰 중복
+ *  - 탈퇴 회원 수정 불가
+ */
+this.fn_validate = function()
+{
+	var hpReg = /^01[016789]-?\d{3,4}-?\d{4}$/;
+	var nChg = 0;
+	for (var i = 0; i < this.ds_mbr.rowcount; i++) {
+		var rowType = this.ds_mbr.getRowType(i);
+		if (rowType != Dataset.ROWTYPE_INSERT && rowType != Dataset.ROWTYPE_UPDATE) continue;
+		nChg++;
+
+		if (rowType == Dataset.ROWTYPE_UPDATE && this.ds_mbr.getOrgColumn(i, "MBR_STAT") == "W") {
+			this.gfn_alert("탈퇴한 회원은 수정할 수 없습니다. [" + this.ds_mbr.getColumn(i, "MBR_ID") + "]");
+			this.ds_mbr.set_rowposition(i);
+			return false;
+		}
+		if (this.gfn_isEmpty(this.ds_mbr.getColumn(i, "MBR_NM"))) {
+			this.gfn_alert("회원명은 필수입니다.");
+			this.ds_mbr.set_rowposition(i);
+			return false;
+		}
+		var hpNo = this.gfn_nvl(this.ds_mbr.getColumn(i, "HP_NO"), "");
+		if (this.gfn_isEmpty(hpNo)) {
+			this.gfn_alert("휴대폰번호는 필수입니다.");
+			this.ds_mbr.set_rowposition(i);
+			return false;
+		}
+		if (!hpReg.test(hpNo)) {
+			this.gfn_alert("휴대폰번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
+			this.ds_mbr.set_rowposition(i);
+			return false;
+		}
+		var hpPlain = hpNo.replace(/-/g, "");
+		for (var j = 0; j < this.ds_mbr.rowcount; j++) {
+			if (i == j) continue;
+			if (String(this.gfn_nvl(this.ds_mbr.getColumn(j, "HP_NO"), "")).replace(/-/g, "") == hpPlain
+				&& this.ds_mbr.getColumn(j, "MBR_STAT") != "W") {
+				this.gfn_alert("이미 등록된 휴대폰번호입니다: " + hpNo);
+				this.ds_mbr.set_rowposition(i);
+				return false;
+			}
+		}
+		var email = this.ds_mbr.getColumn(i, "EMAIL");
+		if (!this.gfn_isEmpty(email) && email.indexOf("@") < 0) {
+			this.gfn_alert("이메일 형식이 올바르지 않습니다.");
+			this.ds_mbr.set_rowposition(i);
+			return false;
+		}
+	}
+	if (nChg == 0) {
+		this.gfn_alert("변경된 내용이 없습니다.");
+		return false;
+	}
+	return true;
+};
+
+this.grd_mbr_oncellclick = function(obj, e)
+{
+	// 탈퇴 회원은 편집 불가 안내
+	if (this.ds_mbr.getColumn(e.row, "MBR_STAT") == "W" && e.col > 1) {
+		this.sta_cnt.set_text("탈퇴 회원은 수정할 수 없습니다.");
+	}
+};
+
+this.btn_gradeHist_onclick = function(obj, e)
+{
+	var nRow = this.ds_mbr.rowposition;
+	var sMbrId = nRow < 0 ? "" : this.ds_mbr.getColumn(nRow, "MBR_ID");
+	nexacro.getApplication().gv_paramMbrId = sMbrId;
+	this.parent.set_url("mbr::MbrGradeHist.xfdl");
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "mbr.list":
+			this.sta_cnt.set_text("총 " + this.gfn_numFormat(this.ds_mbr.rowcount) + "건");
+			break;
+		case "mbr.save":
+			this.gfn_alert(this.ds_result.getColumn(0, "RESULT_CNT") + "건 저장되었습니다.");
+			this.fn_search();
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

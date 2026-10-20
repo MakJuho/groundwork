@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.stk.StkMapper">
+
+  <select id="selectStkList" parameterType="map" resultType="map">
+    SELECT K.PRD_CD, P.PRD_NM, P.SELLER_ID, P.SALE_STAT,
+           K.STK_QTY, K.RSV_QTY, K.STK_QTY - K.RSV_QTY AS AVAIL_QTY, K.SAFE_QTY,
+           CASE WHEN K.STK_QTY - K.RSV_QTY <![CDATA[<=]]> K.SAFE_QTY THEN 'Y' ELSE 'N' END AS SAFE_UNDER_YN,
+           TO_CHAR(K.LAST_IN_DT, 'YYYY-MM-DD') AS LAST_IN_DT,
+           TO_CHAR(K.LAST_OUT_DT, 'YYYY-MM-DD') AS LAST_OUT_DT,
+           TO_CHAR(K.UPD_DT, 'YYYY-MM-DD HH24:MI') AS UPD_DT, K.UPD_ID
+      FROM TB_STK K
+      JOIN TB_PRD P ON P.PRD_CD = K.PRD_CD
+    <where>
+      <if test="PRD_CD != null and PRD_CD != ''">AND K.PRD_CD LIKE #{PRD_CD} || '%'</if>
+      <if test="PRD_NM != null and PRD_NM != ''">AND P.PRD_NM LIKE '%' || #{PRD_NM} || '%'</if>
+      <if test="SELLER_ID != null and SELLER_ID != ''">AND P.SELLER_ID = #{SELLER_ID}</if>
+      <if test="SAFE_UNDER_YN == 'Y'">AND K.STK_QTY - K.RSV_QTY <![CDATA[<=]]> K.SAFE_QTY</if>
+      <if test="SALE_STAT_LIST != null and SALE_STAT_LIST.size() > 0">
+        AND P.SALE_STAT IN
+        <foreach collection="SALE_STAT_LIST" item="st" open="(" separator="," close=")">#{st}</foreach>
+      </if>
+    </where>
+     ORDER BY DECODE(SIGN(K.STK_QTY - K.RSV_QTY - K.SAFE_QTY), 1, 1, 0), K.PRD_CD
+  </select>
+
+  <select id="selectStkForUpdate" parameterType="string" resultType="map">
+    SELECT PRD_CD, STK_QTY, RSV_QTY, SAFE_QTY
+      FROM TB_STK
+     WHERE PRD_CD = #{prdCd}
+       FOR UPDATE
+  </select>
+
+  <update id="updateStk" parameterType="map">
+    UPDATE TB_STK
+       SET STK_QTY     = #{STK_QTY},
+           RSV_QTY     = #{RSV_QTY},
+    <choose>
+      <when test="CHG_TYPE == 'OUT'">
+           LAST_OUT_DT = SYSDATE,
+      </when>
+      <when test="CHG_TYPE == 'RTN' or CHG_TYPE == 'ADJ'">
+           LAST_IN_DT  = SYSDATE,
+      </when>
+    </choose>
+           UPD_ID      = #{USER_ID},
+           UPD_DT      = SYSDATE
+     WHERE PRD_CD = #{PRD_CD}
+  </update>
+
+  <update id="updateSafeQty" parameterType="map">
+    UPDATE TB_STK
+       SET SAFE_QTY = #{SAFE_QTY},
+           UPD_ID   = #{USER_ID},
+           UPD_DT   = SYSDATE
+     WHERE PRD_CD = #{PRD_CD}
+  </update>
+
+  <insert id="insertStkHist" parameterType="map">
+    INSERT INTO TB_STK_HIST (PRD_CD, HIST_SEQ, CHG_TYPE, CHG_QTY, BF_STK_QTY, AF_STK_QTY, BF_RSV_QTY, AF_RSV_QTY,
+                             ORD_NO, CHG_RSN, REG_DT, REG_ID)
+    SELECT #{PRD_CD}, NVL(MAX(HIST_SEQ), 0) + 1, #{CHG_TYPE}, #{CHG_QTY}, #{BF_STK_QTY}, #{AF_STK_QTY},
+           #{BF_RSV_QTY}, #{AF_RSV_QTY}, #{ORD_NO}, #{CHG_RSN}, SYSDATE, #{REG_ID}
+      FROM TB_STK_HIST
+     WHERE PRD_CD = #{PRD_CD}
+  </insert>
+</mapper>

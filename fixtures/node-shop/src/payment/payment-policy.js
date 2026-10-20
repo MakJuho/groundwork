@@ -1,0 +1,9 @@
+export const PAYMENT_METHODS = ['CARD', 'BANK_TRANSFER', 'POINT'];
+export const MIN_POINT_USE = 1000;
+export const MAX_POINT_RATIO = 0.5;
+export const INSTALLMENT_MIN_AMOUNT = 50000;
+export const MAX_INSTALLMENT_MONTHS = 12;
+export const RETURN_SHIPPING_FEE = 3000;
+export const PAYMENT_EXPIRE_MINUTES = 30;
+export const PG_MAX_RETRY = 2;
+export const DAILY_CARD_LIMIT = 3000000;

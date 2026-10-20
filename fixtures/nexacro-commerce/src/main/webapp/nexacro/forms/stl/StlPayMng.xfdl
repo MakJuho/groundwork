@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="StlPayMng" width="1280" height="760" titletext="판매자 지급 현황" onload="StlPayMng_onload">
+    <Layouts>
+      <Layout height="760" width="1280">
+        <Static id="sta_title" taborder="0" text="판매자 지급 현황" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_paySchd" taborder="1" text="지급예정일" left="20" top="56" width="70" height="28"/>
+        <Calendar id="cal_from" taborder="2" left="92" top="56" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Static id="sta_wave" taborder="3" text="~" left="216" top="56" width="14" height="28"/>
+        <Calendar id="cal_to" taborder="4" left="234" top="56" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Static id="sta_seller" taborder="5" text="판매자ID" left="374" top="56" width="60" height="28"/>
+        <Edit id="edt_sellerId" taborder="6" left="436" top="56" width="140" height="28"/>
+        <Static id="sta_payStat" taborder="7" text="지급상태" left="596" top="56" width="60" height="28"/>
+        <Combo id="cbo_payStat" taborder="8" left="658" top="56" width="120" height="28" innerdataset="ds_payStat" codecolumn="CD" datacolumn="CD_NM"/>
+        <Button id="btn_search" taborder="9" text="조회" left="1184" top="56" width="76" height="28" onclick="btn_search_onclick"/>
+        <Grid id="grd_stlPay" taborder="10" binddataset="ds_stlPay" left="20" top="96" width="1240" height="300" oncellclick="grd_stlPay_oncellclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="150"/>
+                <Column size="100"/>
+                <Column size="160"/>
+                <Column size="110"/>
+                <Column size="100"/>
+                <Column size="70"/>
+                <Column size="120"/>
+                <Column size="110"/>
+                <Column size="90"/>
+                <Column size="100"/>
+                <Column size="60"/>
+                <Column size="150"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+                <Row size="30" band="summ"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="지급번호"/>
+                <Cell col="1" text="판매자ID"/>
+                <Cell col="2" text="판매자명"/>
+                <Cell col="3" text="사업자번호"/>
+                <Cell col="4" text="지급예정일"/>
+                <Cell col="5" text="건수"/>
+                <Cell col="6" text="지급금액"/>
+                <Cell col="7" text="보류금액"/>
+                <Cell col="8" text="지급상태"/>
+                <Cell col="9" text="지급일"/>
+                <Cell col="10" text="은행"/>
+                <Cell col="11" text="계좌번호"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:STL_PAY_NO"/>
+                <Cell col="1" text="bind:SELLER_ID"/>
+                <Cell col="2" text="bind:SELLER_NM"/>
+                <Cell col="3" text="bind:BIZ_NO"/>
+                <Cell col="4" text="bind:PAY_SCHD_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="5" text="bind:STL_CNT" textAlign="right"/>
+                <Cell col="6" text="bind:PAY_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:HOLD_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="8" text="bind:PAY_STAT_NM" textAlign="center"/>
+                <Cell col="9" text="bind:PAY_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="10" text="bind:BANK_CD" textAlign="center"/>
+                <Cell col="11" text="bind:STL_ACCT_NO"/>
+              </Band>
+              <Band id="summary">
+                <Cell colspan="5" text="합계"/>
+                <Cell col="5" text="expr:dataset.getSum('STL_CNT')" textAlign="right"/>
+                <Cell col="6" text="expr:dataset.getSum('PAY_AMT')" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="expr:dataset.getSum('HOLD_AMT')" displaytype="number" textAlign="right"/>
+                <Cell col="8" colspan="4"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="sta_planned" taborder="11" text="지급 예정" left="20" top="404" width="60" height="26"/>
+        <Static id="sta_plannedVal" taborder="12" left="82" top="404" width="140" height="26" textAlign="right"/>
+        <Static id="sta_done" taborder="13" text="지급 완료" left="240" top="404" width="60" height="26"/>
+        <Static id="sta_doneVal" taborder="14" left="302" top="404" width="140" height="26" textAlign="right"/>
+        <Static id="sta_itemTitle" taborder="15" text="지급 상세" left="20" top="440" width="200" height="26"/>
+        <Grid id="grd_stlPayItem" taborder="16" binddataset="ds_stlPayItem" left="20" top="470" width="1240" height="270">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="140"/>
+                <Column size="140"/>
+                <Column size="50"/>
+                <Column size="110"/>
+                <Column size="100"/>
+                <Column size="70"/>
+                <Column size="90"/>
+                <Column size="100"/>
+                <Column size="70"/>
+                <Column size="90"/>
+                <Column size="90"/>
+                <Column size="180"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="정산번호"/>
+                <Cell col="1" text="주문번호"/>
+                <Cell col="2" text="순번"/>
+                <Cell col="3" text="상품코드"/>
+                <Cell col="4" text="판매금액"/>
+                <Cell col="5" text="수수료율"/>
+                <Cell col="6" text="수수료"/>
+                <Cell col="7" text="정산금액"/>
+                <Cell col="8" text="상태"/>
+                <Cell col="9" text="기준일"/>
+                <Cell col="10" text="확정일"/>
+                <Cell col="11" text="보류사유"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:STL_NO"/>
+                <Cell col="1" text="bind:ORD_NO"/>
+                <Cell col="2" text="bind:ITEM_SEQ" textAlign="center"/>
+                <Cell col="3" text="bind:PRD_CD"/>
+                <Cell col="4" text="bind:SALE_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="5" text="bind:COMM_RATE" textAlign="right"/>
+                <Cell col="6" text="bind:COMM_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:STL_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="8" text="bind:STL_STAT" displaytype="combotext" combodataset="ds_stlStat" combocodecol="CD" combodatacol="CD_NM"/>
+                <Cell col="9" text="bind:BASE_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="10" text="bind:CNFM_DT" displaytype="date" calendardateformat="yyyy-MM-dd"/>
+                <Cell col="11" text="bind:HOLD_RSN"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="FROM_YMD" type="STRING" size="8"/>
+          <Column id="TO_YMD" type="STRING" size="8"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="PAY_STAT" type="STRING" size="1"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_detailSearch">
+        <ColumnInfo>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="PAY_SCHD_DT" type="STRING" size="8"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_payStat">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="1"/>
+          <Column id="CD_NM" type="STRING" size="20"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CD"></Col><Col id="CD_NM">전체</Col></Row>
+          <Row><Col id="CD">W</Col><Col id="CD_NM">지급대기</Col></Row>
+          <Row><Col id="CD">P</Col><Col id="CD_NM">지급완료</Col></Row>
+          <Row><Col id="CD">H</Col><Col id="CD_NM">지급보류</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_stlStat">
+        <ColumnInfo>
+          <Column id="CD" type="STRING" size="10"/>
+          <Column id="CD_NM" type="STRING" size="100"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_stlPay">
+        <ColumnInfo>
+          <Column id="STL_PAY_NO" type="STRING" size="20"/>
+          <Column id="SELLER_ID" type="STRING" size="20"/>
+          <Column id="SELLER_NM" type="STRING" size="100"/>
+          <Column id="BIZ_NO" type="STRING" size="12"/>
+          <Column id="PAY_SCHD_DT" type="STRING" size="8"/>
+          <Column id="STL_CNT" type="INT" size="7"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="HOLD_AMT" type="BIGDECIMAL" size="14"/>
+          <Column id="PAY_STAT" type="STRING" size="1"/>
+          <Column id="PAY_STAT_NM" type="STRING" size="20"/>
+          <Column id="PAY_DT" type="STRING" size="8"/>
+          <Column id="BANK_CD" type="STRING" size="10"/>
+          <Column id="STL_ACCT_NO" type="STRING" size="30"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_stlPayItem">
+        <ColumnInfo>
+          <Column id="STL_NO" type="STRING" size="20"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="ITEM_SEQ" type="INT" size="5"/>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="SALE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="COMM_RATE" type="BIGDECIMAL" size="5"/>
+          <Column id="COMM_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="STL_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="STL_STAT" type="STRING" size="4"/>
+          <Column id="BASE_DT" type="STRING" size="8"/>
+          <Column id="CNFM_DT" type="STRING" size="8"/>
+          <Column id="PAY_DT" type="STRING" size="8"/>
+          <Column id="HOLD_RSN" type="STRING" size="200"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="cal_from" propid="value" datasetid="ds_search" columnid="FROM_YMD"/>
+      <BindItem id="item1" compid="cal_to" propid="value" datasetid="ds_search" columnid="TO_YMD"/>
+      <BindItem id="item2" compid="edt_sellerId" propid="value" datasetid="ds_search" columnid="SELLER_ID"/>
+      <BindItem id="item3" compid="cbo_payStat" propid="value" datasetid="ds_search" columnid="PAY_STAT"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.StlPayMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_stlStat", "STL_STAT");
+	var today = this.gfn_today();
+	this.ds_search.setColumn(0, "FROM_YMD", today.substr(0, 6) + "01");
+	this.ds_search.setColumn(0, "TO_YMD", today.substr(0, 6) + "31");
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	var fromYmd = this.ds_search.getColumn(0, "FROM_YMD");
+	var toYmd = this.ds_search.getColumn(0, "TO_YMD");
+	if (this.gfn_isEmpty(fromYmd) || this.gfn_isEmpty(toYmd)) {
+		this.gfn_alert("지급예정일 기간을 입력하세요.");
+		return;
+	}
+	if (fromYmd > toYmd) {
+		this.gfn_alert("시작일이 종료일보다 늦습니다.");
+		return;
+	}
+	this.ds_stlPayItem.clearData();
+	this.gfn_callApi("stl.detail", "ds_search=ds_search", "ds_stlPay=ds_stlPay", "fn_callback", "DETAIL_YN=N");
+};
+
+this.grd_stlPay_oncellclick = function(obj, e)
+{
+	var nRow = e.row;
+	if (nRow < 0) return;
+	this.ds_detailSearch.setColumn(0, "SELLER_ID", this.ds_stlPay.getColumn(nRow, "SELLER_ID"));
+	this.ds_detailSearch.setColumn(0, "PAY_SCHD_DT", this.ds_stlPay.getColumn(nRow, "PAY_SCHD_DT"));
+	this.sta_itemTitle.set_text("지급 상세 - " + this.ds_stlPay.getColumn(nRow, "SELLER_NM")
+		+ " (" + this.ds_stlPay.getColumn(nRow, "PAY_SCHD_DT") + ")");
+	this.gfn_callApi("stl.detail", "ds_search=ds_detailSearch", "ds_stlPayItem=ds_stlPayItem", "fn_callback", "DETAIL_YN=Y");
+};
+
+this.fn_setTotal = function()
+{
+	var planned = 0;
+	var done = 0;
+	for (var i = 0; i < this.ds_stlPay.rowcount; i++) {
+		var amt = Number(this.gfn_nvl(this.ds_stlPay.getColumn(i, "PAY_AMT"), 0));
+		var stat = this.ds_stlPay.getColumn(i, "PAY_STAT");
+		if (stat == "P") {
+			done += amt;
+		} else if (stat == "W") {
+			planned += amt;
+		}
+	}
+	this.sta_plannedVal.set_text(this.gfn_numFormat(planned));
+	this.sta_doneVal.set_text(this.gfn_numFormat(done));
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "stl.detail") {
+		this.fn_setTotal();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

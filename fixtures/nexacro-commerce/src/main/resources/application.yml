@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/COMMERCE
+    username: commerce
+    password: commerce
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    jdbc-type-for-null: VARCHAR
+
+commerce:
+  pg:
+    url: https://pg-sandbox.example.com
+    mid: COMMERCE001
+    timeout-ms: 5000
+  carrier:
+    url: https://carrier-sandbox.example.com
+  stl:
+    # 배송완료 후 정산 확정까지 영업일 수
+    confirm-bizdays: 3
+    batch-cron: "0 0 2 * * *"
+  ord:
+    # 배송완료 후 자동 구매확정
+    auto-cnfm-cron: "0 0 5 * * *"
+  pnt:
+    expire-months: 12
+    expire-cron: "0 30 3 1 * *"
+  mbr:
+    grade-cron: "0 0 4 1 * *"

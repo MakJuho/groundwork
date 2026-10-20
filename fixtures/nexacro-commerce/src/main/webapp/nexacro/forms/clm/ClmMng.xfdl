@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="ClmMng" width="1280" height="900" titletext="반품/환불 관리" onload="ClmMng_onload">
+    <Layouts>
+      <Layout height="900" width="1280">
+        <Static id="sta_title" taborder="0" text="반품/환불 관리" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_sClmNo" taborder="1" text="클레임번호" left="20" top="52" width="76" height="28"/>
+        <Edit id="edt_sClmNo" taborder="2" left="100" top="52" width="150" height="28"/>
+        <Static id="sta_sOrdNo" taborder="3" text="주문번호" left="264" top="52" width="64" height="28"/>
+        <Edit id="edt_sOrdNo" taborder="4" left="332" top="52" width="150" height="28"/>
+        <Static id="sta_sClmStat" taborder="5" text="상태" left="496" top="52" width="40" height="28"/>
+        <Combo id="cbo_sClmStat" taborder="6" left="540" top="52" width="100" height="28" innerdataset="ds_clmStat" codecolumn="CD" datacolumn="CD_NM"/>
+        <Static id="sta_sReqDt" taborder="7" text="접수일" left="656" top="52" width="50" height="28"/>
+        <Calendar id="cal_sFromDt" taborder="8" left="710" top="52" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Static id="sta_sTilde" taborder="9" text="~" left="834" top="52" width="14" height="28"/>
+        <Calendar id="cal_sToDt" taborder="10" left="852" top="52" width="120" height="28" dateformat="yyyy-MM-dd"/>
+        <Button id="btn_search" taborder="11" text="조회" left="1184" top="52" width="76" height="28" onclick="btn_search_onclick"/>
+
+        <Grid id="grd_clm" taborder="12" binddataset="ds_clmList" left="20" top="92" width="620" height="388" oncellclick="grd_clm_oncellclick">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="130"/>
+                <Column size="130"/>
+                <Column size="70"/>
+                <Column size="70"/>
+                <Column size="80"/>
+                <Column size="90"/>
+                <Column size="120"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="클레임번호"/>
+                <Cell col="1" text="주문번호"/>
+                <Cell col="2" text="상태"/>
+                <Cell col="3" text="사유"/>
+                <Cell col="4" text="회원"/>
+                <Cell col="5" text="환불금액"/>
+                <Cell col="6" text="접수일시"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CLM_NO"/>
+                <Cell col="1" text="bind:ORD_NO"/>
+                <Cell col="2" text="bind:CLM_STAT_NM"/>
+                <Cell col="3" text="bind:CLM_RSN_NM"/>
+                <Cell col="4" text="bind:MBR_ID"/>
+                <Cell col="5" text="bind:REFUND_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="6" text="bind:REQ_DT"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+
+        <Static id="sta_dtlTitle" taborder="13" text="클레임 상세" left="660" top="92" width="200" height="24"/>
+        <Static id="sta_dClmNo" taborder="14" text="클레임번호" left="660" top="120" width="80" height="26"/>
+        <Static id="sta_dClmNoVal" taborder="15" text="" left="744" top="120" width="200" height="26"/>
+        <Static id="sta_dStat" taborder="16" text="상태" left="960" top="120" width="60" height="26"/>
+        <Static id="sta_dStatVal" taborder="17" text="" left="1024" top="120" width="236" height="26"/>
+        <Static id="sta_dRsn" taborder="18" text="사유" left="660" top="148" width="80" height="26"/>
+        <Static id="sta_dRsnVal" taborder="19" text="" left="744" top="148" width="200" height="26"/>
+        <Static id="sta_dFee" taborder="20" text="반품비" left="960" top="148" width="60" height="26"/>
+        <Static id="sta_dFeeVal" taborder="21" text="" left="1024" top="148" width="236" height="26"/>
+        <Static id="sta_dRefund" taborder="22" text="환불금액" left="660" top="176" width="80" height="26"/>
+        <Static id="sta_dRefundVal" taborder="23" text="" left="744" top="176" width="200" height="26"/>
+        <Static id="sta_dRefundPnt" taborder="24" text="포인트환원" left="960" top="176" width="60" height="26"/>
+        <Static id="sta_dRefundPntVal" taborder="25" text="" left="1024" top="176" width="236" height="26"/>
+        <Grid id="grd_clmItem" taborder="26" binddataset="ds_clmItem" left="660" top="208" width="600" height="160">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="50"/>
+                <Column size="200"/>
+                <Column size="50"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="100"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="순번"/>
+                <Cell col="1" text="상품명"/>
+                <Cell col="2" text="수량"/>
+                <Cell col="3" text="상품금액"/>
+                <Cell col="4" text="쿠폰차감"/>
+                <Cell col="5" text="환불액"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:ITEM_SEQ"/>
+                <Cell col="1" text="bind:PRD_NM"/>
+                <Cell col="2" text="bind:QTY" textAlign="right"/>
+                <Cell col="3" text="bind:ITEM_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="4" text="bind:CPN_DC_SHARE_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="5" text="bind:REFUND_AMT" displaytype="number" textAlign="right"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="sta_rejRsn" taborder="27" text="거부사유" left="660" top="378" width="80" height="26"/>
+        <TextArea id="txa_rejRsn" taborder="28" left="744" top="378" width="516" height="58"/>
+        <Button id="btn_complete" taborder="29" text="회수완료" left="1092" top="446" width="80" height="28" onclick="btn_complete_onclick"/>
+        <Button id="btn_reject" taborder="30" text="거부" left="1180" top="446" width="80" height="28" onclick="btn_reject_onclick"/>
+
+        <Static id="sta_rtnTitle" taborder="31" text="반품 접수" left="20" top="496" width="200" height="26"/>
+        <Static id="sta_rOrdNo" taborder="32" text="주문번호" left="20" top="528" width="64" height="28"/>
+        <Edit id="edt_rOrdNo" taborder="33" left="88" top="528" width="170" height="28"/>
+        <Button id="btn_ordSearch" taborder="34" text="주문조회" left="264" top="528" width="80" height="28" onclick="btn_ordSearch_onclick"/>
+        <Static id="sta_ordInfo" taborder="35" text="" left="360" top="528" width="900" height="28"/>
+        <Grid id="grd_ordItem" taborder="36" binddataset="ds_ordItem" left="20" top="564" width="820" height="316" autoenter="select">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="40"/>
+                <Column size="50"/>
+                <Column size="110"/>
+                <Column size="220"/>
+                <Column size="50"/>
+                <Column size="100"/>
+                <Column size="100"/>
+                <Column size="80"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell displaytype="checkboxcontrol" edittype="checkbox" text="0"/>
+                <Cell col="1" text="순번"/>
+                <Cell col="2" text="상품코드"/>
+                <Cell col="3" text="상품명"/>
+                <Cell col="4" text="수량"/>
+                <Cell col="5" text="상품금액"/>
+                <Cell col="6" text="반품비"/>
+                <Cell col="7" text="상태"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:CHK" displaytype="checkboxcontrol" edittype="expr:ITEM_STAT == 'N' ? 'checkbox' : 'none'"/>
+                <Cell col="1" text="bind:ITEM_SEQ"/>
+                <Cell col="2" text="bind:PRD_CD"/>
+                <Cell col="3" text="bind:PRD_NM"/>
+                <Cell col="4" text="bind:QTY" textAlign="right"/>
+                <Cell col="5" text="bind:ITEM_AMT" displaytype="number" textAlign="right"/>
+                <Cell col="6" text="bind:RTN_FEE" displaytype="number" textAlign="right"/>
+                <Cell col="7" text="bind:ITEM_STAT" displaytype="combotext" combodataset="ds_itemStat" combocodecol="CD" combodatacol="CD_NM"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+        <Static id="sta_rRsn" taborder="37" text="반품사유" left="860" top="564" width="70" height="28"/>
+        <Combo id="cbo_rRsn" taborder="38" left="934" top="564" width="160" height="28" innerdataset="ds_clmRsn" codecolumn="CD" datacolumn="CD_NM" onitemchanged="cbo_rRsn_onitemchanged"/>
+        <Static id="sta_rRsnDtl" taborder="39" text="상세사유" left="860" top="600" width="70" height="28"/>
+        <TextArea id="txa_rRsnDtl" taborder="40" left="934" top="600" width="326" height="70"/>
+        <Static id="sta_pvTitle" taborder="41" text="예상 환불금액" left="860" top="684" width="200" height="26"/>
+        <Static id="sta_pvItem" taborder="42" text="상품금액" left="860" top="714" width="90" height="26"/>
+        <Static id="sta_pvItemVal" taborder="43" text="0" left="954" top="714" width="140" height="26" textAlign="right"/>
+        <Static id="sta_pvCpn" taborder="44" text="쿠폰할인 차감" left="860" top="742" width="90" height="26"/>
+        <Static id="sta_pvCpnVal" taborder="45" text="0" left="954" top="742" width="140" height="26" textAlign="right"/>
+        <Static id="sta_pvFee" taborder="46" text="반품비" left="860" top="770" width="90" height="26"/>
+        <Static id="sta_pvFeeVal" taborder="47" text="0" left="954" top="770" width="140" height="26" textAlign="right"/>
+        <Static id="sta_pvRefund" taborder="48" text="환불예정" left="860" top="798" width="90" height="26"/>
+        <Static id="sta_pvRefundVal" taborder="49" text="0" left="954" top="798" width="140" height="26" textAlign="right"/>
+        <Button id="btn_rtnReq" taborder="50" text="반품접수" left="1170" top="852" width="90" height="28" onclick="btn_rtnReq_onclick"/>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="CLM_NO" type="STRING" size="20"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="CLM_TYPE" type="STRING" size="10"/>
+          <Column id="CLM_STAT" type="STRING" size="10"/>
+          <Column id="FROM_DT" type="STRING" size="8"/>
+          <Column id="TO_DT" type="STRING" size="8"/>
+        </ColumnInfo>
+        <Rows>
+          <Row><Col id="CLM_TYPE">RTN</Col></Row>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_clmList">
+        <ColumnInfo>
+          <Column id="CLM_NO" type="STRING" size="20"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="CLM_STAT" type="STRING" size="10"/>
+          <Column id="CLM_STAT_NM" type="STRING" size="20"/>
+          <Column id="CLM_RSN" type="STRING" size="10"/>
+          <Column id="CLM_RSN_NM" type="STRING" size="20"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="REFUND_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REQ_DT" type="STRING" size="20"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_clmDtl">
+        <ColumnInfo>
+          <Column id="CLM_NO" type="STRING" size="20"/>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="CLM_STAT" type="STRING" size="10"/>
+          <Column id="CLM_STAT_NM" type="STRING" size="20"/>
+          <Column id="CLM_RSN" type="STRING" size="10"/>
+          <Column id="CLM_RSN_NM" type="STRING" size="20"/>
+          <Column id="RTN_FEE" type="BIGDECIMAL" size="12"/>
+          <Column id="RTN_FEE_PAYER" type="STRING" size="1"/>
+          <Column id="RTN_FEE_PAYER_NM" type="STRING" size="10"/>
+          <Column id="REFUND_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REFUND_PNT_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REJ_RSN" type="STRING" size="1000"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_clmItem">
+        <ColumnInfo>
+          <Column id="ITEM_SEQ" type="INT" size="4"/>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="QTY" type="INT" size="6"/>
+          <Column id="ITEM_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CPN_DC_SHARE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="REFUND_AMT" type="BIGDECIMAL" size="12"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_ord">
+        <ColumnInfo>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="MBR_ID" type="STRING" size="20"/>
+          <Column id="ORD_STAT" type="STRING" size="2"/>
+          <Column id="ORD_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="CPN_DC_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="PNT_USE_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="DLV_FEE" type="BIGDECIMAL" size="12"/>
+          <Column id="PAY_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="DLV_STAT" type="STRING" size="1"/>
+          <Column id="DLV_CMPL_DT" type="STRING" size="8"/>
+          <Column id="PAY_REMAIN_AMT" type="BIGDECIMAL" size="12"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_ordItem" oncolumnchanged="ds_ordItem_oncolumnchanged">
+        <ColumnInfo>
+          <Column id="CHK" type="STRING" size="1"/>
+          <Column id="ITEM_SEQ" type="INT" size="4"/>
+          <Column id="PRD_CD" type="STRING" size="20"/>
+          <Column id="PRD_NM" type="STRING" size="200"/>
+          <Column id="QTY" type="INT" size="6"/>
+          <Column id="UNIT_PRC" type="BIGDECIMAL" size="12"/>
+          <Column id="ITEM_AMT" type="BIGDECIMAL" size="12"/>
+          <Column id="RTN_FEE" type="BIGDECIMAL" size="12"/>
+          <Column id="ITEM_STAT" type="STRING" size="1"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_rtnReq">
+        <ColumnInfo>
+          <Column id="ORD_NO" type="STRING" size="20"/>
+          <Column id="CLM_RSN" type="STRING" size="10"/>
+          <Column id="CLM_RSN_DTL" type="STRING" size="1000"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_rtnItem">
+        <ColumnInfo>
+          <Column id="ITEM_SEQ" type="INT" size="4"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_proc">
+        <ColumnInfo>
+          <Column id="CLM_NO" type="STRING" size="20"/>
+          <Column id="REJ_RSN" type="STRING" size="1000"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_clmStat"/>
+      <Dataset id="ds_clmRsn"/>
+      <Dataset id="ds_itemStat"/>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edt_sClmNo" propid="value" datasetid="ds_search" columnid="CLM_NO"/>
+      <BindItem id="item1" compid="edt_sOrdNo" propid="value" datasetid="ds_search" columnid="ORD_NO"/>
+      <BindItem id="item2" compid="cbo_sClmStat" propid="value" datasetid="ds_search" columnid="CLM_STAT"/>
+      <BindItem id="item3" compid="cal_sFromDt" propid="value" datasetid="ds_search" columnid="FROM_DT"/>
+      <BindItem id="item4" compid="cal_sToDt" propid="value" datasetid="ds_search" columnid="TO_DT"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+/** 반품 접수 가능 기간 (배송완료일 기준, 일) */
+this.RETURN_LIMIT_DAYS = 7;
+
+/** clm.detail 조회 구분 (CLM: 클레임 상세, ORD: 반품 접수용 주문) */
+this.fv_detailMode = "";
+
+this.ClmMng_onload = function(obj, e)
+{
+	this.gfn_setCode("ds_clmStat", "CLM_STAT");
+	this.gfn_setCode("ds_clmRsn", "CLM_RSN");
+	this.gfn_setCode("ds_itemStat", "ITEM_STAT");
+
+	var today = this.gfn_today();
+	this.ds_search.setColumn(0, "FROM_DT", today.substr(0, 6) + "01");
+	this.ds_search.setColumn(0, "TO_DT", today);
+	this.fn_search();
+};
+
+/************************************************************
+ * 클레임 목록 / 상세
+ ************************************************************/
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("clm.list", "ds_search=ds_search", "ds_clmList=ds_clm", "fn_callback");
+};
+
+this.grd_clm_oncellclick = function(obj, e)
+{
+	var clmNo = this.ds_clmList.getColumn(e.row, "CLM_NO");
+	if (this.gfn_isEmpty(clmNo)) {
+		return;
+	}
+	this.fn_selectDetail(clmNo);
+};
+
+this.fn_selectDetail = function(clmNo)
+{
+	this.fv_detailMode = "CLM";
+	this.gfn_callApi("clm.detail", "", "ds_clmDtl=ds_clm ds_clmItem=ds_clmItem", "fn_callback", "CLM_NO=" + clmNo);
+};
+
+this.fn_setDetail = function()
+{
+	if (this.ds_clmDtl.rowcount == 0) {
+		return;
+	}
+	var ds = this.ds_clmDtl;
+	this.sta_dClmNoVal.set_text(ds.getColumn(0, "CLM_NO") + " / " + ds.getColumn(0, "ORD_NO"));
+	this.sta_dStatVal.set_text(ds.getColumn(0, "CLM_STAT_NM"));
+	this.sta_dRsnVal.set_text(ds.getColumn(0, "CLM_RSN_NM"));
+	this.sta_dFeeVal.set_text(this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "RTN_FEE"), 0)) + "원 (" + this.gfn_nvl(ds.getColumn(0, "RTN_FEE_PAYER_NM"), "") + " 부담)");
+	this.sta_dRefundVal.set_text(this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "REFUND_AMT"), 0)) + "원");
+	this.sta_dRefundPntVal.set_text(this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "REFUND_PNT_AMT"), 0)) + "P");
+	this.txa_rejRsn.set_value(ds.getColumn(0, "REJ_RSN"));
+
+	var clmStat = ds.getColumn(0, "CLM_STAT");
+	this.btn_complete.set_enable(clmStat == "COL");
+	this.btn_reject.set_enable(clmStat == "REQ" || clmStat == "COL");
+};
+
+/************************************************************
+ * 회수완료 / 거부
+ ************************************************************/
+this.btn_complete_onclick = function(obj, e)
+{
+	if (this.ds_clmDtl.rowcount == 0) {
+		this.gfn_alert("클레임을 선택하세요.");
+		return;
+	}
+	if (this.ds_clmDtl.getColumn(0, "CLM_STAT") != "COL") {
+		this.gfn_alert("회수중 상태의 클레임만 완료 처리할 수 있습니다.");
+		return;
+	}
+	if (!this.gfn_confirm("회수완료 처리하고 환불을 진행하시겠습니까?")) {
+		return;
+	}
+	this.ds_proc.clearData();
+	this.ds_proc.setColumn(this.ds_proc.addRow(), "CLM_NO", this.ds_clmDtl.getColumn(0, "CLM_NO"));
+	this.gfn_callApi("clm.return.complete", "ds_proc=ds_proc", "", "fn_callback",
+		"USER_ID=" + nexacro.getApplication().gv_userId);
+};
+
+this.btn_reject_onclick = function(obj, e)
+{
+	if (this.ds_clmDtl.rowcount == 0) {
+		this.gfn_alert("클레임을 선택하세요.");
+		return;
+	}
+	var clmStat = this.ds_clmDtl.getColumn(0, "CLM_STAT");
+	if (clmStat != "REQ" && clmStat != "COL") {
+		this.gfn_alert("접수/회수중 상태의 클레임만 거부할 수 있습니다.");
+		return;
+	}
+	if (this.gfn_isEmpty(this.txa_rejRsn.value)) {
+		this.gfn_alert("거부 사유를 입력하세요.");
+		this.txa_rejRsn.setFocus();
+		return;
+	}
+	if (!this.gfn_confirm("클레임을 거부하시겠습니까?")) {
+		return;
+	}
+	this.ds_proc.clearData();
+	var nRow = this.ds_proc.addRow();
+	this.ds_proc.setColumn(nRow, "CLM_NO", this.ds_clmDtl.getColumn(0, "CLM_NO"));
+	this.ds_proc.setColumn(nRow, "REJ_RSN", this.txa_rejRsn.value);
+	this.gfn_callApi("clm.reject", "ds_proc=ds_proc", "", "fn_callback",
+		"USER_ID=" + nexacro.getApplication().gv_userId);
+};
+
+/************************************************************
+ * 반품 접수
+ ************************************************************/
+this.btn_ordSearch_onclick = function(obj, e)
+{
+	var ordNo = this.gfn_nvl(this.edt_rOrdNo.value, "").trim();
+	if (this.gfn_isEmpty(ordNo)) {
+		this.gfn_alert("주문번호를 입력하세요.");
+		this.edt_rOrdNo.setFocus();
+		return;
+	}
+	this.fv_detailMode = "ORD";
+	this.gfn_callApi("clm.detail", "", "ds_ord=ds_ord ds_ordItem=ds_ordItem", "fn_callback", "ORD_NO=" + ordNo);
+};
+
+this.fn_setOrdInfo = function()
+{
+	if (this.ds_ord.rowcount == 0) {
+		this.sta_ordInfo.set_text("");
+		return;
+	}
+	var ds = this.ds_ord;
+	this.sta_ordInfo.set_text("회원 " + ds.getColumn(0, "MBR_ID")
+		+ " | 주문금액 " + this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "ORD_AMT"), 0))
+		+ " | 쿠폰할인 " + this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "CPN_DC_AMT"), 0))
+		+ " | 포인트 " + this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "PNT_USE_AMT"), 0))
+		+ " | 배송비 " + this.gfn_numFormat(this.gfn_nvl(ds.getColumn(0, "DLV_FEE"), 0))
+		+ " | 배송완료일 " + this.gfn_nvl(ds.getColumn(0, "DLV_CMPL_DT"), "-"));
+};
+
+this.ds_ordItem_oncolumnchanged = function(obj, e)
+{
+	if (e.columnid == "CHK") {
+		this.fn_calcRefundPreview();
+	}
+};
+
+this.cbo_rRsn_onitemchanged = function(obj, e)
+{
+	this.fn_calcRefundPreview();
+};
+
+/** 반품비 (사유 부담주체가 고객이면 선택 상품 중 최대 반품비, 무료배송 주문은 왕복) */
+this.fn_getRtnFee = function()
+{
+	var rsn = this.cbo_rRsn.value;
+	if (this.gfn_isEmpty(rsn) || this.ds_ord.rowcount == 0) {
+		return 0;
+	}
+	var payer = this.gfn_getCodeVal(this.ds_clmRsn, rsn, "CD_VAL1");
+	if (payer != "C") {
+		return 0;
+	}
+	var maxFee = 0;
+	for (var i = 0; i < this.ds_ordItem.rowcount; i++) {
+		if (this.ds_ordItem.getColumn(i, "CHK") != "1") continue;
+		var fee = nexacro.toNumber(this.gfn_nvl(this.ds_ordItem.getColumn(i, "RTN_FEE"), 0));
+		if (fee > maxFee) maxFee = fee;
+	}
+	if (nexacro.toNumber(this.gfn_nvl(this.ds_ord.getColumn(0, "DLV_FEE"), 0)) == 0) {
+		maxFee = maxFee * 2;
+	}
+	return maxFee;
+};
+
+/** 예상 환불금액: 상품별로 쿠폰할인을 주문금액 비율로 나눠 차감, 반품비 차감 */
+this.fn_calcRefundPreview = function()
+{
+	if (this.ds_ord.rowcount == 0) {
+		return 0;
+	}
+	var ordAmt = nexacro.toNumber(this.gfn_nvl(this.ds_ord.getColumn(0, "ORD_AMT"), 0));
+	var cpnDcAmt = nexacro.toNumber(this.gfn_nvl(this.ds_ord.getColumn(0, "CPN_DC_AMT"), 0));
+
+	var itemTotal = 0;
+	var shareTotal = 0;
+	var refund = 0;
+	for (var i = 0; i < this.ds_ordItem.rowcount; i++) {
+		if (this.ds_ordItem.getColumn(i, "CHK") != "1") continue;
+		var itemAmt = nexacro.toNumber(this.gfn_nvl(this.ds_ordItem.getColumn(i, "ITEM_AMT"), 0));
+		var share = 0;
+		if (cpnDcAmt > 0 && ordAmt > 0) {
+			share = this.gfn_truncWon(cpnDcAmt * itemAmt / ordAmt);
+		}
+		itemTotal += itemAmt;
+		shareTotal += share;
+		refund += itemAmt - share;
+	}
+	var rtnFee = this.fn_getRtnFee();
+	refund = refund - rtnFee;
+	if (refund < 0) refund = 0;
+
+	this.sta_pvItemVal.set_text(this.gfn_numFormat(itemTotal));
+	this.sta_pvCpnVal.set_text("-" + this.gfn_numFormat(shareTotal));
+	this.sta_pvFeeVal.set_text("-" + this.gfn_numFormat(rtnFee));
+	this.sta_pvRefundVal.set_text(this.gfn_numFormat(refund));
+	return refund;
+};
+
+this.fn_validate = function()
+{
+	if (this.ds_ord.rowcount == 0) {
+		this.gfn_alert("주문을 먼저 조회하세요.");
+		return false;
+	}
+	var ordStat = this.ds_ord.getColumn(0, "ORD_STAT");
+	if (ordStat == "60") {
+		this.gfn_alert("구매확정된 주문은 반품할 수 없습니다.");
+		return false;
+	}
+	if (ordStat != "50" && ordStat != "80") {
+		this.gfn_alert("배송완료된 주문만 반품 접수할 수 있습니다.");
+		return false;
+	}
+	var dlvCmplDt = this.ds_ord.getColumn(0, "DLV_CMPL_DT");
+	if (this.ds_ord.getColumn(0, "DLV_STAT") != "D" || this.gfn_isEmpty(dlvCmplDt)) {
+		this.gfn_alert("배송완료된 주문만 반품 접수할 수 있습니다.");
+		return false;
+	}
+	if (this.gfn_diffDay(dlvCmplDt, this.gfn_today()) > this.RETURN_LIMIT_DAYS) {
+		this.gfn_alert("배송완료 후 7일이 지나 반품 접수가 불가합니다.");
+		return false;
+	}
+	if (this.gfn_isEmpty(this.cbo_rRsn.value)) {
+		this.gfn_alert("반품 사유를 선택하세요.");
+		this.cbo_rRsn.setFocus();
+		return false;
+	}
+	var chkCnt = 0;
+	for (var i = 0; i < this.ds_ordItem.rowcount; i++) {
+		if (this.ds_ordItem.getColumn(i, "CHK") != "1") continue;
+		if (this.ds_ordItem.getColumn(i, "ITEM_STAT") != "N") {
+			this.gfn_alert(this.ds_ordItem.getColumn(i, "ITEM_SEQ") + "번 상품은 반품할 수 없는 상태입니다.");
+			return false;
+		}
+		chkCnt++;
+	}
+	if (chkCnt == 0) {
+		this.gfn_alert("반품할 상품을 선택하세요.");
+		return false;
+	}
+	return true;
+};
+
+this.btn_rtnReq_onclick = function(obj, e)
+{
+	if (!this.fn_validate()) {
+		return;
+	}
+	var refund = this.fn_calcRefundPreview();
+	if (!this.gfn_confirm("반품을 접수하시겠습니까?\n예상 환불금액: " + this.gfn_numFormat(refund) + "원")) {
+		return;
+	}
+	this.ds_rtnReq.clearData();
+	var nRow = this.ds_rtnReq.addRow();
+	this.ds_rtnReq.setColumn(nRow, "ORD_NO", this.ds_ord.getColumn(0, "ORD_NO"));
+	this.ds_rtnReq.setColumn(nRow, "CLM_RSN", this.cbo_rRsn.value);
+	this.ds_rtnReq.setColumn(nRow, "CLM_RSN_DTL", this.txa_rRsnDtl.value);
+
+	this.ds_rtnItem.clearData();
+	for (var i = 0; i < this.ds_ordItem.rowcount; i++) {
+		if (this.ds_ordItem.getColumn(i, "CHK") != "1") continue;
+		this.ds_rtnItem.setColumn(this.ds_rtnItem.addRow(), "ITEM_SEQ", this.ds_ordItem.getColumn(i, "ITEM_SEQ"));
+	}
+	this.gfn_callApi("clm.return.req", "ds_rtnReq=ds_rtnReq ds_rtnItem=ds_rtnItem", "", "fn_callback",
+		"USER_ID=" + nexacro.getApplication().gv_userId);
+};
+
+this.fn_clearReturn = function()
+{
+	this.ds_ord.clearData();
+	this.ds_ordItem.clearData();
+	this.cbo_rRsn.set_index(-1);
+	this.txa_rRsnDtl.set_value("");
+	this.sta_ordInfo.set_text("");
+	this.sta_pvItemVal.set_text("0");
+	this.sta_pvCpnVal.set_text("0");
+	this.sta_pvFeeVal.set_text("0");
+	this.sta_pvRefundVal.set_text("0");
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	switch (svcId) {
+		case "clm.detail":
+			if (this.fv_detailMode == "ORD") {
+				this.fn_setOrdInfo();
+				this.fn_calcRefundPreview();
+			} else {
+				this.fn_setDetail();
+			}
+			break;
+		case "clm.return.req":
+			this.gfn_alert("반품이 접수되었습니다.");
+			this.fn_clearReturn();
+			this.fn_search();
+			break;
+		case "clm.return.complete":
+			this.gfn_alert("회수완료 처리되었습니다.");
+			this.fn_search();
+			this.fn_selectDetail(this.ds_clmDtl.getColumn(0, "CLM_NO"));
+			break;
+		case "clm.reject":
+			this.gfn_alert("거부 처리되었습니다.");
+			this.fn_search();
+			this.fn_selectDetail(this.ds_clmDtl.getColumn(0, "CLM_NO"));
+			break;
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

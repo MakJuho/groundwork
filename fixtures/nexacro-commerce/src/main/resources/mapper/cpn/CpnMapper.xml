@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.cpn.CpnMapper">
+
+  <sql id="cpnCols">
+    C.CPN_ID, C.CPN_NM, C.CPN_TYPE, C.DC_VAL, C.MAX_DC_AMT, C.MIN_ORD_AMT, C.VALID_DAYS,
+    C.ISSUE_LMT_CNT, C.ISSUE_CNT, C.ISSUE_STRT_DT, C.ISSUE_END_DT, C.USE_YN, C.RMK,
+    TO_CHAR(C.REG_DT, 'YYYY-MM-DD') AS REG_DT, C.REG_ID
+  </sql>
+
+  <select id="selectCpnList" parameterType="map" resultType="map">
+    SELECT <include refid="cpnCols"/>
+         , (SELECT COUNT(1) FROM TB_CPN_ISSUE I WHERE I.CPN_ID = C.CPN_ID AND I.USE_YN = 'Y') AS USE_CNT
+      FROM TB_CPN C
+    <where>
+      <if test="CPN_NM != null and CPN_NM != ''">AND C.CPN_NM LIKE '%' || #{CPN_NM} || '%'</if>
+      <if test="CPN_TYPE != null and CPN_TYPE != ''">AND C.CPN_TYPE = #{CPN_TYPE}</if>
+      <if test="USE_YN != null and USE_YN != ''">AND C.USE_YN = #{USE_YN}</if>
+    </where>
+     ORDER BY C.REG_DT DESC, C.CPN_ID DESC
+  </select>
+
+  <select id="selectCpn" parameterType="string" resultType="map">
+    SELECT <include refid="cpnCols"/>
+      FROM TB_CPN C
+     WHERE C.CPN_ID = #{cpnId}
+  </select>
+
+  <insert id="insertCpn" parameterType="map">
+    INSERT INTO TB_CPN (
+           CPN_ID, CPN_NM, CPN_TYPE, DC_VAL, MAX_DC_AMT, MIN_ORD_AMT, VALID_DAYS,
+           ISSUE_LMT_CNT, ISSUE_CNT, ISSUE_STRT_DT, ISSUE_END_DT, USE_YN, RMK, REG_DT, REG_ID)
+    VALUES (
+           #{CPN_ID}, #{CPN_NM}, #{CPN_TYPE}, #{DC_VAL}, #{MAX_DC_AMT}, NVL(#{MIN_ORD_AMT}, 0), #{VALID_DAYS},
+           NVL(#{ISSUE_LMT_CNT}, 0), 0, #{ISSUE_STRT_DT}, #{ISSUE_END_DT}, NVL(#{USE_YN}, 'Y'), #{RMK}, SYSDATE, #{USER_ID})
+  </insert>
+
+  <update id="updateCpn" parameterType="map">
+    UPDATE TB_CPN
+       SET CPN_NM        = #{CPN_NM}
+         , CPN_TYPE      = #{CPN_TYPE}
+         , DC_VAL        = #{DC_VAL}
+         , MAX_DC_AMT    = #{MAX_DC_AMT}
+         , MIN_ORD_AMT   = NVL(#{MIN_ORD_AMT}, 0)
+         , VALID_DAYS    = #{VALID_DAYS}
+         , ISSUE_LMT_CNT = NVL(#{ISSUE_LMT_CNT}, 0)
+         , ISSUE_STRT_DT = #{ISSUE_STRT_DT}
+         , ISSUE_END_DT  = #{ISSUE_END_DT}
+         , USE_YN        = NVL(#{USE_YN}, 'Y')
+         , RMK           = #{RMK}
+         , UPD_DT        = SYSDATE
+         , UPD_ID        = #{USER_ID}
+     WHERE CPN_ID = #{CPN_ID}
+  </update>
+
+  <update id="updateCpnUseN" parameterType="map">
+    UPDATE TB_CPN SET USE_YN = 'N', UPD_DT = SYSDATE, UPD_ID = #{USER_ID} WHERE CPN_ID = #{CPN_ID}
+  </update>
+
+  <update id="updateIssueCnt" parameterType="string">
+    UPDATE TB_CPN SET ISSUE_CNT = ISSUE_CNT + 1, UPD_DT = SYSDATE WHERE CPN_ID = #{cpnId}
+  </update>
+
+  <select id="selectIssueList" parameterType="map" resultType="map">
+    SELECT * FROM (
+      SELECT ROWNUM AS RNUM, A.* FROM (
+        SELECT I.ISSUE_NO, I.CPN_ID, C.CPN_NM, C.CPN_TYPE, C.DC_VAL, I.MBR_ID, I.ISSUE_DT, I.EXP_DT,
+               I.USE_YN, TO_CHAR(I.USE_DT, 'YYYY-MM-DD HH24:MI') AS USE_DT, I.ORD_NO, I.DC_AMT, I.ISSUE_TYPE,
+               DECODE(I.USE_YN, 'Y', '사용', DECODE(SIGN(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYYMMDD')) - TO_NUMBER(I.EXP_DT)), 1, '만료', '미사용')) AS ISSUE_STAT_NM
+          FROM TB_CPN_ISSUE I
+          JOIN TB_CPN C ON C.CPN_ID = I.CPN_ID
+        <where>
+          <if test="CPN_ID != null and CPN_ID != ''">AND I.CPN_ID = #{CPN_ID}</if>
+          <if test="MBR_ID != null and MBR_ID != ''">AND I.MBR_ID = #{MBR_ID}</if>
+          <if test="ORD_NO != null and ORD_NO != ''">AND I.ORD_NO = #{ORD_NO}</if>
+          <if test="USE_YN != null and USE_YN != ''">AND I.USE_YN = #{USE_YN}</if>
+          <if test="FROM_DT != null and FROM_DT != ''">AND I.ISSUE_DT &gt;= #{FROM_DT}</if>
+          <if test="TO_DT != null and TO_DT != ''">AND I.ISSUE_DT &lt;= #{TO_DT}</if>
+        </where>
+         ORDER BY I.ISSUE_NO DESC
+      ) A WHERE ROWNUM &lt;= 1000
+    )
+  </select>
+
+  <select id="selectIssue" parameterType="string" resultType="map">
+    SELECT I.ISSUE_NO, I.CPN_ID, I.MBR_ID, I.ISSUE_DT, I.EXP_DT, I.USE_YN, I.ORD_NO, I.DC_AMT,
+           C.CPN_NM, C.CPN_TYPE, C.DC_VAL, C.MAX_DC_AMT, C.MIN_ORD_AMT
+      FROM TB_CPN_ISSUE I
+      JOIN TB_CPN C ON C.CPN_ID = I.CPN_ID
+     WHERE I.ISSUE_NO = #{issueNo}
+  </select>
+
+  <select id="selectMbrIssueCnt" parameterType="map" resultType="int">
+    SELECT COUNT(1) FROM TB_CPN_ISSUE WHERE CPN_ID = #{CPN_ID} AND MBR_ID = #{MBR_ID}
+  </select>
+
+  <insert id="insertIssue" parameterType="map">
+    INSERT INTO TB_CPN_ISSUE (ISSUE_NO, CPN_ID, MBR_ID, ISSUE_DT, EXP_DT, USE_YN, DC_AMT, ISSUE_TYPE, REG_DT, REG_ID)
+    VALUES (#{ISSUE_NO}, #{CPN_ID}, #{MBR_ID}, #{ISSUE_DT}, #{EXP_DT}, 'N', 0, 'MANUAL', SYSDATE, #{REG_ID})
+  </insert>
+
+  <update id="updateIssueUse" parameterType="map">
+    UPDATE TB_CPN_ISSUE
+       SET USE_YN = 'Y', USE_DT = SYSDATE, ORD_NO = #{ORD_NO}, DC_AMT = #{DC_AMT}
+     WHERE ISSUE_NO = #{ISSUE_NO}
+       AND USE_YN = 'N'
+  </update>
+
+  <select id="selectUsedIssueByOrd" parameterType="string" resultType="map">
+    SELECT ISSUE_NO, CPN_ID, DC_AMT, EXP_DT
+      FROM TB_CPN_ISSUE
+     WHERE ORD_NO = #{ordNo}
+       AND USE_YN = 'Y'
+       AND ROWNUM = 1
+  </select>
+
+  <update id="updateIssueRestore" parameterType="string">
+    UPDATE TB_CPN_ISSUE
+       SET USE_YN = 'N', USE_DT = NULL, ORD_NO = NULL, DC_AMT = 0
+     WHERE ISSUE_NO = #{issueNo}
+  </update>
+</mapper>

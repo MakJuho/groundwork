@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FDL version="2.1">
+  <Form id="ProductMng" width="1280" height="720" titletext="상품 관리" onload="ProductMng_onload">
+    <Layouts>
+      <Layout height="720" width="1280">
+        <Static id="sta_title" taborder="0" text="상품 관리" left="20" top="12" width="200" height="30"/>
+        <Static id="sta_productNm" taborder="1" text="상품명" left="20" top="56" width="60" height="28"/>
+        <Edit id="edt_productNm" taborder="2" left="84" top="56" width="220" height="28"/>
+        <Button id="btn_search" taborder="3" text="조회" left="1184" top="56" width="76" height="28" onclick="btn_search_onclick"/>
+        <Button id="btn_add" taborder="4" text="추가" left="1098" top="100" width="76" height="28" onclick="btn_add_onclick"/>
+        <Button id="btn_save" taborder="5" text="저장" right="20" top="100" width="76" height="28" onclick="btn_save_onclick"/>
+        <Grid id="grd_product" taborder="6" binddataset="ds_product" left="20" top="138" width="1240" height="562">
+          <Formats>
+            <Format id="default">
+              <Columns>
+                <Column size="160"/>
+                <Column size="400"/>
+                <Column size="160"/>
+                <Column size="120"/>
+              </Columns>
+              <Rows>
+                <Row size="30" band="head"/>
+                <Row size="30"/>
+              </Rows>
+              <Band id="head">
+                <Cell text="상품코드"/>
+                <Cell col="1" text="상품명"/>
+                <Cell col="2" text="판매가"/>
+                <Cell col="3" text="재고"/>
+              </Band>
+              <Band id="body">
+                <Cell text="bind:PRODUCT_CD" edittype="normal"/>
+                <Cell col="1" text="bind:PRODUCT_NM" edittype="normal"/>
+                <Cell col="2" text="bind:PRICE" edittype="normal"/>
+                <Cell col="3" text="bind:STOCK_QTY" edittype="normal"/>
+              </Band>
+            </Format>
+          </Formats>
+        </Grid>
+      </Layout>
+    </Layouts>
+    <Objects>
+      <Dataset id="ds_search">
+        <ColumnInfo>
+          <Column id="PRODUCT_NM" type="STRING" size="100"/>
+        </ColumnInfo>
+        <Rows>
+          <Row/>
+        </Rows>
+      </Dataset>
+      <Dataset id="ds_product">
+        <ColumnInfo>
+          <Column id="PRODUCT_CD" type="STRING" size="20"/>
+          <Column id="PRODUCT_NM" type="STRING" size="100"/>
+          <Column id="PRICE" type="BIGDECIMAL" size="12"/>
+          <Column id="STOCK_QTY" type="INT" size="8"/>
+        </ColumnInfo>
+      </Dataset>
+      <Dataset id="ds_result">
+        <ColumnInfo>
+          <Column id="RESULT_CNT" type="INT" size="10"/>
+        </ColumnInfo>
+      </Dataset>
+    </Objects>
+    <Bind>
+      <BindItem id="item0" compid="edt_productNm" propid="value" datasetid="ds_search" columnid="PRODUCT_NM"/>
+    </Bind>
+    <Script type="xscript5.1"><![CDATA[include "lib::common.xjs";
+
+this.ProductMng_onload = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.btn_search_onclick = function(obj, e)
+{
+	this.fn_search();
+};
+
+this.fn_search = function()
+{
+	this.gfn_callApi("product.list", "ds_search=ds_search", "ds_product=ds_product", "fn_callback");
+};
+
+this.btn_add_onclick = function(obj, e)
+{
+	this.ds_product.addRow();
+};
+
+this.btn_save_onclick = function(obj, e)
+{
+	this.gfn_callApi("product.save", "ds_product=ds_product:U", "ds_result=ds_result", "fn_callback");
+};
+
+this.fn_callback = function(svcId, errorCode, errorMsg)
+{
+	if (errorCode < 0) {
+		this.gfn_alert(errorMsg);
+		return;
+	}
+	if (svcId == "product.save") {
+		this.gfn_alert(this.ds_result.getColumn(0, "RESULT_CNT") + "건 저장되었습니다.");
+		this.fn_search();
+	}
+};
+]]></Script>
+  </Form>
+</FDL>

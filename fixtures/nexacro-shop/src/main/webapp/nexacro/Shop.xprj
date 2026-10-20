@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project version="2.1">
+  <EnvironmentDefinition url="environment.xml"/>
+  <AppInfos>
+    <AppInfo url="Application_Desktop.xadl"/>
+  </AppInfos>
+  <TypeDefinition url="typedefinition.xml">
+    <Services>
+      <Service prefixid="lib" type="js" url="./lib/"/>
+      <Service prefixid="member" type="form" url="./forms/member/"/>
+      <Service prefixid="order" type="form" url="./forms/order/"/>
+      <Service prefixid="product" type="form" url="./forms/product/"/>
+      <Service prefixid="svc" type="JSP" url="http://localhost:8080/shop"/>
+    </Services>
+  </TypeDefinition>
+</Project>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.dlv.DlvMapper">
+
+  <sql id="dlvCols">
+    D.DLV_NO, D.ORD_NO, D.CARRIER_CD, D.INVC_NO, D.DLV_STAT, D.DLV_FEE, D.ADD_FEE, D.ISLAND_YN, D.ISLAND_TYPE, D.RCV_ZIP,
+    TO_CHAR(D.SHIP_DT, 'YYYYMMDD')      AS SHIP_DT,
+    TO_CHAR(D.DLV_CMPL_DT, 'YYYYMMDD')  AS DLV_CMPL_DT,
+    TO_CHAR(D.LAST_TRACE_DT, 'YYYYMMDDHH24MISS') AS LAST_TRACE_DT
+  </sql>
+
+  <select id="selectDlvList" parameterType="map" resultType="map">
+    SELECT *
+      FROM (
+            SELECT ROWNUM AS RNUM, A.*
+              FROM (
+                    SELECT '0' AS CHK,
+                           <include refid="dlvCols"/>,
+                           (SELECT CD_NM FROM TB_CMM_CODE WHERE GRP_CD = 'DLV_STAT' AND CD = D.DLV_STAT) AS DLV_STAT_NM,
+                           O.MBR_ID, O.ORD_STAT, O.RCV_NM, O.RCV_HP, O.RCV_ADDR,
+                           TO_CHAR(O.ORD_DT, 'YYYYMMDD') AS ORD_DT,
+                           (SELECT COUNT(*) FROM TB_ORD_ITEM I WHERE I.ORD_NO = D.ORD_NO AND I.ITEM_STAT = 'N') AS ITEM_CNT
+                      FROM TB_DLV D
+                      JOIN TB_ORD O ON O.ORD_NO = D.ORD_NO
+                    <where>
+                      <choose>
+                        <when test="DLV_STAT != null and DLV_STAT != ''">
+                          AND D.DLV_STAT = #{DLV_STAT}
+                        </when>
+                        <otherwise>
+                          AND D.DLV_STAT IN ('R', 'S')
+                        </otherwise>
+                      </choose>
+                      <if test="FROM_YMD != null and FROM_YMD != ''">AND O.ORD_DT &gt;= TO_DATE(#{FROM_YMD}, 'YYYYMMDD')</if>
+                      <if test="TO_YMD != null and TO_YMD != ''">AND O.ORD_DT &lt; TO_DATE(#{TO_YMD}, 'YYYYMMDD') + 1</if>
+                      <if test="CARRIER_CD != null and CARRIER_CD != ''">AND D.CARRIER_CD = #{CARRIER_CD}</if>
+                      <if test="ORD_NO != null and ORD_NO != ''">AND D.ORD_NO = #{ORD_NO}</if>
+                      <if test="INVC_NO != null and INVC_NO != ''">AND D.INVC_NO = #{INVC_NO}</if>
+                      <if test="ISLAND_YN != null and ISLAND_YN != ''">AND D.ISLAND_YN = #{ISLAND_YN}</if>
+                    </where>
+                     ORDER BY O.ORD_DT, D.DLV_NO
+                   ) A
+             WHERE ROWNUM &lt;= 1000
+           )
+  </select>
+
+  <select id="selectDlv" parameterType="string" resultType="map">
+    SELECT <include refid="dlvCols"/>
+      FROM TB_DLV D
+     WHERE D.DLV_NO = #{dlvNo}
+  </select>
+
+  <select id="selectDlvByOrdNo" parameterType="string" resultType="map">
+    SELECT <include refid="dlvCols"/>
+      FROM TB_DLV D
+     WHERE D.ORD_NO = #{ordNo}
+  </select>
+
+  <insert id="insertDlv" parameterType="map">
+    INSERT INTO TB_DLV (
+           DLV_NO, ORD_NO, DLV_STAT, DLV_FEE, ADD_FEE, ISLAND_YN, ISLAND_TYPE, RCV_ZIP, REG_DT, REG_ID)
+    VALUES (
+           #{DLV_NO}, #{ORD_NO}, 'R', NVL(#{DLV_FEE}, 0), NVL(#{ADD_FEE}, 0), #{ISLAND_YN}, #{ISLAND_TYPE}, #{RCV_ZIP}, SYSDATE, #{REG_ID})
+  </insert>
+
+  <update id="updateDlvShip" parameterType="map">
+    UPDATE TB_DLV
+       SET CARRIER_CD = #{CARRIER_CD},
+           INVC_NO    = #{INVC_NO},
+           DLV_STAT   = 'S',
+           SHIP_DT    = SYSDATE,
+           SHIP_ID    = #{UPD_ID},
+           UPD_DT     = SYSDATE,
+           UPD_ID     = #{UPD_ID}
+     WHERE DLV_NO   = #{DLV_NO}
+       AND DLV_STAT = 'R'
+  </update>
+
+  <update id="updateDlvCmpl" parameterType="map">
+    UPDATE TB_DLV
+       SET DLV_STAT    = 'D',
+           DLV_CMPL_DT = TRUNC(SYSDATE),
+           CMPL_ID     = #{UPD_ID},
+           UPD_DT      = SYSDATE,
+           UPD_ID      = #{UPD_ID}
+     WHERE DLV_NO   = #{DLV_NO}
+       AND DLV_STAT = 'S'
+  </update>
+
+  <update id="updateLastTraceDt" parameterType="string">
+    UPDATE TB_DLV SET LAST_TRACE_DT = SYSDATE WHERE DLV_NO = #{dlvNo}
+  </update>
+
+  <select id="selectTraceList" parameterType="string" resultType="map">
+    SELECT DLV_NO, TRACE_SEQ, TRACE_STAT, TRACE_STAT_NM, TRACE_LOC,
+           TO_CHAR(TRACE_DT, 'YYYY-MM-DD HH24:MI') AS TRACE_DT
+      FROM TB_DLV_TRACE
+     WHERE DLV_NO = #{dlvNo}
+     ORDER BY TRACE_SEQ
+  </select>
+
+  <delete id="deleteTrace" parameterType="string">
+    DELETE FROM TB_DLV_TRACE WHERE DLV_NO = #{dlvNo}
+  </delete>
+
+  <insert id="insertTrace" parameterType="map">
+    INSERT INTO TB_DLV_TRACE (DLV_NO, TRACE_SEQ, TRACE_STAT, TRACE_STAT_NM, TRACE_LOC, TRACE_DT, REG_DT)
+    VALUES (#{DLV_NO}, #{TRACE_SEQ}, #{TRACE_STAT}, #{TRACE_STAT_NM}, #{TRACE_LOC},
+            DECODE(#{TRACE_DT}, NULL, SYSDATE, TO_DATE(#{TRACE_DT}, 'YYYYMMDDHH24MISS')), SYSDATE)
+  </insert>
+
+  <!-- 배송추적 대상: 배송중, 출고 30일 이내 -->
+  <select id="selectTraceTargetList" parameterType="map" resultType="map">
+    SELECT DLV_NO, ORD_NO, CARRIER_CD, INVC_NO
+      FROM TB_DLV
+     WHERE DLV_STAT = #{DLV_STAT}
+       AND INVC_NO IS NOT NULL
+       AND SHIP_DT &gt;= TRUNC(SYSDATE) - 30
+     ORDER BY SHIP_DT
+  </select>
+</mapper>

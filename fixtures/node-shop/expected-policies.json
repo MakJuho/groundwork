@@ -1,0 +1,25 @@
+{
+  "policies": [
+    { "id": "N01", "description": "주문 상품이 없으면 주문할 수 없다", "locations": [{ "file": "src/order/order-service.js", "anchor": "'EMPTY_ORDER'" }] },
+    { "id": "N02", "description": "한 주문에 최대 50개까지 담을 수 있다", "locations": [{ "file": "src/order/order-policy.js", "anchor": "MAX_ITEMS_PER_ORDER = 50" }, { "file": "src/order/order-service.js", "anchor": "'TOO_MANY_ITEMS'" }] },
+    { "id": "N03", "description": "최소 주문 금액은 10,000원이다", "locations": [{ "file": "src/order/order-policy.js", "anchor": "MIN_ORDER_AMOUNT = 10000" }, { "file": "src/order/order-service.js", "anchor": "'BELOW_MIN_AMOUNT'" }] },
+    { "id": "N04", "description": "VIP 회원은 주문 금액 5% 할인", "locations": [{ "file": "src/order/order-policy.js", "anchor": "VIP_DISCOUNT_RATE = 0.05" }, { "file": "src/order/order-service.js", "anchor": "user.grade === 'VIP'" }] },
+    { "id": "N05", "description": "50,000원 이상 주문은 무료 배송", "locations": [{ "file": "src/order/order-policy.js", "anchor": "FREE_SHIPPING_THRESHOLD = 50000" }, { "file": "src/order/order-service.js", "anchor": "amount >= FREE_SHIPPING_THRESHOLD" }] },
+    { "id": "N06", "description": "기본 배송비는 3,000원", "locations": [{ "file": "src/order/order-policy.js", "anchor": "SHIPPING_FEE = 3000" }, { "file": "src/order/order-service.js", "anchor": "? 0 : SHIPPING_FEE" }] },
+    { "id": "N07", "description": "주문 상태 전이 규칙(대기→결제→배송→완료, 대기/결제에서 취소)", "locations": [{ "file": "src/order/order-policy.js", "anchor": "export const ALLOWED_TRANSITIONS" }, { "file": "src/order/order-service.js", "anchor": "'INVALID_TRANSITION'" }] },
+    { "id": "N08", "description": "본인 또는 관리자만 주문 취소 가능", "locations": [{ "file": "src/order/order-service.js", "anchor": "'FORBIDDEN'" }] },
+    { "id": "N09", "description": "배송이 시작된 주문은 취소 불가", "locations": [{ "file": "src/order/order-service.js", "anchor": "'ALREADY_SHIPPED'" }] },
+    { "id": "N10", "description": "결제 후 7일이 지나면 취소 불가", "locations": [{ "file": "src/order/order-policy.js", "anchor": "CANCEL_WINDOW_DAYS = 7" }, { "file": "src/order/order-service.js", "anchor": "'CANCEL_WINDOW_PASSED'" }] },
+    { "id": "N11", "description": "결제 수단은 카드, 계좌이체, 포인트", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "PAYMENT_METHODS = [" }, { "file": "src/payment/payment-service.js", "anchor": "'UNSUPPORTED_METHOD'" }] },
+    { "id": "N12", "description": "주문 생성 후 30분 안에 결제해야 한다", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "PAYMENT_EXPIRE_MINUTES = 30" }, { "file": "src/payment/payment-service.js", "anchor": "'PAYMENT_EXPIRED'" }] },
+    { "id": "N13", "description": "포인트는 1,000점 이상부터 사용", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "MIN_POINT_USE = 1000" }, { "file": "src/payment/payment-service.js", "anchor": "'POINT_TOO_SMALL'" }] },
+    { "id": "N14", "description": "포인트는 주문 금액의 50%까지 사용", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "MAX_POINT_RATIO = 0.5" }, { "file": "src/payment/payment-service.js", "anchor": "'POINT_OVER_LIMIT'" }] },
+    { "id": "N15", "description": "50,000원 이상일 때만 할부 가능", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "INSTALLMENT_MIN_AMOUNT = 50000" }, { "file": "src/payment/payment-service.js", "anchor": "'INSTALLMENT_NOT_ALLOWED'" }] },
+    { "id": "N16", "description": "할부는 최대 12개월", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "MAX_INSTALLMENT_MONTHS = 12" }, { "file": "src/payment/payment-service.js", "anchor": "'INSTALLMENT_TOO_LONG'" }] },
+    { "id": "N17", "description": "카드 결제는 회원당 하루 3,000,000원 한도", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "DAILY_CARD_LIMIT = 3000000" }, { "file": "src/payment/payment-service.js", "anchor": "'DAILY_LIMIT_EXCEEDED'" }] },
+    { "id": "N18", "description": "결제 금액 = 주문 금액 + 배송비 - 사용 포인트", "locations": [{ "file": "src/payment/payment-service.js", "anchor": "const chargeAmount =" }] },
+    { "id": "N19", "description": "PG 요청 실패 시 최대 2회 재시도", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "PG_MAX_RETRY = 2" }, { "file": "src/payment/payment-service.js", "anchor": "attempt >= PG_MAX_RETRY" }] },
+    { "id": "N20", "description": "배송 후 환불은 반품 배송비 3,000원 차감", "locations": [{ "file": "src/payment/payment-policy.js", "anchor": "RETURN_SHIPPING_FEE = 3000" }, { "file": "src/payment/payment-service.js", "anchor": "const refundAmount =" }] },
+    { "id": "N21", "description": "결제/환불은 외부 PG를 통해 처리", "locations": [{ "file": "src/payment/pg-client.js", "anchor": "pg.example.com/v1/charge" }] }
+  ]
+}

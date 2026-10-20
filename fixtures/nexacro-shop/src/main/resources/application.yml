@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/SHOP
+    username: shop
+    password: shop
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

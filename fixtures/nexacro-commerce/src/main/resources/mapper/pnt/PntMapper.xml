@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.commerce.pnt.PntMapper">
+
+  <sql id="ledgerCols">
+    L.LEDGER_NO, L.MBR_ID, L.PNT_TYPE, L.PNT_AMT, L.REMAIN_AMT, L.ORD_NO, L.ORG_LEDGER_NO, L.EXP_DT,
+    TO_CHAR(L.REG_DT, 'YYYY-MM-DD HH24:MI:SS') AS REG_DT, L.REG_ID, L.RMK
+  </sql>
+
+  <!-- 적립성 원장(사용 가능액을 가지는 건) -->
+  <sql id="earnTypeCond">
+    AND L.PNT_TYPE IN ('EARN', 'ADJ', 'USE_CNCL')
+    AND L.PNT_AMT &gt; 0
+    AND L.REMAIN_AMT &gt; 0
+  </sql>
+
+  <select id="selectLedgerList" parameterType="map" resultType="map">
+    SELECT * FROM (
+      SELECT ROWNUM AS RNUM, A.* FROM (
+        SELECT <include refid="ledgerCols"/>
+             , C.CD_NM AS PNT_TYPE_NM
+             , SUM(L.PNT_AMT) OVER (ORDER BY L.LEDGER_NO) AS CUM_AMT
+          FROM TB_PNT_LEDGER L
+          LEFT JOIN TB_CMM_CODE C ON C.GRP_CD = 'PNT_TYPE' AND C.CD = L.PNT_TYPE
+         WHERE L.MBR_ID = #{MBR_ID}
+        <if test="PNT_TYPE != null and PNT_TYPE != ''">
+           AND L.PNT_TYPE = #{PNT_TYPE}
+        </if>
+        <if test="ORD_NO != null and ORD_NO != ''">
+           AND L.ORD_NO = #{ORD_NO}
+        </if>
+        <if test="FROM_DT != null and FROM_DT != ''">
+           AND L.REG_DT &gt;= TO_DATE(#{FROM_DT}, 'YYYYMMDD')
+        </if>
+        <if test="TO_DT != null and TO_DT != ''">
+           AND L.REG_DT &lt; TO_DATE(#{TO_DT}, 'YYYYMMDD') + 1
+        </if>
+         ORDER BY L.LEDGER_NO DESC
+      ) A WHERE ROWNUM &lt;= 2000
+    )
+  </select>
+
+  <select id="selectBal" parameterType="string" resultType="map">
+    SELECT MBR_ID, BAL_AMT, TO_CHAR(UPD_DT, 'YYYY-MM-DD HH24:MI:SS') AS UPD_DT
+      FROM TB_PNT_BAL
+     WHERE MBR_ID = #{mbrId}
+  </select>
+
+  <select id="selectLedger" parameterType="string" resultType="map">
+    SELECT <include refid="ledgerCols"/>
+      FROM TB_PNT_LEDGER L
+     WHERE L.LEDGER_NO = #{ledgerNo}
+  </select>
+
+  <select id="selectUsableEarnList" parameterType="map" resultType="map">
+    SELECT <include refid="ledgerCols"/>
+      FROM TB_PNT_LEDGER L
+     WHERE L.MBR_ID = #{MBR_ID}
+       <include refid="earnTypeCond"/>
+       AND L.EXP_DT &gt;= #{BASE_DT}
+     ORDER BY L.EXP_DT, L.LEDGER_NO
+       FOR UPDATE
+  </select>
+
+  <select id="selectCancelableUseList" parameterType="string" resultType="map">
+    SELECT <include refid="ledgerCols"/>
+      FROM TB_PNT_LEDGER L
+     WHERE L.ORD_NO = #{ordNo}
+       AND L.PNT_TYPE = 'USE'
+       AND L.REMAIN_AMT &gt; 0
+     ORDER BY L.LEDGER_NO DESC
+  </select>
+
+  <select id="selectEarnListByOrd" parameterType="string" resultType="map">
+    SELECT <include refid="ledgerCols"/>
+      FROM TB_PNT_LEDGER L
+     WHERE L.ORD_NO = #{ordNo}
+       AND L.PNT_TYPE = 'EARN'
+     ORDER BY L.LEDGER_NO
+  </select>
+
+  <select id="selectEarnCntByOrd" parameterType="string" resultType="int">
+    SELECT COUNT(1) FROM TB_PNT_LEDGER WHERE ORD_NO = #{ordNo} AND PNT_TYPE = 'EARN'
+  </select>
+
+  <select id="selectExpireTargetList" parameterType="string" resultType="map">
+    SELECT <include refid="ledgerCols"/>
+      FROM TB_PNT_LEDGER L
+     WHERE L.EXP_DT &lt; #{baseDt}
+       <include refid="earnTypeCond"/>
+     ORDER BY L.MBR_ID, L.EXP_DT, L.LEDGER_NO
+  </select>
+
+  <insert id="insertLedger" parameterType="map">
+    INSERT INTO TB_PNT_LEDGER (
+           LEDGER_NO, MBR_ID, PNT_TYPE, PNT_AMT, REMAIN_AMT, ORD_NO, ORG_LEDGER_NO, EXP_DT, REG_DT, REG_ID, RMK)
+    VALUES (
+           #{LEDGER_NO}, #{MBR_ID}, #{PNT_TYPE}, #{PNT_AMT}, NVL(#{REMAIN_AMT}, 0), #{ORD_NO}, #{ORG_LEDGER_NO},
+           #{EXP_DT}, SYSDATE, #{REG_ID}, #{RMK})
+  </insert>
+
+  <update id="updateRemainAmt" parameterType="map">
+    UPDATE TB_PNT_LEDGER
+       SET REMAIN_AMT = REMAIN_AMT + #{CHG_AMT}
+     WHERE LEDGER_NO = #{LEDGER_NO}
+  </update>
+
+  <update id="mergeBal" parameterType="map">
+    MERGE INTO TB_PNT_BAL T
+    USING (SELECT #{MBR_ID} AS MBR_ID FROM DUAL) S
+       ON (T.MBR_ID = S.MBR_ID)
+     WHEN MATCHED THEN
+          UPDATE SET BAL_AMT = BAL_AMT + #{CHG_AMT}, UPD_DT = SYSDATE
+     WHEN NOT MATCHED THEN
+          INSERT (MBR_ID, BAL_AMT, UPD_DT) VALUES (#{MBR_ID}, #{CHG_AMT}, SYSDATE)
+  </update>
+</mapper>
