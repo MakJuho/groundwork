@@ -4,7 +4,9 @@
 
 Groundwork는 문서 없는 레거시 소스코드를 읽고 **구조 지도, 업무 흐름, 정책서·명세서**를 만드는 Claude Code 플러그인입니다. 모든 업무 규칙에는 근거가 된 코드 줄이 붙고, 그 근거는 스크립트가 실제 코드와 다시 대조합니다. 결과는 브라우저로 여는 리포트 하나라서, 개발자가 아닌 구성원도 링크만 받아 읽을 수 있습니다.
 
-![Groundwork 아키텍처](docs/images/groundwork-architecture.svg)
+![Groundwork 현재 구현 구조](docs/images/groundwork-current-architecture.png)
+
+*현재 버전은 개발자 PC의 Claude Code에서 로컬로 실행됩니다. 분석 대상 소스는 읽기 전용이고, 결과는 소스 폴더 바깥에 저장됩니다.*
 
 ## 무엇을 만드나
 
@@ -32,6 +34,34 @@ Claude Code에서 입력합니다.
 다이어그램을 그리는 [diagram-design](vendor/diagram-design) 플러그인이 의존성으로 함께 설치됩니다. `/groundwork:`를 입력했을 때 `scan`, `analyze`, `trace`, `update`가 보이면 준비가 끝난 것입니다.
 
 **필요 환경**: Claude Code, Node.js 22 이상. 별도 서버, API 키, 계정은 필요 없습니다 (본인의 Claude Code로 실행).
+
+## 소스코드
+
+- 저장소: https://github.com/MakJuho/groundwork
+- 플러그인 본체는 `plugin/`에 있습니다.
+  - `plugin/skills/` : 단계별 실행 절차(`scan`, `analyze-module`, `trace`, `conflicts`, `report`, `update` 등)
+  - `plugin/agents/` : 코드를 읽는 서브에이전트(`module-analyzer`, `flow-tracer`, `conflict-finder`)
+  - `plugin/scripts/` : 파일 목록, 모듈 나누기, 근거 검증, 리포트 생성 같은 결정적 작업(Node.js, 외부 패키지 없음)
+  - `plugin/hints/`, `plugin/schemas/` : 스택별 분석 힌트, 결과 JSON 스키마
+
+**소스에서 바로 설치하기** (마켓 대신 내려받은 폴더를 쓸 때)
+
+```bash
+git clone https://github.com/MakJuho/groundwork.git
+```
+
+```
+/plugin marketplace add ./groundwork
+/plugin install groundwork@groundwork
+```
+
+**테스트 실행** (Node.js 22 이상, 설치할 패키지 없음)
+
+```bash
+cd groundwork
+npm test          # 스크립트 단위 테스트
+npm run eval      # 샘플(fixtures) 정답지와 비교한 분석 품질 평가
+```
 
 ## 빠르게 써 보기
 
@@ -73,7 +103,7 @@ python3 -m http.server 8765 --directory ./gw-out/groundwork-output/nexacro-shop
 ## 어떻게 동작하나
 
 1. **스크립트가 구조를 잡습니다.** 파일 목록, 모듈 나누기, 화면·API 연결 같은 결정적인 일은 Node 스크립트가 합니다.
-2. **Claude가 읽고 판단합니다.** 모듈마다 서브에이전트(`module-analyzer`)가 업무 규칙을 찾고, 흐름은 여러 `flow-tracer`가 나눠서 동시에 따라갑니다.
+2. **Claude가 읽고 판단합니다.** 모듈마다 서브에이전트(`module-analyzer`)가 업무 규칙을 찾고(파일이 많은 큰 모듈은 조각으로 나눠 여러 에이전트가 분담), 흐름은 여러 `flow-tracer`가 나눠서 동시에 따라갑니다.
 3. **스크립트가 근거를 다시 확인합니다.** 규칙에 붙은 파일과 줄 번호가 실제 코드와 맞는지 `verify-citations.mjs`가 대조합니다. 근거를 찾지 못한 내용은 지어내지 않고 "확인 필요"로 남깁니다.
 4. **바뀐 만큼만 갱신합니다.** `update`는 git 커밋 차이로 바뀐 파일을 찾아 그 모듈만 다시 분석하고, 변경 내역을 업무 문장으로 남깁니다.
 
@@ -81,7 +111,13 @@ python3 -m http.server 8765 --directory ./gw-out/groundwork-output/nexacro-shop
 
 - 언어·프레임워크: Java/Spring(MyBatis), Nexacro 화면(.xfdl), Node.js
 - 샘플: `fixtures/`의 `nexacro-shop`, `spring-layered`, `spring-stay`, `node-shop`
-- 다음 단계(아직 없음): 머지하면 자동으로 갱신되는 서버, 사내 계정(SSO)으로 들어오는 조회 포털, 분석 요청 대기열
+- 다음 단계(아직 없음): 머지하면 자동으로 갱신되는 서버, 사내 계정(SSO)으로 들어오는 조회 포털, 분석 요청 대기열 — 아래 [향후 확장 계획](#향후-확장-계획) 참고
+
+## 향후 확장 계획
+
+아래 그림은 **아직 구현하지 않은 설계안**입니다. 현재 버전에는 분석 서버, 요청 대기열, 조회 포털이 없습니다.
+
+![Groundwork 향후 확장 설계안](docs/images/groundwork-architecture.svg)
 
 ## 저장소 구성
 
@@ -89,8 +125,9 @@ python3 -m http.server 8765 --directory ./gw-out/groundwork-output/nexacro-shop
 |---|---|
 | `plugin/` | Groundwork 플러그인 (스킬, 에이전트, 스크립트) |
 | `vendor/diagram-design/` | 다이어그램 플러그인 (서드파티, MIT) |
-| `fixtures/` | 분석 샘플 프로젝트 |
-| `docs/` | 사용법 |
+| `fixtures/` | 분석 샘플 프로젝트와 정답지 |
+| `tests/`, `eval/` | 스크립트 테스트(`npm test`)와 분석 품질 평가(`npm run eval`) |
+| `docs/` | 사용법, 시연 대본, 설계 문서 |
 
 ## 라이선스
 

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 330" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8B95A1"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="330" fill="#FFFFFF"/>
+
+  <text x="20" y="32" font-size="15" font-weight="700" fill="#191F28">처음 분석할 때</text>
+
+  <!-- step boxes: x = 20 + i*122, w=105 -->
+  <g font-size="13.5" text-anchor="middle">
+    <rect x="20" y="50" width="105" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="72" y="82" font-weight="700" fill="#191F28">준비</text>
+    <text x="72" y="102" font-size="11.5" fill="#4E5968">테스트 코드 제외</text>
+
+    <rect x="142" y="50" width="105" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="194" y="82" font-weight="700" fill="#191F28">구조 스캔</text>
+    <text x="194" y="102" font-size="11.5" fill="#4E5968">모듈 지도 만들기</text>
+
+    <rect x="264" y="50" width="105" height="70" rx="12" fill="#E5F8EF"/>
+    <text x="316" y="82" font-weight="700" fill="#191F28">모듈 확인</text>
+    <text x="316" y="102" font-size="11.5" fill="#4E5968">사람이 고침</text>
+
+    <rect x="386" y="50" width="105" height="70" rx="12" fill="#E8F3FF"/>
+    <text x="438" y="82" font-weight="700" fill="#1B64DA">모듈별 분석</text>
+    <text x="438" y="102" font-size="11.5" fill="#4E5968">근거와 함께 추출</text>
+
+    <rect x="508" y="50" width="105" height="70" rx="12" fill="#E8F3FF"/>
+    <text x="560" y="82" font-weight="700" fill="#1B64DA">흐름 추적</text>
+    <text x="560" y="102" font-size="11.5" fill="#4E5968">요청 하나 따라가기</text>
+
+    <rect x="630" y="50" width="105" height="70" rx="12" fill="#E8F3FF"/>
+    <text x="682" y="82" font-weight="700" fill="#1B64DA">문서 생성</text>
+    <text x="682" y="102" font-size="11.5" fill="#4E5968">정책서 · 다이어그램</text>
+
+    <rect x="752" y="50" width="105" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="804" y="82" font-weight="700" fill="#191F28">검증</text>
+    <text x="804" y="102" font-size="11.5" fill="#4E5968">근거 줄 다시 확인</text>
+
+    <rect x="874" y="50" width="105" height="70" rx="12" fill="#3182F6"/>
+    <text x="926" y="82" font-weight="700" fill="#FFFFFF">게시</text>
+    <text x="926" y="102" font-size="11.5" fill="#E8F3FF">포털에 반영</text>
+  </g>
+  <g stroke="#8B95A1" stroke-width="2" marker-end="url(#a)">
+    <line x1="126" y1="85" x2="140" y2="85"/>
+    <line x1="248" y1="85" x2="262" y2="85"/>
+    <line x1="370" y1="85" x2="384" y2="85"/>
+    <line x1="492" y1="85" x2="506" y2="85"/>
+    <line x1="614" y1="85" x2="628" y2="85"/>
+    <line x1="736" y1="85" x2="750" y2="85"/>
+    <line x1="858" y1="85" x2="872" y2="85"/>
+  </g>
+
+  <text x="20" y="185" font-size="15" font-weight="700" fill="#191F28">코드가 바뀌었을 때 <tspan font-weight="400" font-size="13" fill="#6B7684">· 바뀐 부분만</tspan></text>
+
+  <g font-size="13.5" text-anchor="middle">
+    <rect x="20" y="203" width="140" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="90" y="235" font-weight="700" fill="#191F28">머지 감지</text>
+    <text x="90" y="255" font-size="11.5" fill="#4E5968">알림 · 30분마다 확인</text>
+
+    <rect x="183" y="203" width="140" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="253" y="235" font-weight="700" fill="#191F28">영향 범위 계산</text>
+    <text x="253" y="255" font-size="11.5" fill="#4E5968">바뀐 파일 → 모듈 · 흐름</text>
+
+    <rect x="346" y="203" width="140" height="70" rx="12" fill="#E8F3FF"/>
+    <text x="416" y="235" font-weight="700" fill="#1B64DA">부분 재분석</text>
+    <text x="416" y="255" font-size="11.5" fill="#4E5968">영향받은 곳만</text>
+
+    <rect x="509" y="203" width="140" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="579" y="235" font-weight="700" fill="#191F28">정책 번호 맞추기</text>
+    <text x="579" y="255" font-size="11.5" fill="#4E5968">LOA-002는 계속 LOA-002</text>
+
+    <rect x="672" y="203" width="140" height="70" rx="12" fill="#F2F4F6"/>
+    <text x="742" y="235" font-weight="700" fill="#191F28">전체 재검증</text>
+    <text x="742" y="255" font-size="11.5" fill="#4E5968">밀린 줄 번호까지</text>
+
+    <rect x="835" y="203" width="144" height="70" rx="12" fill="#3182F6"/>
+    <text x="907" y="235" font-weight="700" fill="#FFFFFF">변경 내역 게시</text>
+    <text x="907" y="255" font-size="11.5" fill="#E8F3FF">3권 → 5권 · 커밋</text>
+  </g>
+  <g stroke="#8B95A1" stroke-width="2" marker-end="url(#a)">
+    <line x1="161" y1="238" x2="181" y2="238"/>
+    <line x1="324" y1="238" x2="344" y2="238"/>
+    <line x1="487" y1="238" x2="507" y2="238"/>
+    <line x1="650" y1="238" x2="670" y2="238"/>
+    <line x1="813" y1="238" x2="833" y2="238"/>
+  </g>
+
+  <rect x="20" y="300" width="14" height="14" rx="3" fill="#3182F6"/>
+  <text x="42" y="312" font-size="12.5" fill="#4E5968">Claude</text>
+  <rect x="110" y="300" width="14" height="14" rx="3" fill="#D1D6DB"/>
+  <text x="132" y="312" font-size="12.5" fill="#4E5968">스크립트</text>
+  <rect x="210" y="300" width="14" height="14" rx="3" fill="#B7EBD2"/>
+  <text x="232" y="312" font-size="12.5" fill="#4E5968">사람</text>
+</svg>

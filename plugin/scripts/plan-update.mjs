@@ -6,7 +6,7 @@ import path from 'node:path';
 import { changedFiles, dirtyFiles, filesAt, head, isRepo, revParse } from './lib/git.mjs';
 import { readJsonDir, writeJsonAtomic } from './lib/jsondir.mjs';
 import { assertOutputOutsideTarget } from './lib/paths.mjs';
-import { isBusinessSource, listTargetFiles, moduleFilesDoc, resolveModules } from './lib/resolve.mjs';
+import { isBusinessSource, listTargetFiles, moduleFilesDoc, planModuleShards, resolveModules } from './lib/resolve.mjs';
 import { validateFlow, validateModuleMap } from './lib/validate.mjs';
 
 const THRESHOLD = 0.3;
@@ -105,7 +105,7 @@ if (status === 'ready' || status === 'noop') {
   // Keep the file lists current either way: noop still moves the base commit forward.
   for (const mod of map.modules) mod.fileCount = resolved.byModule[mod.id].length;
   writeJsonAtomic(path.join(data, 'module-map.json'), map);
-  writeJsonAtomic(path.join(data, 'module-files.json'), moduleFilesDoc(resolved));
+  writeJsonAtomic(path.join(data, 'module-files.json'), moduleFilesDoc(resolved, planModuleShards(root, resolved.byModule)));
 }
 if (status === 'ready') {
   if (!resumed) {

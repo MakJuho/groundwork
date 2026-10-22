@@ -1,7 +1,7 @@
 {
   "name": "groundwork",
   "description": "로컬 소스코드를 분석해 아키텍처 다이어그램, 서비스 정책서, 기술 명세서, 온보딩 가이드를 만드는 에이전트",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": {
     "name": "MakJuho"
   },

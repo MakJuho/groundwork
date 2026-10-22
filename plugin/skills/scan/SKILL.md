@@ -52,6 +52,7 @@ Bash: `node "SKILL_DIR/../../scripts/validate-data.mjs" module-map "OUT/_data/mo
 ## 5. 경로 해석과 점검
 Bash: `node "SKILL_DIR/../../scripts/resolve-modules.mjs" "OUT"`
 - 종료 코드가 0이 아니면 오류를 보여주고 멈춘다.
+- `SHARD module ...` 줄은 파일이 많은 모듈을 분석 때 여러 에이전트가 나눠 읽는다는 알림이다(파일 40개 또는 300KB 초과. 환경 변수 `GROUNDWORK_SHARD_FILES`, `GROUNDWORK_SHARD_BYTES`로 바꾼다). 고칠 것은 없고 결과 보고에 넣는다.
 - `WARN`이 있거나 `overlaps`가 0보다 크면 `OUT/_data/module-files.json`의 `unassigned.sample`, `overlaps.sample`을 보고 module-map의 `paths`를 **한 번만** 고친 뒤 4~5단계를 다시 실행한다.
   - 미배정 파일 중 업무 파일은 알맞은 모듈에, 나머지는 `common`에 넣는다. 빌드 파일, 문서, 테스트 같은 비업무 파일은 미배정으로 남겨도 된다.
   - 중복 파일은 한 모듈에만 남긴다.
@@ -72,7 +73,7 @@ Skill 도구로 `diagram-design:diagram-design`을 호출해 두 개를 만든�
 ## 7. 결과 보고
 사용자에게 다음을 보여준다.
 - 구조 유형: `layout.type` (기능별 / 계층별 / 혼합)
-- 모듈 표: 업무 이름, 코드 이름, 파일 수, 경계 기준(`basis`), 예상 분석 시간(파일 30개당 약 1분으로 추정, 최소 1분)
+- 모듈 표: 업무 이름, 코드 이름, 파일 수, 경계 기준(`basis`), 예상 분석 시간(파일 30개당 약 1분으로 추정, 최소 1분. 조각으로 나뉘는 모듈은 가장 큰 조각 기준), 조각 수(나뉘는 모듈만)
 - 미배정 파일 수와 비율, 중복 파일 수 (resolve-modules 첫 줄), 경고
 - 건너뛴 파일 수(`skipped.count`)
 - 모듈이 잘못 나뉘었을 때 고치는 방법:

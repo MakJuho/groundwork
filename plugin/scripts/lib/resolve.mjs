@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createMatcher, DEFAULT_EXCLUDES, globToRegExp, parseIgnoreFile } from './ignore.mjs';
 import { walkFiles } from './inventory.mjs';
+import { shardModules } from './shard.mjs';
 
 export function listTargetFiles(root) {
   const ignoreFile = path.join(root, '.groundworkignore');
@@ -40,10 +41,12 @@ export function resolveModules(modules, files) {
 }
 
 // module-files.json 내용. resolve-modules와 plan-update가 같은 형식으로 쓴다.
-export function moduleFilesDoc({ byModule, unassigned, overlaps }) {
+// shards는 한도를 넘는 모듈만 { id: 조각[] }으로 담는다(lib/shard.mjs). 없으면 키를 만들지 않는다.
+export function moduleFilesDoc({ byModule, unassigned, overlaps }, shards = {}) {
   return {
     generatedAt: new Date().toISOString(),
     modules: byModule,
+    ...(Object.keys(shards).length ? { shards } : {}),
     unassigned: { count: unassigned.length, sample: unassigned.slice(0, 200) },
     overlaps: { count: overlaps.length, sample: overlaps.slice(0, 200) },
   };
@@ -55,4 +58,16 @@ const TEST_PATH = /(^|\/)(tests?|__tests__|e2e|spec)\/|\.(test|spec)\.[^/]+$|Tes
 
 export function isBusinessSource(file) {
   return SOURCE_EXT.test(file) && !TEST_PATH.test(file);
+}
+
+// 모듈 파일을 대상 폴더에서 실제 크기로 재서 조각으로 나눈다. 크기를 못 재는 파일은 0으로 본다.
+export function planModuleShards(root, byModule) {
+  const sizeOf = (f) => {
+    try {
+      return fs.statSync(path.join(root, f)).size;
+    } catch {
+      return 0;
+    }
+  };
+  return shardModules(byModule, sizeOf);
 }

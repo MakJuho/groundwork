@@ -161,12 +161,20 @@ node plugin/scripts/query-rules.mjs C:/gw-out/groundwork-output/nexacro-shop --f
 
 ---
 
+## 헤드리스 실행 (터미널 대화 없이)
+
+`eval/run.sh`로 명령 하나를 비대화식으로 실행할 수 있다. 필요한 권한이 미리 허용되어 권한 창 없이 돈다.
+
+```bash
+eval/run.sh <작업 폴더> "/groundwork:scan C:/20261019_groundwork/groundwork/fixtures/nexacro-shop C:/gw-out"
+```
+
 ## 자주 겪는 문제
 
 | 증상 | 원인·해결 |
 |---|---|
 | `/groundwork:` 명령이 목록에 없음 | `--plugin-dir`로 `plugin`과 `vendor/diagram-design`을 둘 다 불러왔는지 확인 |
-| node 실행 승인 창이 계속 뜸 | `Bash(node:*)` 권한을 허용 |
+| node 실행 승인 창이 계속 뜸 | `Bash(node:*)` 권한을 허용하거나 헤드리스 실행 사용 |
 | 출력 폴더를 거부함 | 출력 폴더가 분석 대상 폴더 안에 있음. 바깥으로 옮긴다 |
 | 플레이어에 화면·버튼이 없음 | analyze가 screens.json을 지운 경우. `build-screens.mjs` 실행 후 trace 재실행 |
 | 리포트 "분석 리포트 열기"가 안 열림 | analyze를 아직 안 돌림 (index.html 없음) |
