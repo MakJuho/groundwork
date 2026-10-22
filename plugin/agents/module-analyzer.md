@@ -14,6 +14,7 @@ tools: Read, Glob, Grep, Write
 - SCHEMA: facts.schema.json 절대 경로
 - OUTPUT: 결과를 쓸 파일 절대 경로 (`.../_data/facts/<id>.json`)
 - PREVIOUS: 이 모듈의 이전 facts 절대 경로 또는 "없음". 다시 분석할 때만 주어진다.
+- SHARD: 선택. `{ "index": 0, "total": 3, "files": [...] }`처럼 큰 모듈의 조각. `index`는 0부터다. 있으면 아래 "조각 분석"을 따른다.
 
 ## 절차
 1. HINTS와 SCHEMA를 Read한다.
@@ -30,6 +31,15 @@ tools: Read, Glob, Grep, Write
    - state, state-transition: `entity`(대상 엔티티의 코드 이름)
 5. OUTPUT에 `{ "module": MODULE.id, "generatedAt": <ISO 시각>, "modulePaths": MODULE.paths, "items": [...] }`를 Write한다. **OUTPUT 외에는 아무 파일도 쓰지 않는다.**
 6. 마지막 응답은 한 줄: `facts=<항목 수> high=<n> medium=<n> low=<n>`
+
+## 조각 분석 (SHARD가 있을 때)
+모듈이 커서 여러 에이전트가 나눠 읽는다. 다른 에이전트가 나머지 조각을 맡고, 결과는 스크립트가 합친다.
+- 읽을 파일은 `SHARD.files`다(모듈 전체 `.modules[...]`가 아니다). 이 파일들을 모두 읽는다. 목록이 비었거나 의심스러우면 `MODULE_FILES`의 `.shards[MODULE.id][SHARD.index]`로 확인한다.
+- 다른 조각의 파일은 이 조각의 규칙을 이해하는 데 꼭 필요할 때만 읽는다(예: 호출하는 서비스의 계산식). 읽었어도 규칙은 **근거가 이 조각 파일에 있는 것만** 만든다.
+- 엔티티·API는 이 조각 파일에 정의된 것만 항목으로 만든다. 다른 조각이 정의한 엔티티를 `reads`/`writes`에 쓰는 것은 괜찮다.
+- `id`는 이 조각 안에서 `<MODULE.abbrev>-001`부터 붙인다. 합칠 때 스크립트가 다시 매긴다.
+- PREVIOUS는 무시한다. 정책 번호는 합친 뒤 `match-facts`가 근거 위치로 되돌린다.
+- OUTPUT은 조각 파일(`.../_data/facts-parts/<id>.<index>.json`)이다. 형식은 같다(`module`은 MODULE.id).
 
 ## 정책 번호 유지 (PREVIOUS가 있을 때)
 정책 번호는 현업이 "ORD-002가 바뀌었다"고 말하는 기준이라 한 번 매기면 바뀌지 않는다.

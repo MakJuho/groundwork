@@ -1,0 +1,86 @@
+{
+  "fixture": "fixtures/nexacro-commerce",
+  "note": "장면 B 정답지: edit를 적용한 사본을 분석했을 때 찾아야 할 충돌. 앵커는 편집을 적용한 사본 기준.",
+  "edit": {
+    "file": "src/main/java/com/example/commerce/ord/OrdService.java",
+    "find": "if (!ORD_STAT_RECEIVED.equals(ordStat)) {",
+    "replace": "if (!ORD_STAT_RECEIVED.equals(ordStat) && !ORD_STAT_PAID.equals(ordStat)) {"
+  },
+  "conflicts": [
+    {
+      "id": "B1",
+      "title": "서버는 결제완료 취소 허용, 화면은 주문접수만",
+      "sides": [
+        {
+          "file": "src/main/java/com/example/commerce/ord/OrdService.java",
+          "anchor": "!ORD_STAT_RECEIVED.equals(ordStat) && !ORD_STAT_PAID.equals(ordStat)"
+        },
+        {
+          "file": "src/main/webapp/nexacro/forms/ord/OrdMng.xfdl",
+          "anchor": "this.gfn_alert(\"주문접수 상태에서만 취소할 수 있습니다.\");"
+        }
+      ]
+    },
+    {
+      "id": "C1",
+      "title": "반품 기한(배송완료 후 7일) > 정산 확정(배송완료 후 3영업일)",
+      "impact": "4~7일차 반품은 판매자 정산이 확정된 뒤 처리되며, 확정 후 정산을 차감하는 경로가 없다.",
+      "sides": [
+        {
+          "file": "src/main/java/com/example/commerce/clm/ClmServiceImpl.java",
+          "anchor": "private static final int RETURN_LIMIT_DAYS = 7;"
+        },
+        {
+          "file": "src/main/webapp/nexacro/forms/clm/ClmMng.xfdl",
+          "anchor": "this.RETURN_LIMIT_DAYS = 7;"
+        },
+        {
+          "file": "src/main/resources/application.yml",
+          "anchor": "confirm-bizdays: 3"
+        },
+        {
+          "file": "src/main/resources/mapper/stl/StlMapper.xml",
+          "anchor": "{call SP_STL_CONFIRM("
+        },
+        {
+          "file": "src/main/resources/sql/procedure/SP_STL_CONFIRM.sql",
+          "anchor": "CREATE OR REPLACE PROCEDURE SP_STL_CONFIRM"
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "title": "VIP 포인트 적립률: 화면·공통코드 5% vs 서버 3%",
+      "impact": "VIP 고객은 안내받은 5%가 아니라 3%만 적립된다.",
+      "sides": [
+        {
+          "file": "src/main/resources/sql/data/cmm_code.sql",
+          "anchor": "('PNT_RATE', 'VIP', 'VIP', '5', 4)"
+        },
+        {
+          "file": "src/main/webapp/nexacro/forms/pnt/PntMng.xfdl",
+          "anchor": "this.gfn_setCode(\"ds_pntRate\", \"PNT_RATE\");"
+        },
+        {
+          "file": "src/main/java/com/example/commerce/pnt/PntService.java",
+          "anchor": "private static final double EARN_RATE_VIP = 0.03;"
+        }
+      ]
+    },
+    {
+      "id": "C3",
+      "title": "부분 반품 시 쿠폰 할인 차감: 화면은 금액 비율 안분, 서버는 첫 반품에 전액 차감",
+      "impact": "첫 부분반품의 실제 환불액이 화면 예상 환불액보다 적고, 이후 반품은 더 많다.",
+      "sides": [
+        {
+          "file": "src/main/webapp/nexacro/forms/clm/ClmMng.xfdl",
+          "anchor": "share = this.gfn_truncWon(cpnDcAmt * itemAmt / ordAmt);"
+        },
+        {
+          "file": "src/main/java/com/example/commerce/clm/ClmServiceImpl.java",
+          "anchor": "cpnDeductAmt = cpnDcAmt;"
+        }
+      ]
+    }
+  ]
+}
